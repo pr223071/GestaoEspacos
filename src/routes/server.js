@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const users = require("../db/users.json"); // define o caminho da rota do "banco de dados". Em caso de um banco real, seria uma conexão com banco de dados na web
+const spaces = require("../db/spaces.json")
+const reservas = require("../db/reservation.json")
 
 app.use(express.json()); // o express precisa usar a notação json nesse caso (não temos banco de dado, só jsons)
 app.use(express.static("public"));
@@ -55,7 +57,7 @@ app.get("/clients", function(req, res){ //req (request,requisição) pega o res 
 
 //procura um cadastro de cliente pelo id
 app.get("/clients/:id", function(req, res) {
-    const { id } = req.params; //params são os paramnetros da requisção, nesse caso, é o 111id
+    const { id } = req.params; //params são os paramnetros da requisção, nesse caso, é o id
     const client = users.find(cli => cli.id === Number(id)); // procure o client na tabela users q for igual a id e coloque na variael client e transfora em numero em vez de sting
 
     if(!client) return res.status(404).sendFile(path.join(__dirname, "public", "404.html")); // Caso n tenha o cliente, retornar 404
@@ -109,9 +111,101 @@ app.delete("/clients/:id", function(req, res) {
 
 
 
-//REQUISIÇÕES DA TABELA EMPRESAS
 
 
+
+
+//REQUISIÇÕES DE TABELA ESPAÇOS
+
+app.get("/spaces", function(req, res){
+    res.json(spaces); //retorna toda a tabela space 
+    //res = resposta
+    //.json = usa a notação .json
+
+});
+
+
+
+// adiciona um espaço
+app.post("/spaces", function(req, res){ //para por usuario, não é possivel uinserir pela url. O postman ou insomina fazem isso 
+    const {name, type, capacity} = req.body; //para ser pela url, seria o metodo get
+
+    res.json({name, type, capacity});
+});
+/*
+para por no isnomia: body, no body, json
+
+{
+  "name": "yuogo",
+  "type": 34,               
+  "capacity": 23333
+}
+
+*/
+
+
+//procura um espaço pelo id 
+app.get("/spaces/:id", function(req, res){
+    const { id } = req.params;
+    const espaço = spaces.find(spc => spc.id === Number(id));
+
+
+    if(!espaço) return res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+
+    res.json(espaço); // retorna a varivel espaço
+});
+
+
+
+//atualiza um espaço
+app.put("/spaces/:id", function(req, res){
+    const { id } = req.params;
+    const espaço = spaces.find(spc => spc.id === Number(id)); // epga um espaço rqueisitado e coloca na variavel espaço
+
+    if(!espaço)  return res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+
+    const { nome } = req.body; // só pede o nome
+
+    espaço.name = nome; // na variavel nome é colocado em name da vriavel de espaço
+
+    res.json(spaces); // retorna todo a tabela
+});
+
+
+
+
+
+//deleta um espaço
+app.delete("/spaces/:id", function(req, res){
+    const { id } = req.params;
+    const espaçosFiltrados = spaces.filter(spaces => spaces.id != Number(id));
+
+    if(!espaçosFiltrados) return res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+
+    res.json(espaçosFiltrados);
+});
+
+
+
+
+
+
+
+
+//TESTE DE RELACIONAMENTO DE TABELAS
+/*
+app.get("/data/clients/:id", function(req, res) {
+    const { id } = req.params; 
+    const client = users.find(cli => cli.id === Number(id)); 
+    const clientResId = users.find(cli => cli.reserva_id === Number(reserva_id));
+    const reserva = reservas.find()
+    const dataClient = 
+
+    if(!client) return res.status(404).sendFile(path.join(__dirname, "public", "404.html")); 
+
+    res.json(client); 
+});
+*/
 
 
 // erro 404

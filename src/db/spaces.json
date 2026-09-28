@@ -46,5 +46,13 @@
     "capacity": 12,
     "description": "Area reservada para trabalho individual que exige concentracao",
     "is_active": true
+  },
+
+  {
+    "id": 333,
+    "name": "sala de strip",
+    "capacity": 12,
+    "description": "Area reservada para o paula fazer amor com u lula"
   }
+
 ]

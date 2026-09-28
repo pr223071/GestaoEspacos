@@ -67,8 +67,8 @@ btnDelete.forEach(function (btn){
         if (abaUsuarios.checked){ // verifica se ta dentro de users
             const id = document.querySelector('#panel-usuarios [name="nome"]').value; // Le oq esta dentro do campo "nome" no painel de usuarios
             if (id){ //retorna true se tiver algo escitro, se não retorna false
-                const campos = document.querySelectorAll('.grid .field');// seleciona os .field dentro do .grid
-                campos.forEach((campo, i) =>{ //for  passa por todos os campos
+                const campos = document.querySelectorAll('#panel-usuarios .grid .field');// seleciona os .field dentro do .grid
+                campos.forEach((campo, i) =>{ //for passa por todos os campos
                     if (i !== 0) campo.remove(); //remove tods menos o "nome"
                 });
             fetch(`http://localhost:3080/clients/${id}`, {

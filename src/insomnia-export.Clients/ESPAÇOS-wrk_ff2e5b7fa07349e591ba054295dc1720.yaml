@@ -1,0 +1,132 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: ESPAÇOS
+meta:
+  id: wrk_ff2e5b7fa07349e591ba054295dc1720
+  created: 1790602064280
+  modified: 1790602064280
+  description: ""
+collection:
+  - url: http://localhost:3080/spaces
+    name: ADD space
+    meta:
+      id: req_b23361e11a2d415bab7b456ab8c68005
+      created: 1790602075138
+      modified: 1790602569070
+      isPrivate: false
+      description: ""
+      sortKey: -1790602075138
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "yuogo",
+          "type": 34,
+          "capacity": 23333
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/spaces
+    name: TABELAS ESPAÇOS
+    meta:
+      id: req_4902392c3f5e4b518c805227b85fd76c
+      created: 1790602540204
+      modified: 1790603479600
+      isPrivate: false
+      description: ""
+      sortKey: -1790602540204
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/spaces/1
+    name: ATUALIZA espaço
+    meta:
+      id: req_47c46e102b0545f4917b848a2a8935b4
+      created: 1790603481151
+      modified: 1790603975497
+      isPrivate: false
+      description: ""
+      sortKey: -1790603481151
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"name": "olerga"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/spaces/3
+    name: PESQUISA POR ID
+    meta:
+      id: req_f778fa183bb84758932c4abc05ecd903
+      created: 1790603981352
+      modified: 1790604672061
+      isPrivate: false
+      description: ""
+      sortKey: -1790603981352
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/spaces/1
+    name: DELETE espaço
+    meta:
+      id: req_286b5e6b57fc46ae94ca807f92b1db71
+      created: 1790604620702
+      modified: 1790604714608
+      isPrivate: false
+      description: ""
+      sortKey: -1790604620702
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_c2b377cd1d2420095f26fe5c90cc74002c32660f
+    created: 1790602064283
+    modified: 1790602064283
+environments:
+  name: Base Environment
+  meta:
+    id: env_c2b377cd1d2420095f26fe5c90cc74002c32660f
+    created: 1790602064282
+    modified: 1790602064282
+    isPrivate: false
