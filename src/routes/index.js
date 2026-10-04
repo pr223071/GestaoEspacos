@@ -1,4 +1,3 @@
-// junta as rotas de cada entidade e a documentação Swagger num lugar só
 const express = require("express");
 const path = require("path");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -9,7 +8,8 @@ const router = express.Router();
 
 // ROTAS DAS ENTIDADES (cada membro adiciona a sua aqui)
 router.use("/empresas", require("./empresasRoutes"));
-
+router.use("/reservas", require("./reservasRoutes"));
+router.use("/clients", require("./clientsRoutes"));
 
 // DOCUMENTAÇÃO SWAGGER -> http://localhost:3080/docs
 // lê os comentários @swagger de todos os arquivos .js desta pasta

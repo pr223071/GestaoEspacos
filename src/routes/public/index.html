@@ -1,107 +1,250 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestão de Espaços</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gestão de Espaços</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
 </head>
-<body>
 
-  <div class="app">
+<body class="bg-light">
 
-    <!-- ===== MENU LATERAL ===== -->
-    <aside class="sidebar" id="sidebar">
-      <a href="#inicio" class="brand">
-        <span class="brand-mark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/></svg>
-        </span>
-        <span>
-          <strong>Gestão de Espaços</strong>
-          <small>Painel de reservas</small>
-        </span>
-      </a>
+    <!-- NAVBAR -->
 
-      <!-- os links são preenchidos pelo functions.js -->
-      <nav class="nav" id="nav"></nav>
+    <nav class="navbar navbar-dark bg-dark">
 
-      <div class="sidebar-footer">
-        <a href="/docs" target="_blank" class="nav-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
-          <span>Documentação da API</span>
-        </a>
-        <div class="api-status" id="apiStatus">
-          <span class="dot"></span><span class="label">Verificando API...</span>
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="#">
+                Gestão de Espaços
+            </a>
+
+            <div>
+
+                <a
+                    href="/docs"
+                    target="_blank"
+                    class="btn btn-outline-light"
+                >
+                    Swagger API
+                </a>
+
+            </div>
+
         </div>
-      </div>
-    </aside>
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <!-- ===== CONTEÚDO ===== -->
-    <div class="main">
-      <header class="topbar">
-        <button type="button" class="icon-button menu-button" id="menuButton" aria-label="Abrir menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <div class="page-title">
-          <h1 id="pageTitle">Início</h1>
-          <p id="pageSubtitle"></p>
+    </nav>
+
+
+    <!-- CONTEÚDO -->
+
+    <main class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h1 class="fw-bold">
+                    Reservas
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Gerenciamento de reservas dos espaços
+                </p>
+
+            </div>
+
+            <button
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#modalReserva"
+                onclick="abrirModalNovaReserva()"
+            >
+                + Nova Reserva
+            </button>
+
         </div>
-        <button type="button" class="btn btn-primary" id="primaryAction">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          <span>Novo</span>
-        </button>
-      </header>
 
-      <!-- cada página é desenhada pelo functions.js dentro deste elemento -->
-      <main class="content" id="content"></main>
-    </div>
+
+        <!-- FILTRO -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Buscar por data
+                        </label>
+
+                        <input type="date" id="filtroData" class="form-control">
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-primary me-2" onclick="buscarPorData()">
+                            Buscar
+                        </button>
+
+                        <button class="btn btn-secondary" onclick="carregarReservas()">
+                            Limpar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+
+                                <th>Espaço</th>
+
+                                <th>Usuário</th>
+
+                                <th>Início</th>
+
+                                <th>Fim</th>
+
+                                <th>Status</th>
+
+                                <th class="text-end"> Ações </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaReservas">
+                          <!-- RESERVAS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- MODAL -->
+
+    <div class="modal fade" id="modalReserva" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloModal">
+                        Nova Reserva
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="reservaId">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Espaço
+                        </label>
+                        <select id="space_id" class="form-select" required>
+                            <option value="">
+                                Selecione o espaço
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Usuário
+                        </label>
+
+                        <select id="user_id" class="form-select" required>
+
+                            <option value="">
+                                Selecione o usuário
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Data e hora de início
+                        </label>
+                        <input type="datetime-local" id="start_datetime" class="form-control" required>
+
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Data e hora de término
+                        </label>
+
+                        <input type="datetime-local" id="end_datetime" class="form-control" required>
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <select id="status" class="form-select">
+                            <option value="PENDING">
+                                Pendente
+                            </option>
+
+                            <option value="APPROVED">
+                                Aprovada
+                            </option>
+
+                            <option value="REJECTED">
+                                Rejeitada
+                            </option>
+
+                            <option value="CANCELLED">
+                                Cancelada
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Motivo da rejeição
+                        </label>
+
+                        <textarea id="rejection_reason" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-primary" onclick="salvarReserva()">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
   </div>
+    <!-- BOOTSTRAP -->
 
-
-  <!-- ===== PAINEL LATERAL DO FORMULÁRIO (criar / editar) ===== -->
-  <div class="drawer-backdrop" id="drawerBackdrop"></div>
-  <aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-labelledby="drawerTitle">
-    <header class="drawer-head">
-      <div>
-        <h2 id="drawerTitle">Novo registro</h2>
-        <p id="drawerSubtitle"></p>
-      </div>
-      <button type="button" class="icon-button" data-close-drawer aria-label="Fechar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-    </header>
-    <form class="drawer-body" id="drawerForm" autocomplete="off" novalidate></form>
-    <footer class="drawer-foot">
-      <button type="button" class="btn btn-danger-ghost" id="drawerDelete">Excluir</button>
-      <span class="spacer"></span>
-      <button type="button" class="btn btn-secondary" data-close-drawer>Cancelar</button>
-      <button type="submit" class="btn btn-primary" form="drawerForm" id="drawerSave">Salvar</button>
-    </footer>
-  </aside>
-
-
-  <!-- ===== JANELA DE CONFIRMAÇÃO ===== -->
-  <div class="modal-backdrop" id="modal" aria-hidden="true">
-    <div class="modal" role="alertdialog" aria-labelledby="modalTitle">
-      <div class="modal-icon" id="modalIcon"></div>
-      <h3 id="modalTitle"></h3>
-      <p id="modalText"></p>
-      <textarea id="modalInput" rows="3" hidden></textarea>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="modalConfirm">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- ===== AVISOS ===== -->
-  <div class="toasts" id="toasts" aria-live="polite"></div>
-
-  <script src="./js/functions.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+  <script src = ".\js\script.js"></script>
 </body>
+
 </html>

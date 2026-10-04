@@ -1,15 +1,22 @@
 //REQUISIÇÕES DE TABELA USUARIOS
+const express = require("express");
+const router = express.Router();
 
+const path = require("path");
+
+const users = require("../db/users.json");
+const spaces = require("../db/spaces.json");
+const reservas = require("../db/reservations.json");
 
 //reotorna toda a tabela de clientes
-app.get("/clients", function(req, res){ //req (request,requisição) pega o res (response, resposta), tudo da biblioteca express
+router.get("/clients", function(req, res){ //req (request,requisição) pega o res (response, resposta), tudo da biblioteca express
     res.json(users); // resposta (res) em json sobre a tabela users
 }); 
 
 
 
 //procura um cadastro de cliente pelo id
-app.get("/clients/:id", function(req, res) {
+router.get("/clients/:id", function(req, res) {
     const { id } = req.params; //params são os paramnetros da requisção, nesse caso, é o id
     const client = users.find(cli => cli.id === Number(id)); // procure o client na tabela users q for igual a id e coloque na variael client e transfora em numero em vez de sting
 
@@ -22,7 +29,7 @@ app.get("/clients/:id", function(req, res) {
 
 
 //adiciona um cliente
-app.post("/clients", function(req, res) {//mesmo ele usando o mesmo diretorio de retorno da tabela, ele entregaum resultado diferente por contado do "post" um verbo diferente
+router.post("/clients", function(req, res) {//mesmo ele usando o mesmo diretorio de retorno da tabela, ele entregaum resultado diferente por contado do "post" um verbo diferente
     const { name, email, role} = req.body; //quais as "colunas" podem ser adicionadas e salva
 
 
@@ -31,7 +38,7 @@ app.post("/clients", function(req, res) {//mesmo ele usando o mesmo diretorio de
 
 
 //atualiza um cliente
-app.put("/clients/:id", function(req, res) {
+router.put("/clients/:id", function(req, res) {
     const { id } = req.params; 
     const client = users.find(cli => cli.id === Number(id)); 
 
@@ -49,7 +56,7 @@ app.put("/clients/:id", function(req, res) {
 
 
 //deeleta um cliente
-app.delete("/clients/:id", function(req, res) {
+router.delete("/clients/:id", function(req, res) {
     const { id } = req.params; 
     const clientsFiltered = users.filter(client => client.id != Number(id)); // ele filtra os clients, e todos que forem diferentes do id que eu passei serão retornados na lista
                                                                                // seria um "delete" q n deleta, só oculta
@@ -65,12 +72,9 @@ app.delete("/clients/:id", function(req, res) {
 
 
 
-
-
-
 //REQUISIÇÕES DE TABELA ESPAÇOS
 
-app.get("/spaces", function(req, res){
+router.get("/spaces", function(req, res){
     res.json(spaces); //retorna toda a tabela space 
     //res = resposta
     //.json = usa a notação .json
@@ -80,7 +84,7 @@ app.get("/spaces", function(req, res){
 
 
 // adiciona um espaço
-app.post("/spaces", function(req, res){ //para por usuario, não é possivel uinserir pela url. O postman ou insomina fazem isso 
+router.post("/spaces", function(req, res){ //para por usuario, não é possivel uinserir pela url. O postman ou insomina fazem isso 
     const {name, type, capacity} = req.body; //para ser pela url, seria o metodo get
 
     res.json({name, type, capacity});
@@ -98,7 +102,7 @@ para por no isnomia: body, no body, json
 
 
 //procura um espaço pelo id 
-app.get("/spaces/:id", function(req, res){
+router.get("/spaces/:id", function(req, res){
     const { id } = req.params;
     const espaço = spaces.find(spc => spc.id === Number(id));
 
@@ -111,7 +115,7 @@ app.get("/spaces/:id", function(req, res){
 
 
 //atualiza um espaço
-app.put("/spaces/:id", function(req, res){
+router.put("/spaces/:id", function(req, res){
     const { id } = req.params;
     const espaço = spaces.find(spc => spc.id === Number(id)); // epga um espaço rqueisitado e coloca na variavel espaço
 
@@ -129,7 +133,7 @@ app.put("/spaces/:id", function(req, res){
 
 
 //deleta um espaço
-app.delete("/spaces/:id", function(req, res){
+router.delete("/spaces/:id", function(req, res){
     const { id } = req.params;
     const espaçosFiltrados = spaces.filter(spaces => spaces.id != Number(id));
 
@@ -147,7 +151,7 @@ app.delete("/spaces/:id", function(req, res){
 
 //TESTE DE RELACIONAMENTO DE TABELAS
 /*
-app.get("/data/clients/:id", function(req, res) {
+router.get("/data/clients/:id", function(req, res) {
     const { id } = req.params; 
     const client = users.find(cli => cli.id === Number(id)); 
     const clientResId = users.find(cli => cli.reserva_id === Number(reserva_id));
@@ -162,10 +166,8 @@ app.get("/data/clients/:id", function(req, res) {
 
 
 // erro 404
-app.use(function (req, res) {  
+router.use(function (req, res) {  
     res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
 
-app.listen(3080, function(){
-console.log("rodando na porta 3080");
-});
+module.exports = router;

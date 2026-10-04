@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "swagger-jsdoc": "^6.2.8",
+    "routes": "^2.1.0",
+    "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
   }
 }

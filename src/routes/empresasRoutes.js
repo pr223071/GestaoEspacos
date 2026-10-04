@@ -4,6 +4,7 @@ const path = require("path");
 
 const router = express.Router();
 const arquivo = path.join(__dirname, "..", "db", "empresas.json"); // caminho da "tabela" de empresas
+const arquivoUsuarios = path.join(__dirname, "..", "db", "usuarios.json");
 
 // le a tabela direto do arquivo, assim sempre pega a versão mais nova
 function lerEmpresas() {
@@ -337,6 +338,7 @@ router.put("/:id", function (req, res) {
  * /empresas/{id}:
  *   delete:
  *     summary: Remove uma empresa
+ *     description: Os usuários vinculados a ela ficam sem empresa (company_id = null).
  *     tags: [Empresas]
  *     parameters:
  *       - in: path
@@ -366,6 +368,11 @@ router.delete("/:id", function (req, res) {
     if (!empresa) return res.status(404).json({ erro: "Empresa não encontrada" });
 
     salvarEmpresas(empresas.filter(emp => emp.id !== empresa.id)); // salva a tabela sem a empresa apagada
+
+    // os usuários dessa empresa ficam sem empresa (em vez de apontar para uma que não existe mais)
+    const usuarios = JSON.parse(fs.readFileSync(arquivoUsuarios, "utf-8"));
+    usuarios.filter(u => u.company_id === empresa.id).forEach(u => { u.company_id = null; });
+    fs.writeFileSync(arquivoUsuarios, JSON.stringify(usuarios, null, 2));
 
     res.json(empresa);
 });
