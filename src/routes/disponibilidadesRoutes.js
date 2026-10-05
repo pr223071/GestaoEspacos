@@ -3,8 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 const router = express.Router();
-const arquivo = path.join(__dirname, "..", "db", "disponibilidades.json"); // "tabela" de disponibilidades
-const arquivoEspacos = path.join(__dirname, "..", "db", "espacos.json");
+const arquivo = path.join(__dirname, "..", "db", "availability.json"); // "tabela" de disponibilidades
+const arquivoEspacos = path.join(__dirname, "..", "db", "spaces.json");
 
 const DIAS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
@@ -47,7 +47,8 @@ function validar(dados, disponibilidades, idAtual) {
  * @swagger
  * tags:
  *   name: Disponibilidades
- *   description: Horários da semana em que cada espaço pode ser reservado
+ *   description: Horários da semana em que cada espaço pode ser reservado -  Paulo - enzo
+ * 
  *
  * components:
  *   schemas:

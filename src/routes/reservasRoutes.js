@@ -6,6 +6,10 @@ const router = express.Router();
 
 const arquivo = path.join(__dirname, "..", "db", "reservations.json");
 
+// tabelas usadas na busca por nome
+const arquivoUsuarios = path.join(__dirname, "..", "db", "users.json");
+const arquivoEspacos = path.join(__dirname, "..", "db", "spaces.json");
+
 function lerReservas() {
     return JSON.parse(fs.readFileSync(arquivo, "utf-8"));
 }
@@ -20,8 +24,8 @@ function salvarReservas(reservas) {
 /**
  * @swagger
  * tags:
- *   name: Reservas
- *   description: Gerenciamento de reservas de espaços
+ *   name: Reservas 
+ *   description: Gerenciamento de reservas de espaços- enzo
  *
  * components:
  *   schemas:
@@ -128,6 +132,65 @@ router.get("/", function (req, res) {
         .sort((a, b) => a.id - b.id);
 
     res.json(reservas);
+});
+
+
+/**
+ * @swagger
+ * /reservas/nome/{nome}:
+ *   get:
+ *     summary: Busca reservas pelo nome do usuário ou do espaço
+ *     description: Busca parcial, ignorando maiúsculas e minúsculas.
+ *     tags: [Reservas]
+ *     parameters:
+ *       - in: path
+ *         name: nome
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: fernanda
+ *     responses:
+ *       200:
+ *         description: Reservas encontradas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Reserva'
+ *       404:
+ *         description: Nenhuma reserva encontrada
+ */
+router.get("/nome/:nome", function (req, res) {
+
+    const nome = req.params.nome.toLowerCase();
+
+    // a reserva guarda só o id do usuário e do espaço,
+    // então primeiro acha os ids que têm esse nome
+    const usuarios = JSON.parse(fs.readFileSync(arquivoUsuarios, "utf-8"));
+    const espacos = JSON.parse(fs.readFileSync(arquivoEspacos, "utf-8"));
+
+    const idsUsuarios = usuarios
+        .filter(usuario => usuario.name.toLowerCase().includes(nome))
+        .map(usuario => usuario.id);
+
+    const idsEspacos = espacos
+        .filter(espaco => espaco.name.toLowerCase().includes(nome))
+        .map(espaco => espaco.id);
+
+    // depois pega as reservas desses usuários ou desses espaços
+    const encontradas = lerReservas().filter(reserva =>
+        idsUsuarios.includes(reserva.user_id) ||
+        idsEspacos.includes(reserva.space_id)
+    );
+
+    if (encontradas.length === 0) {
+        return res.status(404).json({
+            erro: "Nenhuma reserva encontrada para esse nome"
+        });
+    }
+
+    res.json(encontradas);
 });
 
 

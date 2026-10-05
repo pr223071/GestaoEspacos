@@ -1,0 +1,252 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: RESERVAS
+meta:
+  id: wrk_8f0b28af1b3fc7b6c130fdebb4f0bafc
+  created: 1791214964530
+  modified: 1791214964530
+  description: Rode o servidor com npm start. Execute Cadastrar, Atualizar e
+    Excluir nessa ordem (os dois ultimos usam o id 12, criado no Cadastrar).
+collection:
+  - url: http://localhost:3080/reservas
+    name: Listar reservas
+    meta:
+      id: req_b85a8ec28fee58c292096cd12d250347
+      created: 1791214964530
+      modified: 1791214964530
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964530
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/1
+    name: Buscar por ID
+    meta:
+      id: req_91f256879356c856ea73952481bdb79e
+      created: 1791214964531
+      modified: 1791214964531
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964529
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/nome/fernanda
+    name: Buscar por nome
+    meta:
+      id: req_e659055ae08ce48cd977ab34017027b3
+      created: 1791214964532
+      modified: 1791214964532
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964528
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/data/2026-09-16
+    name: Buscar por data
+    meta:
+      id: req_f3e9b1437fd097274c6ee8e62e526037
+      created: 1791214964533
+      modified: 1791214964533
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964527
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/usuario/3
+    name: Buscar por usuario
+    meta:
+      id: req_3927de85ac999844bc96309674415fd0
+      created: 1791214964534
+      modified: 1791214964534
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964526
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/espaco/1
+    name: Buscar por espaco
+    meta:
+      id: req_b6f1ae128c1a82e45a8ccc2a75516bdc
+      created: 1791214964535
+      modified: 1791214964535
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964525
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas
+    name: Cadastrar reserva
+    meta:
+      id: req_88377fcefad584a9e84c119c2a091927
+      created: 1791214964537
+      modified: 1791214964537
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964524
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 2,
+        	"user_id": 4,
+        	"start_datetime": "2026-10-20T14:00:00Z",
+        	"end_datetime": "2026-10-20T16:00:00Z"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/12
+    name: Atualizar reserva
+    meta:
+      id: req_3f9eec433591ffb1961aa02926b19311
+      created: 1791214964538
+      modified: 1791214964538
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964523
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"status": "APPROVED"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/12
+    name: Excluir reserva
+    meta:
+      id: req_f067a6ed43ef9ae9a9efd3725cf4ceec
+      created: 1791214964539
+      modified: 1791214964539
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964522
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas/9999
+    name: ERRO 404 - ID que nao existe
+    meta:
+      id: req_d6f44800aaa69b1d7f3f37bdc0435c1a
+      created: 1791214964540
+      modified: 1791214964540
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964521
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/reservas
+    name: ERRO 400 - Cadastrar sem datas
+    meta:
+      id: req_70336903c3405fa09874d6ea5326c578
+      created: 1791214964541
+      modified: 1791214964541
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964520
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 2,
+        	"user_id": 4
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_cc59b6c73707897f7f3646b2d72fdddd7e9a8f30
+    created: 1791214964530
+    modified: 1791214964530
+environments:
+  name: Base Environment
+  meta:
+    id: env_cc59b6c73707897f7f3646b2d72fdddd7e9a8f30
+    created: 1791214964530
+    modified: 1791214964530
+    isPrivate: false

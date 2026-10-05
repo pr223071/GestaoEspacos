@@ -25,6 +25,7 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, "./empresasRoutes.js"),
         path.resolve(__dirname, "./reservasRoutes.js"),
         path.resolve(__dirname, "./clientsRoutes.js"),
+        path.resolve(__dirname, "./espacosRoutes.js"),
         path.resolve(__dirname, "./disponibilidadesRoutes.js")
     ]
 });
@@ -42,7 +43,11 @@ router.get("/docs.json", (req, res) => {
 // ROTAS DAS ENTIDADES
 router.use("/empresas", require("./empresasRoutes"));
 router.use("/reservas", require("./reservasRoutes"));
-router.use("/clients", require("./clientsRoutes"));
 router.use("/disponibilidades", require("./disponibilidadesRoutes"));
+
+// Nestes dois arquivos as rotas já são escritas com o caminho completo
+// ("/clients", "/spaces"), então eles entram sem prefixo
+router.use(require("./clientsRoutes"));
+router.use(require("./espacosRoutes"));
 
 module.exports = router;

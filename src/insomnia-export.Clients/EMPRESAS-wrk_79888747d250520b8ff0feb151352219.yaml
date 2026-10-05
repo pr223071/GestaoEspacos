@@ -1,0 +1,262 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: EMPRESAS
+meta:
+  id: wrk_79888747d250520b8ff0feb151352219
+  created: 1791195123435
+  modified: 1791195123435
+  description: "Rode o servidor com npm start. Execute Cadastrar, Atualizar e Excluir nessa ordem (os dois ultimos usam o id 6, criado no Cadastrar)."
+collection:
+  - url: http://localhost:3080/empresas
+    name: Listar empresas
+    meta:
+      id: req_ddf7f6fedfa3792eb7ba2b96f95e8e23
+      created: 1791195123436
+      modified: 1791195123436
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123435
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/1
+    name: Buscar por ID
+    meta:
+      id: req_d6bce6b1a288740ccb7858ebe931e1db
+      created: 1791195123437
+      modified: 1791195123437
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123434
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/nome/solucoes
+    name: Buscar por nome (razao social)
+    meta:
+      id: req_a470ccc4d53ffd64cbf72f140af42e6a
+      created: 1791195123438
+      modified: 1791195123438
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123433
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/nome/logmais
+    name: Buscar por nome (nome fantasia)
+    meta:
+      id: req_b5e1337082d96dc8f6fa44c74fe16e50
+      created: 1791195123439
+      modified: 1791195123439
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123432
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/data/2026-01-10
+    name: Buscar por data
+    meta:
+      id: req_ca38f8979f3a3396d136838ff542226f
+      created: 1791195123440
+      modified: 1791195123440
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123431
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas
+    name: Cadastrar empresa
+    meta:
+      id: req_8567f14e36c801e48d4589759366fede
+      created: 1791195123441
+      modified: 1791195123441
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123430
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"corporate_name": "Acme Comercio de Equipamentos Ltda",
+        	"trade_name": "Acme",
+        	"cnpj": "11.222.333/0001-81",
+        	"phone": "(48) 3333-4444"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/6
+    name: Atualizar empresa
+    meta:
+      id: req_c43d4aa832e3b687ccb079e2481ec41a
+      created: 1791195123442
+      modified: 1791195123442
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123429
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"phone": "(48) 99999-0000"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/6
+    name: Excluir empresa
+    meta:
+      id: req_8a093bbb1729303dd4a1b12e3b223876
+      created: 1791195123443
+      modified: 1791195123443
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123428
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas/9999
+    name: ERRO 404 - ID que nao existe
+    meta:
+      id: req_2480c2923400f19dba13ed01a6f11d75
+      created: 1791195123444
+      modified: 1791195123444
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123427
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas
+    name: ERRO 400 - Cadastrar sem CNPJ
+    meta:
+      id: req_24703aefc90e29814055b912f922f38f
+      created: 1791195123445
+      modified: 1791195123445
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123426
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"corporate_name": "Empresa sem CNPJ Ltda",
+        	"trade_name": "Sem CNPJ"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas
+    name: ERRO 409 - CNPJ repetido
+    meta:
+      id: req_04096ba51af110f789367371de4e6e0c
+      created: 1791195123446
+      modified: 1791195123446
+      isPrivate: false
+      description: ""
+      sortKey: -1791195123425
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"corporate_name": "Copia da TechNova Ltda",
+        	"trade_name": "Copia",
+        	"cnpj": "12.345.678/0001-90"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_0128bfae776b0a4b6ec8e5362188e78e269dd84a
+    created: 1791195123435
+    modified: 1791195123435
+environments:
+  name: Base Environment
+  meta:
+    id: env_0128bfae776b0a4b6ec8e5362188e78e269dd84a
+    created: 1791195123435
+    modified: 1791195123435
+    isPrivate: false

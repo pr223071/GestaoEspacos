@@ -8,19 +8,11 @@
     "is_active": true
   },
   {
-    "id": 2,
-    "name": "Laboratorio de Informatica 01",
-    "type": "LAB",
-    "capacity": 20,
-    "description": "Laboratorio com 20 computadores para desenvolvimento e treinamentos",
-    "is_active": true
-  },
-  {
     "id": 3,
-    "name": "Sala de Reuniao Executiva",
+    "name": "Nova",
     "type": "MEETING_ROOM",
-    "capacity": 8,
-    "description": "Sala fechada com TV, videoconferencia e mesa para reunioes",
+    "capacity": 10,
+    "description": "Sala com TV e mesa para reunioes",
     "is_active": true
   },
   {
@@ -46,13 +38,5 @@
     "capacity": 12,
     "description": "Area reservada para trabalho individual que exige concentracao",
     "is_active": true
-  },
-
-  {
-    "id": 333,
-    "name": "sala de strip",
-    "capacity": 12,
-    "description": "Area reservada para o paula fazer amor com u lula"
   }
-
 ]

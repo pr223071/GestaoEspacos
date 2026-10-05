@@ -4,7 +4,7 @@ name: RES Users
 meta:
   id: wrk_b64883d9da08426dbc24366be80c3995
   created: 1789479713327
-  modified: 1789479782739
+  modified: 1791214964522
   description: ""
 collection:
   - url: http://localhost:3080/clients
@@ -15,7 +15,7 @@ collection:
       modified: 1789481303436
       isPrivate: false
       description: ""
-      sortKey: -1789479720029
+      sortKey: -1791214964522
     method: GET
     settings:
       renderRequestBody: true
@@ -33,7 +33,7 @@ collection:
       modified: 1789485223729
       isPrivate: false
       description: ""
-      sortKey: -1789481218276
+      sortKey: -1791214964521
     method: GET
     settings:
       renderRequestBody: true
@@ -43,7 +43,43 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/clients/11
+  - url: http://localhost:3080/clients/nome/silva
+    name: SEARCH by name
+    meta:
+      id: req_d4a2ac9efdbc713c6ac77071a3dd98b0
+      created: 1791214964522
+      modified: 1791214964522
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964520
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/clients/data/2026-01-12
+    name: SEARCH by date
+    meta:
+      id: req_a0ec527dc4aed2f86749aea41dec6c90
+      created: 1791214964523
+      modified: 1791214964523
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964519
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/clients/9999
     name: USER not found
     meta:
       id: req_8927e18f5efc425c84ddb05f7e2e1dc6
@@ -51,7 +87,7 @@ collection:
       modified: 1789483568698
       isPrivate: false
       description: ""
-      sortKey: -1789481257542
+      sortKey: -1791214964518
     method: GET
     settings:
       renderRequestBody: true
@@ -69,15 +105,18 @@ collection:
       modified: 1789484760162
       isPrivate: false
       description: ""
-      sortKey: -1789483695246
+      sortKey: -1791214964517
     method: POST
     body:
       mimeType: application/json
       text: |-
         {
-        	"name": "yugo",
-        	"email": "bimbada123@gmail.com",
-        	"role": "CO"
+        	"name": "Maria Souza",
+        	"email": "maria.souza@email.com",
+        	"password": "senha123",
+        	"role": "CLIENT",
+        	"cpf_cnpj": "123.456.789-00",
+        	"company_id": 1
         }
     headers:
       - name: Content-Type
@@ -90,7 +129,7 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/clients/1
+  - url: http://localhost:3080/clients/11
     name: Update user
     meta:
       id: req_905a339be6d8428693ee83ebeea13a6f
@@ -98,13 +137,13 @@ collection:
       modified: 1789485605433
       isPrivate: false
       description: ""
-      sortKey: -1789484768751
+      sortKey: -1791214964516
     method: PUT
     body:
       mimeType: application/json
       text: |-
         {
-        	"name": "oi"
+        	"name": "Maria Souza Lima"
         }
     headers:
       - name: Content-Type
@@ -117,7 +156,7 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/clients/1
+  - url: http://localhost:3080/clients/11
     name: '"DELETE" user'
     meta:
       id: req_f3c3c91635eb4082b774e6be8bc8fe50
@@ -125,7 +164,7 @@ collection:
       modified: 1789485733384
       isPrivate: false
       description: ""
-      sortKey: -1789485595289
+      sortKey: -1791214964515
     method: DELETE
     settings:
       renderRequestBody: true

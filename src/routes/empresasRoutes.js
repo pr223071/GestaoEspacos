@@ -4,7 +4,7 @@ const path = require("path");
 
 const router = express.Router();
 const arquivo = path.join(__dirname, "..", "db", "empresas.json"); // caminho da "tabela" de empresas
-const arquivoUsuarios = path.join(__dirname, "..", "db", "usuarios.json");
+const arquivoUsuarios = path.join(__dirname, "..", "db", "users.json");
 
 // le a tabela direto do arquivo, assim sempre pega a versão mais nova
 function lerEmpresas() {
@@ -14,6 +14,7 @@ function lerEmpresas() {
 // grava a tabela no arquivo (as alterações não se perdem quando o servidor reinicia)
 function salvarEmpresas(empresas) {
     fs.writeFileSync(arquivo, JSON.stringify(empresas, null, 2));
+
 }
 
 
@@ -21,7 +22,7 @@ function salvarEmpresas(empresas) {
  * @swagger
  * tags:
  *   name: Empresas
- *   description: Cadastro de empresas
+ *   description: Cadastro de empresas - Paulo
  *
  * components:
  *   schemas:
@@ -31,15 +32,17 @@ function salvarEmpresas(empresas) {
  *         id:
  *           type: integer
  *           example: 1
- *         name:
+ *         corporate_name:
  *           type: string
+ *           description: Razão social
  *           example: TechNova Solucoes Digitais Ltda
+ *         trade_name:
+ *           type: string
+ *           description: Nome fantasia
+ *           example: TechNova
  *         cnpj:
  *           type: string
  *           example: 12.345.678/0001-90
- *         email:
- *           type: string
- *           example: contato@technova.com
  *         phone:
  *           type: string
  *           example: (48) 3433-1001
@@ -50,18 +53,20 @@ function salvarEmpresas(empresas) {
  *     EmpresaInput:
  *       type: object
  *       required:
- *         - name
+ *         - corporate_name
  *         - cnpj
  *       properties:
- *         name:
+ *         corporate_name:
  *           type: string
- *           example: Nova Empresa Ltda
+ *           description: Razão social
+ *           example: Nova Empresa Comercio Ltda
+ *         trade_name:
+ *           type: string
+ *           description: Nome fantasia
+ *           example: Nova Empresa
  *         cnpj:
  *           type: string
  *           example: 67.890.123/0001-45
- *         email:
- *           type: string
- *           example: contato@novaempresa.com
  *         phone:
  *           type: string
  *           example: (48) 99999-0000
@@ -100,7 +105,8 @@ router.get("/", function (req, res) {
  * @swagger
  * /empresas/nome/{nome}:
  *   get:
- *     summary: Busca empresas pelo nome (busca parcial, ignora maiúsculas)
+ *     summary: Busca empresas pelo nome (razão social ou nome fantasia)
+ *     description: Busca parcial, ignorando maiúsculas e minúsculas.
  *     tags: [Empresas]
  *     parameters:
  *       - in: path
@@ -127,7 +133,12 @@ router.get("/", function (req, res) {
  */
 router.get("/nome/:nome", function (req, res) {
     const nome = req.params.nome.toLowerCase();
-    const encontradas = lerEmpresas().filter(emp => emp.name.toLowerCase().includes(nome));
+
+    // procura o texto na razão social (corporate_name) ou no nome fantasia (trade_name)
+    const encontradas = lerEmpresas().filter(emp =>
+        emp.corporate_name.toLowerCase().includes(nome) ||
+        emp.trade_name.toLowerCase().includes(nome)
+    );
 
     if (encontradas.length === 0) return res.status(404).json({ erro: "Nenhuma empresa encontrada com esse nome" });
 
@@ -232,7 +243,7 @@ router.get("/:id", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Empresa'
  *       400:
- *         description: Nome ou CNPJ não informados
+ *         description: Razão social ou CNPJ não informados
  *         content:
  *           application/json:
  *             schema:
@@ -245,9 +256,9 @@ router.get("/:id", function (req, res) {
  *               $ref: '#/components/schemas/Erro'
  */
 router.post("/", function (req, res) {
-    const { name, cnpj, email, phone } = req.body;
+    const { corporate_name, trade_name, cnpj, phone } = req.body;
 
-    if (!name || !cnpj) return res.status(400).json({ erro: "Nome e CNPJ são obrigatórios" });
+    if (!corporate_name || !cnpj) return res.status(400).json({ erro: "Razão social (corporate_name) e CNPJ são obrigatórios" });
 
     const empresas = lerEmpresas();
     if (empresas.some(emp => emp.cnpj === cnpj)) return res.status(409).json({ erro: "Já existe uma empresa com esse CNPJ" });
@@ -255,9 +266,9 @@ router.post("/", function (req, res) {
     const novoId = empresas.length ? Math.max(...empresas.map(emp => emp.id)) + 1 : 1; // pega o maior id e soma 1
     const novaEmpresa = {
         id: novoId,
-        name,
+        corporate_name,
+        trade_name: trade_name || corporate_name, // sem nome fantasia, usa a razão social
         cnpj,
-        email: email || "",
         phone: phone || "",
         created_at: new Date().toISOString()
     };
@@ -315,16 +326,16 @@ router.put("/:id", function (req, res) {
 
     if (!empresa) return res.status(404).json({ erro: "Empresa não encontrada" });
 
-    const { name, cnpj, email, phone } = req.body;
+    const { corporate_name, trade_name, cnpj, phone } = req.body;
 
     if (cnpj && empresas.some(emp => emp.cnpj === cnpj && emp.id !== empresa.id)) {
         return res.status(409).json({ erro: "CNPJ já usado por outra empresa" });
     }
 
     // só troca o que veio preenchido
-    if (name) empresa.name = name;
+    if (corporate_name) empresa.corporate_name = corporate_name;
+    if (trade_name) empresa.trade_name = trade_name;
     if (cnpj) empresa.cnpj = cnpj;
-    if (email !== undefined) empresa.email = email;
     if (phone !== undefined) empresa.phone = phone;
 
     salvarEmpresas(empresas);

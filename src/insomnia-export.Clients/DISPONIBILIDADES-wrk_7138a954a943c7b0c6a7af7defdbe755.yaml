@@ -1,0 +1,251 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: DISPONIBILIDADES
+meta:
+  id: wrk_7138a954a943c7b0c6a7af7defdbe755
+  created: 1791195223437
+  modified: 1791195223437
+  description: "Rode o servidor com npm start. Execute Cadastrar, Atualizar e Excluir nessa ordem (os dois ultimos usam o id 12, criado no Cadastrar)."
+collection:
+  - url: http://localhost:3080/disponibilidades
+    name: Listar disponibilidades
+    meta:
+      id: req_a220c21fbf7083b4c0cec686b1d2d60c
+      created: 1791195223438
+      modified: 1791195223438
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223437
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/1
+    name: Buscar por ID
+    meta:
+      id: req_e7058d3b67bc736c5235eab8f9565b66
+      created: 1791195223439
+      modified: 1791195223439
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223436
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/nome/coworking
+    name: Buscar por nome do espaco
+    meta:
+      id: req_2394fa5e82ec00d1c07e975c17e387ac
+      created: 1791195223440
+      modified: 1791195223440
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223435
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/data/2026-09-21
+    name: Buscar por data
+    meta:
+      id: req_c4e984e5f7469878db7053562b74e1fc
+      created: 1791195223441
+      modified: 1791195223441
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223434
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades
+    name: Cadastrar disponibilidade
+    meta:
+      id: req_061f619f0291a3f5e4b5287fb810e7ef
+      created: 1791195223442
+      modified: 1791195223442
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223433
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 5,
+        	"day_of_week": 2,
+        	"start_time": "08:00",
+        	"end_time": "12:00",
+        	"is_external_allowed": false
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/12
+    name: Atualizar disponibilidade
+    meta:
+      id: req_963f37c8f8d42cef8ac7990e6519fe73
+      created: 1791195223443
+      modified: 1791195223443
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223432
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"end_time": "13:00",
+        	"is_external_allowed": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/12
+    name: Excluir disponibilidade
+    meta:
+      id: req_2077543b671b32337bb5d05270d33aef
+      created: 1791195223444
+      modified: 1791195223444
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223431
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades/9999
+    name: ERRO 404 - ID que nao existe
+    meta:
+      id: req_1c2977ada8fb5e5a523771e747eb6957
+      created: 1791195223445
+      modified: 1791195223445
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223430
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades
+    name: ERRO 400 - Fim antes do inicio
+    meta:
+      id: req_1245ada6feb117e3c60ebcf0670bbe1b
+      created: 1791195223446
+      modified: 1791195223446
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223429
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"day_of_week": 2,
+        	"start_time": "18:00",
+        	"end_time": "08:00",
+        	"is_external_allowed": false
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/disponibilidades
+    name: ERRO 409 - Horario sobreposto
+    meta:
+      id: req_756562460d3b0957be8f04c1a7734a31
+      created: 1791195223447
+      modified: 1791195223447
+      isPrivate: false
+      description: ""
+      sortKey: -1791195223428
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"day_of_week": 1,
+        	"start_time": "10:00",
+        	"end_time": "12:00",
+        	"is_external_allowed": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_812172edaa5eb62c7baed29fe8fab232529824bc
+    created: 1791195223437
+    modified: 1791195223437
+environments:
+  name: Base Environment
+  meta:
+    id: env_812172edaa5eb62c7baed29fe8fab232529824bc
+    created: 1791195223437
+    modified: 1791195223437
+    isPrivate: false

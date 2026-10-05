@@ -4,7 +4,7 @@ name: ESPAÇOS
 meta:
   id: wrk_ff2e5b7fa07349e591ba054295dc1720
   created: 1790602064280
-  modified: 1790602064280
+  modified: 1791214964529
   description: ""
 collection:
   - url: http://localhost:3080/spaces
@@ -15,15 +15,16 @@ collection:
       modified: 1790602569070
       isPrivate: false
       description: ""
-      sortKey: -1790602075138
+      sortKey: -1791214964529
     method: POST
     body:
       mimeType: application/json
       text: |-
         {
-          "name": "yuogo",
-          "type": 34,
-          "capacity": 23333
+        	"name": "Sala de Reuniao Nova",
+        	"type": "MEETING_ROOM",
+        	"capacity": 10,
+        	"description": "Sala com TV e mesa para reunioes"
         }
     headers:
       - name: Content-Type
@@ -44,7 +45,7 @@ collection:
       modified: 1790603479600
       isPrivate: false
       description: ""
-      sortKey: -1790602540204
+      sortKey: -1791214964528
     method: GET
     settings:
       renderRequestBody: true
@@ -54,7 +55,7 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/spaces/1
+  - url: http://localhost:3080/spaces/7
     name: ATUALIZA espaço
     meta:
       id: req_47c46e102b0545f4917b848a2a8935b4
@@ -62,13 +63,13 @@ collection:
       modified: 1790603975497
       isPrivate: false
       description: ""
-      sortKey: -1790603481151
+      sortKey: -1791214964527
     method: PUT
     body:
       mimeType: application/json
       text: |-
         {
-        	"name": "olerga"
+        	"capacity": 12
         }
     headers:
       - name: Content-Type
@@ -89,7 +90,7 @@ collection:
       modified: 1790604672061
       isPrivate: false
       description: ""
-      sortKey: -1790603981352
+      sortKey: -1791214964526
     method: GET
     settings:
       renderRequestBody: true
@@ -99,7 +100,25 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/spaces/1
+  - url: http://localhost:3080/spaces/nome/reuniao
+    name: PESQUISA POR NOME
+    meta:
+      id: req_a174220448bcb02df0224dfa1f3e3883
+      created: 1791214964529
+      modified: 1791214964529
+      isPrivate: false
+      description: ""
+      sortKey: -1791214964525
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/spaces/7
     name: DELETE espaço
     meta:
       id: req_286b5e6b57fc46ae94ca807f92b1db71
@@ -107,7 +126,7 @@ collection:
       modified: 1790604714608
       isPrivate: false
       description: ""
-      sortKey: -1790604620702
+      sortKey: -1791214964524
     method: DELETE
     settings:
       renderRequestBody: true
