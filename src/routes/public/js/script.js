@@ -1,14 +1,16 @@
 let reservas = [];
-
 let espacos = [];
-
 let usuarios = [];
 
 async function carregarReservas() {
     try {
         const resposta = await fetch("/reservas");
-        reservas = await resposta.json();
 
+        if (!resposta.ok) {
+            throw new Error("Erro ao carregar reservas");
+        }
+
+        reservas = await resposta.json();
         renderizarReservas();
 
     } catch (erro) {
@@ -19,16 +21,19 @@ async function carregarReservas() {
 
 async function carregarEspacos() {
     try {
-        const resposta = await fetch("/espacos");
-        espacos = await resposta.json();
+        const resposta = await fetch("/spaces");
 
+        if (!resposta.ok) {
+            throw new Error("Erro ao carregar espaços");
+        }
+
+        espacos = await resposta.json();
         const select = document.getElementById("space_id");
 
         select.innerHTML = '<option value="">Selecione o espaço</option>';
 
         espacos.forEach(espaco => {
             const option = document.createElement("option");
-            
             option.value = espaco.id;
             option.textContent = `${espaco.id} - ${espaco.name}`;
 
@@ -36,21 +41,27 @@ async function carregarEspacos() {
         });
 
     } catch (erro) {
-            console.error(erro);
+        console.error("Erro ao carregar espaços:", erro);
     }
 }
 
 async function carregarUsuarios() {
     try {
-        const resposta = await fetch("/usuarios");
+        const resposta = await fetch("/clients");
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao carregar usuários");
+        }
+
         usuarios = await resposta.json();
 
         const select = document.getElementById("user_id");
 
-        select.innerHTML = '<option value="">Selecione o usuário</option>';
+        select.innerHTML =
+            '<option value="">Selecione o usuário</option>';
 
         usuarios.forEach(usuario => {
-        const option = document.createElement("option");
+            const option = document.createElement("option");
 
             option.value = usuario.id;
             option.textContent = `${usuario.id} - ${usuario.name}`;
@@ -59,76 +70,74 @@ async function carregarUsuarios() {
         });
 
     } catch (erro) {
-            console.error(erro);
+        console.error("Erro ao carregar usuários:", erro);
     }
 }
 
 function renderizarReservas() {
+
     const tabela = document.getElementById("tabelaReservas");
 
     tabela.innerHTML = "";
 
     if (reservas.length === 0) {
+
         tabela.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted">
+                <td colspan="7"
+                    class="text-center text-muted">
                     Nenhuma reserva encontrada.
                 </td>
             </tr>
         `;
+
         return;
     }
 
     reservas.forEach(reserva => {
+
         const linha = document.createElement("tr");
         const status = criarBadgeStatus(reserva.status);
 
         linha.innerHTML = `
-                    <td>
-                        ${reserva.id}
-                    </td>
+            <td>
+                ${reserva.id}
+            </td>
 
-                    <td>
-                        ${reserva.space_id}
-                    </td>
+            <td>
+                ${reserva.space_id}
+            </td>
 
-                    <td>
-                        ${reserva.user_id}
-                    </td>
+            <td>
+                ${reserva.user_id}
+            </td>
 
-                    <td>
-                        ${formatarData(reserva.start_datetime)}
-                    </td>
+            <td>
+                ${formatarData(reserva.start_datetime)}
+            </td>
 
-                    <td>
-                        ${formatarData(reserva.end_datetime)}
-                    </td>
+            <td>
+                ${formatarData(reserva.end_datetime)}
+            </td>
 
-                    <td>
-                        ${status}
-                    </td>
+            <td>
+                ${status}
+            </td>
 
-                    <td class="text-end">
+            <td class="text-end">
 
-                        <button
-                            class="btn btn-sm btn-outline-primary me-1"
-                            onclick="editarReserva(${reserva.id})"
-                        >
-                            Editar
-                        </button>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="editarReserva(${reserva.id})">
+                    Editar
+                </button>
 
-                        <button
-                            class="btn btn-sm btn-outline-danger"
-                            onclick="excluirReserva(${reserva.id})"
-                        >
-                            Excluir
-                        </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="excluirReserva(${reserva.id})">
+                    Excluir
+                </button>
 
-                    </td>
-
+            </td>
         `;
 
-    tabela.appendChild(linha);
+        tabela.appendChild(linha);
     });
 }
 
@@ -148,15 +157,17 @@ function criarBadgeStatus(status) {
         CANCELLED: "Cancelada"
     };
 
-    return ` <span class="badge ${classes[status] || "bg-dark"}"> ${nomes[status] || status} </span>`;
+    return `<span class="badge ${classes[status] || "bg-dark"}">
+                ${nomes[status] || status}
+            </span>`;
 }
-        
+
 function formatarData(data) {
-    return new Date(data).toLocaleString("pt-BR");
+    return new Date(data) .toLocaleString("pt-BR");
 }
 
 function abrirModalNovaReserva() {
-    document.getElementById("tituloModal").textContent = "Nova Reserva";
+    document.getElementById("tituloModal").textContent ="Nova Reserva";
     document.getElementById("reservaId").value = "";
     document.getElementById("space_id").value = "";
     document.getElementById("user_id").value = "";
@@ -167,8 +178,7 @@ function abrirModalNovaReserva() {
 }
 
 async function salvarReserva() {
-
-    const id = document.getElementById("reservaId").value;
+    const id =document.getElementById("reservaId").value;
 
     const reserva = {
         space_id:Number(document.getElementById("space_id").value),
@@ -178,7 +188,7 @@ async function salvarReserva() {
         start_datetime:new Date(document.getElementById("start_datetime").value).toISOString(),
 
         end_datetime:new Date(document.getElementById("end_datetime").value).toISOString(),
-
+        
         status:document.getElementById("status").value,
 
         rejection_reason:document.getElementById("rejection_reason").value || null
@@ -190,25 +200,22 @@ async function salvarReserva() {
         !reserva.start_datetime ||
         !reserva.end_datetime
     ) {
+
         alert("Preencha todos os campos obrigatórios.");
         return;
     }
-    
-    const metodo = id ? "PUT" : "POST";
 
-    const url = id
-        ? `/reservas/${id}`
-        : "/reservas";
+    const metodo = id ? "PUT" : "POST";
+    const url = id ? `/reservas/${id}` : "/reservas";
 
     try {
 
         const resposta = await fetch(url, {
             method: metodo,
             headers: {
-                    "Content-Type": "application/json"
-                },
-            body: JSON.stringify(reserva)
-        });
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(reserva)});
 
         const dados = await resposta.json();
 
@@ -217,13 +224,12 @@ async function salvarReserva() {
             alert(dados.erro || "Erro ao salvar reserva.");
             return;
         }
-        const modal = bootstrap.Modal.getInstance(document.getElementById("modalReserva"));
-
+        const modal =bootstrap.Modal.getInstance(document.getElementById("modalReserva"));
         modal.hide();
-
         await carregarReservas();
 
     } catch (erro) {
+
         console.error(erro);
         alert("Erro ao conectar com a API.");
     }
@@ -233,7 +239,17 @@ async function editarReserva(id) {
 
     const reserva = reservas.find(item => item.id === id);
 
-    if (!reserva) return;
+    if (!reserva) {
+        return;
+    }
+
+    if (espacos.length === 0) {
+        await carregarEspacos();
+    }
+
+    if (usuarios.length === 0) {
+        await carregarUsuarios();
+    }
 
     document.getElementById("tituloModal").textContent = "Editar Reserva";
     document.getElementById("reservaId").value = reserva.id;
@@ -250,36 +266,37 @@ async function editarReserva(id) {
 }
 
 function converterParaInputDateTime(data) {
+
     const date = new Date(data);
     const offset = date.getTimezoneOffset() * 60000;
-
     return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
 
+
 async function excluirReserva(id) {
+
     const confirmar = confirm("Tem certeza que deseja excluir esta reserva?");
 
-    if (!confirmar) return;
-    try {
+    if (!confirmar) {
+        return;
+    }
 
+    try {
         const resposta =
-            await fetch(`/reservas/${id}`, {
-                method: "DELETE"
-            });
+            await fetch(`/reservas/${id}`,
+                {
+                    method: "DELETE"
+                });
 
         const dados = await resposta.json();
 
-    if (!resposta.ok) {
-        alert(
-            dados.erro ||
-            "Erro ao excluir reserva."
-        );
-
-        return;
-    }
+        if (!resposta.ok) {
+            alert(dados.erro || "Erro ao excluir reserva.");
+            return;
+        }
         await carregarReservas();
 
-        } catch (erro) {
+    } catch (erro) {
 
         console.error(erro);
         alert("Erro ao conectar com a API.");
@@ -291,9 +308,10 @@ async function buscarPorData() {
     const data = document.getElementById("filtroData").value;
 
     if (!data) {
-        carregarReservas();
+        await carregarReservas();
         return;
-    }try {
+    }
+    try {
         const resposta = await fetch(`/reservas/data/${data}`);
 
         if (resposta.status === 404) {
@@ -305,15 +323,19 @@ async function buscarPorData() {
         reservas = await resposta.json();
         renderizarReservas();
 
-    }catch (erro) {
-
+    } catch (erro) {
         console.error(erro);
         alert("Erro ao buscar reservas.");
     }
 }
 
-        carregarReservas();
+async function iniciarPagina() {
 
-        carregarEspacos();
+    await carregarEspacos();
 
-        carregarUsuarios();
+    await carregarUsuarios();
+
+    await carregarReservas();
+}
+
+iniciarPagina();

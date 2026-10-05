@@ -5,29 +5,43 @@ const swaggerUi = require("swagger-ui-express");
 
 const router = express.Router();
 
-
-// ROTAS DAS ENTIDADES (cada membro adiciona a sua aqui)
+// ROTAS DAS ENTIDADES
 router.use("/empresas", require("./empresasRoutes"));
 router.use("/reservas", require("./reservasRoutes"));
-router.use("/clients", require("./clientsRoutes"));
 
-// DOCUMENTAÇÃO SWAGGER -> http://localhost:3080/docs
-// lê os comentários @swagger de todos os arquivos .js desta pasta
+// Clientes e espaços
+router.use("/", require("./clientsRoutes"));
+
+// DOCUMENTAÇÃO SWAGGER
 const swaggerSpec = swaggerJsdoc({
     definition: {
         openapi: "3.0.0",
         info: {
             title: "API Gestão de Espaços",
             version: "1.0.0",
-            description: "CRUD de empresas, espaços, disponibilidades, reservas e usuários"
+            description:
+                "CRUD de empresas, espaços, disponibilidades, reservas e usuários"
         },
-        servers: [{ url: "http://localhost:3080" }]
+        servers: [
+            {
+                url: "http://localhost:3080"
+            }
+        ]
     },
-    apis: [path.join(__dirname, "*.js").replace(/\\/g, "/")] // no Windows o glob precisa de "/"
+
+    apis: [
+        path.join(__dirname, "*.js").replace(/\\/g, "/")
+    ]
 });
 
-router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-router.get("/docs.json", (req, res) => res.json(swaggerSpec));
+router.use(
+    "/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
+);
 
+router.get("/docs.json", (req, res) => {
+    res.json(swaggerSpec);
+});
 
 module.exports = router;
