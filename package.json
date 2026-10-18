@@ -8,7 +8,9 @@
     "dev": "node --watch src/routes/server.js"
   },
   "dependencies": {
+    "dotenv": "^18.0.8",
     "express": "^4.21.2",
+    "pg": "^8.23.1",
     "routes": "^2.1.0",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1"
