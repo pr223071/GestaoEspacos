@@ -1,0 +1,298 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: BLOQUEIOS
+meta:
+  id: wrk_b10c0e1a5b2a4c6f8e9d7a3b1c5e7f90
+  created: 1792300000000
+  modified: 1792300000000
+  description: Banco com o 01_schema.sql e o 02_seed.sql da versao_completa recem
+    executados. Rode o servidor com npm run dev e execute Cadastrar, Atualizar e
+    Excluir nessa ordem (os dois ultimos usam o id 3, criado no Cadastrar).
+collection:
+  - url: http://localhost:3080/bloqueios
+    name: Listar bloqueios
+    meta:
+      id: req_46c660f2661a3b069b1fcd9de8693f75
+      created: 1792300000001
+      modified: 1792300000001
+      isPrivate: false
+      description: ""
+      sortKey: -1792300000000
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/1
+    name: Buscar por ID
+    meta:
+      id: req_cb443bc80a651dfcdd0313ba9db636f8
+      created: 1792300000002
+      modified: 1792300000002
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999999
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/nome/eletronica
+    name: Buscar por nome do espaco
+    meta:
+      id: req_6977bae49dd62ed4d307b15f5fa5c02d
+      created: 1792300000003
+      modified: 1792300000003
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999998
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/nome/evento
+    name: Buscar por motivo
+    meta:
+      id: req_752af8b7bcfd91c42bd87c3d135d7e60
+      created: 1792300000004
+      modified: 1792300000004
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999997
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/data/2026-10-23
+    name: Buscar por data
+    meta:
+      id: req_16c39b50de672615820e5b8f05e3a938
+      created: 1792300000005
+      modified: 1792300000005
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999996
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios
+    name: Cadastrar bloqueio
+    meta:
+      id: req_a50c5230fef51de42f5d5282ff23363c
+      created: 1792300000006
+      modified: 1792300000006
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999995
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"start_datetime": "2026-11-03T08:00",
+        	"end_datetime": "2026-11-03T12:00",
+        	"reason": "Troca do ar-condicionado",
+        	"created_by": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/3
+    name: Atualizar bloqueio
+    meta:
+      id: req_306422df72da73cdb2b218bfa3a4076e
+      created: 1792300000007
+      modified: 1792300000007
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999994
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"end_datetime": "2026-11-03T14:00",
+        	"reason": "Troca do ar-condicionado e pintura"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/3
+    name: Excluir bloqueio
+    meta:
+      id: req_5e0f15a1a78056ddbc3d462278e4f3f8
+      created: 1792300000008
+      modified: 1792300000008
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999993
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios/9999
+    name: ERRO 404 - ID que nao existe
+    meta:
+      id: req_04e513d436a9a50c1f3456c3e2855f45
+      created: 1792300000009
+      modified: 1792300000009
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999992
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios
+    name: ERRO 400 - Sem motivo
+    meta:
+      id: req_23a0e93330fa8444b5eb77621b061655
+      created: 1792300000010
+      modified: 1792300000010
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999991
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"start_datetime": "2026-11-03T08:00",
+        	"end_datetime": "2026-11-03T12:00"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios
+    name: ERRO 400 - Fim antes do inicio
+    meta:
+      id: req_fb4e56a92abd5741a00b9e369a81194f
+      created: 1792300000011
+      modified: 1792300000011
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999990
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"start_datetime": "2026-11-03T12:00",
+        	"end_datetime": "2026-11-03T08:00",
+        	"reason": "Teste"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/bloqueios
+    name: ERRO 409 - Reserva aprovada no periodo
+    meta:
+      id: req_924491a8109689b21d280a549785c786
+      created: 1792300000012
+      modified: 1792300000012
+      isPrivate: false
+      description: O espaco 1 tem uma reserva aprovada em 20/10 das 08:00 as 12:00.
+      sortKey: -1792299999989
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"space_id": 1,
+        	"start_datetime": "2026-10-20T09:00",
+        	"end_datetime": "2026-10-20T10:00",
+        	"reason": "Manutencao"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_b10c0e1a5b2a4c6f8e9d7a3b1c5e7f90aa11bb22
+    created: 1792300000000
+    modified: 1792300000000
+environments:
+  name: Base Environment
+  meta:
+    id: env_b10c0e1a5b2a4c6f8e9d7a3b1c5e7f90aa11bb22
+    created: 1792300000000
+    modified: 1792300000000
+    isPrivate: false

@@ -1,21 +1,39 @@
+// =====================================================================
+// ROTAS DE EMPRESAS - Paulo
+//
+// Cadastro das empresas (pessoa jurídica) que pedem reservas.
+// Os dados ficam na tabela "companies" do PostgreSQL (schema sgec).
+//
+// Rotas:
+//   GET    /empresas              -> lista todas
+//   GET    /empresas/nome/:nome   -> busca pela razão social ou nome fantasia
+//   GET    /empresas/data/:data   -> busca pela data de cadastro
+//   GET    /empresas/:id          -> busca uma pelo id
+//   POST   /empresas              -> cadastra
+//   PUT    /empresas/:id          -> atualiza (só os campos enviados)
+//   DELETE /empresas/:id          -> remove
+//
+// Respostas usadas:
+//   200 = deu certo | 201 = criado | 400 = dado errado enviado pelo usuário
+//   404 = não encontrado | 409 = conflito (ex.: CNPJ repetido) | 500 = erro no servidor
+// =====================================================================
+
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
+const { pool } = require("../config/db");                          // conexão com o banco 
+const { responderErro, semAcento } = require("../utils/banco");    // tratamento de erros do banco e busca sem acento
+const { cpfValido, cnpjValido } = require("../utils/documentos");  // validação de CPF e CNPJ
 
+// o Router agrupa as rotas deste arquivo; no index.js ele é ligado ao caminho "/empresas"
 const router = express.Router();
-const arquivo = path.join(__dirname, "..", "db", "empresas.json"); // caminho da "tabela" de empresas
-const arquivoUsuarios = path.join(__dirname, "..", "db", "users.json");
 
-// le a tabela direto do arquivo, assim sempre pega a versão mais nova
-function lerEmpresas() {
-    return JSON.parse(fs.readFileSync(arquivo, "utf-8"));
-}
+// colunas devolvidas pela API (tabela sgec.companies)
+// fica numa constante para não repetir a lista em todas as consultas
+const COLUNAS = "id::int AS id, corporate_name, trade_name, cnpj, phone, legal_rep_name, legal_rep_cpf, created_at";
 
-// grava a tabela no arquivo (as alterações não se perdem quando o servidor reinicia)
-function salvarEmpresas(empresas) {
-    fs.writeFileSync(arquivo, JSON.stringify(empresas, null, 2));
-
-}
+// no banco o CNPJ e o CPF ficam só com números sem pontuacao
+// assim o usuário pode digitar com ou sem pontuação e o banco sempre guarda do mesmo jeito
+// /\D/g  pega tudo que NÃO é número e troca por vazio 
+const somenteNumeros = valor => (valor === undefined || valor === null) ? valor : String(valor).replace(/\D/g, "");
 
 
 /**
@@ -42,10 +60,19 @@ function salvarEmpresas(empresas) {
  *           example: TechNova
  *         cnpj:
  *           type: string
- *           example: 12.345.678/0001-90
+ *           description: Somente números
+ *           example: "12345678000195"
  *         phone:
  *           type: string
  *           example: (48) 3433-1001
+ *         legal_rep_name:
+ *           type: string
+ *           description: Nome do responsável legal
+ *           example: Carlos Pereira
+ *         legal_rep_cpf:
+ *           type: string
+ *           description: CPF do responsável legal (somente números)
+ *           example: "11122233396"
  *         created_at:
  *           type: string
  *           format: date-time
@@ -55,6 +82,8 @@ function salvarEmpresas(empresas) {
  *       required:
  *         - corporate_name
  *         - cnpj
+ *         - legal_rep_name
+ *         - legal_rep_cpf
  *       properties:
  *         corporate_name:
  *           type: string
@@ -66,10 +95,19 @@ function salvarEmpresas(empresas) {
  *           example: Nova Empresa
  *         cnpj:
  *           type: string
- *           example: 67.890.123/0001-45
+ *           description: Pode ser enviado com ou sem pontuação
+ *           example: 67.890.123/0001-16
  *         phone:
  *           type: string
  *           example: (48) 99999-0000
+ *         legal_rep_name:
+ *           type: string
+ *           description: Nome do responsável legal
+ *           example: Joana Silva
+ *         legal_rep_cpf:
+ *           type: string
+ *           description: Pode ser enviado com ou sem pontuação
+ *           example: 123.456.789-09
  *     Erro:
  *       type: object
  *       properties:
@@ -95,9 +133,16 @@ function salvarEmpresas(empresas) {
  *               items:
  *                 $ref: '#/components/schemas/Empresa'
  */
-router.get("/", function (req, res) {
-    const empresas = lerEmpresas().sort((a, b) => a.id - b.id);
-    res.json(empresas);
+// "async" + "await": a consulta ao banco demora um pouco, então o código espera a resposta
+// sem travar o servidor (outras requisições continuam sendo atendidas enquanto isso)
+router.get("/", async function (req, res) {
+    // try/catch: se o banco der erro (ex.: fora do ar), cai no catch e responde com o erro certo
+    try {
+        const resultado = await pool.query(`SELECT ${COLUNAS} FROM companies ORDER BY id`);
+        res.json(resultado.rows); // "rows" é a lista de linhas que o banco devolveu
+    } catch (err) {
+        responderErro(res, err);
+    }
 });
 
 
@@ -106,7 +151,7 @@ router.get("/", function (req, res) {
  * /empresas/nome/{nome}:
  *   get:
  *     summary: Busca empresas pelo nome (razão social ou nome fantasia)
- *     description: Busca parcial, ignorando maiúsculas e minúsculas.
+ *     description: Busca parcial, ignorando maiúsculas/minúsculas e acentos.
  *     tags: [Empresas]
  *     parameters:
  *       - in: path
@@ -131,18 +176,26 @@ router.get("/", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-router.get("/nome/:nome", function (req, res) {
-    const nome = req.params.nome.toLowerCase();
+router.get("/nome/:nome", async function (req, res) {
+    try {
+        // compara sem maiúsculas/minúsculas e sem acentos 
+        // os % no começo e no fim deixam a busca parcial
+        // texto do usuário NÃO é colado dentro do SQL. Ele vai separado, no lugar do $1. Isso evita SQL Injection
+        const resultado = await pool.query(
+            `SELECT ${COLUNAS} FROM companies
+              WHERE ${semAcento("corporate_name")} LIKE ${semAcento("$1")}
+                 OR ${semAcento("trade_name")} LIKE ${semAcento("$1")}
+              ORDER BY id`,
+            ["%" + req.params.nome + "%"]
+        );
 
-    // procura o texto na razão social (corporate_name) ou no nome fantasia (trade_name)
-    const encontradas = lerEmpresas().filter(emp =>
-        emp.corporate_name.toLowerCase().includes(nome) ||
-        emp.trade_name.toLowerCase().includes(nome)
-    );
+        // lista vazia = nada encontrado -> 404
+        if (resultado.rows.length === 0) return res.status(404).json({ erro: "Nenhuma empresa encontrada com esse nome" });
 
-    if (encontradas.length === 0) return res.status(404).json({ erro: "Nenhuma empresa encontrada com esse nome" });
-
-    res.json(encontradas);
+        res.json(resultado.rows);
+    } catch (err) {
+        responderErro(res, err);
+    }
 });
 
 
@@ -170,6 +223,12 @@ router.get("/nome/:nome", function (req, res) {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Empresa'
+ *       400:
+ *         description: Data inválida
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  *       404:
  *         description: Nenhuma empresa cadastrada nessa data
  *         content:
@@ -177,13 +236,27 @@ router.get("/nome/:nome", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-router.get("/data/:data", function (req, res) {
-    const { data } = req.params;
-    const encontradas = lerEmpresas().filter(emp => emp.created_at.startsWith(data)); // "2026-01-10T10:00:00Z" começa com "2026-01-10"
+router.get("/data/:data", async function (req, res) {
+    // confere o formato antes de ir ao banco
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(req.params.data)) return res.status(400).json({ erro: "Data inválida. Use o formato AAAA-MM-DD" });
 
-    if (encontradas.length === 0) return res.status(404).json({ erro: "Nenhuma empresa cadastrada nessa data" });
+    try {
+        // o created_at guarda data E hora; aqui comparamos só a parte da data
+        // convertendo antes para o fuso de Brasília (senão uma empresa cadastrada
+        // às 22h apareceria no dia seguinte, porque o banco guarda em UTC)
+        const resultado = await pool.query(
+            `SELECT ${COLUNAS} FROM companies
+              WHERE (created_at AT TIME ZONE 'America/Sao_Paulo')::date = $1
+              ORDER BY id`,
+            [req.params.data]
+        );
 
-    res.json(encontradas);
+        if (resultado.rows.length === 0) return res.status(404).json({ erro: "Nenhuma empresa cadastrada nessa data" });
+
+        res.json(resultado.rows);
+    } catch (err) {
+        responderErro(res, err);
+    }
 });
 
 
@@ -214,12 +287,19 @@ router.get("/data/:data", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-router.get("/:id", function (req, res) {
-    const empresa = lerEmpresas().find(emp => emp.id === Number(req.params.id));
+// esta rota fica DEPOIS de /nome e /data: se viesse antes, "/empresas/nome" seria
+// entendido como se "nome" fosse um id
+router.get("/:id", async function (req, res) {
+    try {
+        // req.params.id vem da URL como texto ("1"); o Number() transforma em número
+        const resultado = await pool.query(`SELECT ${COLUNAS} FROM companies WHERE id = $1`, [Number(req.params.id)]);
 
-    if (!empresa) return res.status(404).json({ erro: "Empresa não encontrada" });
+        if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
 
-    res.json(empresa);
+        res.json(resultado.rows[0]); // [0] = só a primeira (e única) linha, já que o id é único
+    } catch (err) {
+        responderErro(res, err);
+    }
 });
 
 
@@ -243,7 +323,7 @@ router.get("/:id", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Empresa'
  *       400:
- *         description: Razão social ou CNPJ não informados
+ *         description: Campos obrigatórios não informados ou CNPJ/CPF inválido
  *         content:
  *           application/json:
  *             schema:
@@ -255,28 +335,37 @@ router.get("/:id", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-router.post("/", function (req, res) {
-    const { corporate_name, trade_name, cnpj, phone } = req.body;
+router.post("/", async function (req, res) {
+    // pega os campos do corpo (JSON) da requisição
+    const { corporate_name, trade_name, phone, legal_rep_name } = req.body;
+    const cnpj = somenteNumeros(req.body.cnpj);
+    const legal_rep_cpf = somenteNumeros(req.body.legal_rep_cpf);
 
-    if (!corporate_name || !cnpj) return res.status(400).json({ erro: "Razão social (corporate_name) e CNPJ são obrigatórios" });
+    //  confere os dados ANTES de ir ao banco e devolve 400 com uma mensagem clara
+    if (!corporate_name || !cnpj || !legal_rep_name || !legal_rep_cpf) {
+        return res.status(400).json({ erro: "Razão social (corporate_name), CNPJ, responsável legal (legal_rep_name) e CPF do responsável (legal_rep_cpf) são obrigatórios" });
+    }
+    // confere os dígitos verificadores 2 últimos números são calculados a partir dos outros
+    if (!cnpjValido(cnpj)) return res.status(400).json({ erro: "CNPJ inválido (confira os números e os dígitos verificadores)" });
+    if (!cpfValido(legal_rep_cpf)) return res.status(400).json({ erro: "CPF do responsável inválido (confira os números e os dígitos verificadores)" });
 
-    const empresas = lerEmpresas();
-    if (empresas.some(emp => emp.cnpj === cnpj)) return res.status(409).json({ erro: "Já existe uma empresa com esse CNPJ" });
+    try {
+        // grava no banco 
+        // $1, $2... são substituídos pelos valores da lista, na mesma ordem 
+        // RETURNING faz o INSERT já devolver a empresa criada
+        const resultado = await pool.query(
+            `INSERT INTO companies (corporate_name, trade_name, cnpj, phone, legal_rep_name, legal_rep_cpf)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING ${COLUNAS}`,
+            [corporate_name, trade_name || corporate_name, cnpj, phone || null, legal_rep_name, legal_rep_cpf] // sem nome fantasia, usa a razão social
+        );
 
-    const novoId = empresas.length ? Math.max(...empresas.map(emp => emp.id)) + 1 : 1; // pega o maior id e soma 1
-    const novaEmpresa = {
-        id: novoId,
-        corporate_name,
-        trade_name: trade_name || corporate_name, // sem nome fantasia, usa a razão social
-        cnpj,
-        phone: phone || "",
-        created_at: new Date().toISOString()
-    };
-
-    empresas.push(novaEmpresa);
-    salvarEmpresas(empresas);
-
-    res.status(201).json(novaEmpresa);
+        res.status(201).json(resultado.rows[0]); 
+    } catch (err) {
+    
+        if (err.code === "23505") return res.status(409).json({ erro: "Já existe uma empresa com esse CNPJ" });
+        responderErro(res, err);
+    }
 });
 
 
@@ -307,6 +396,12 @@ router.post("/", function (req, res) {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Empresa'
+ *       400:
+ *         description: CNPJ ou CPF inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  *       404:
  *         description: Empresa não encontrada
  *         content:
@@ -320,27 +415,42 @@ router.post("/", function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-router.put("/:id", function (req, res) {
-    const empresas = lerEmpresas();
-    const empresa = empresas.find(emp => emp.id === Number(req.params.id));
+router.put("/:id", async function (req, res) {
+    const { corporate_name, trade_name, phone, legal_rep_name } = req.body;
+    const cnpj = somenteNumeros(req.body.cnpj);
+    const legal_rep_cpf = somenteNumeros(req.body.legal_rep_cpf);
 
-    if (!empresa) return res.status(404).json({ erro: "Empresa não encontrada" });
+    // no PUT os campos são opcionais: só valida o CNPJ/CPF se ele foi enviado
+    if (cnpj && !cnpjValido(cnpj)) return res.status(400).json({ erro: "CNPJ inválido (confira os números e os dígitos verificadores)" });
+    if (legal_rep_cpf && !cpfValido(legal_rep_cpf)) return res.status(400).json({ erro: "CPF do responsável inválido (confira os números e os dígitos verificadores)" });
 
-    const { corporate_name, trade_name, cnpj, phone } = req.body;
+    try {
+        // ATUALIZAÇÃO PARCIAL: só troca o que veio preenchido.
+        // coalesce $1, corporate_name = se $1  for null, mantém o valor antigo
+        const resultado = await pool.query(
+            `UPDATE companies SET
+                 corporate_name = COALESCE($1, corporate_name),
+                 trade_name     = COALESCE($2, trade_name),
+                 cnpj           = COALESCE($3, cnpj),
+                 phone          = CASE WHEN $4::boolean THEN $5 ELSE phone END,
+                 legal_rep_name = COALESCE($6, legal_rep_name),
+                 legal_rep_cpf  = COALESCE($7, legal_rep_cpf)
+              WHERE id = $8
+              RETURNING ${COLUNAS}`,
+            [corporate_name || null, trade_name || null, cnpj || null,
+             phone !== undefined, phone ?? null,                     // phone pode ser apagado enviando ""
+             legal_rep_name || null, legal_rep_cpf || null, Number(req.params.id)]
+        );
 
-    if (cnpj && empresas.some(emp => emp.cnpj === cnpj && emp.id !== empresa.id)) {
-        return res.status(409).json({ erro: "CNPJ já usado por outra empresa" });
+        // se nenhuma linha foi atualizada, é porque não existe empresa com esse id
+        if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
+
+        res.json(resultado.rows[0]);
+    } catch (err) {
+      
+        if (err.code === "23505") return res.status(409).json({ erro: "CNPJ já usado por outra empresa" });
+        responderErro(res, err);
     }
-
-    // só troca o que veio preenchido
-    if (corporate_name) empresa.corporate_name = corporate_name;
-    if (trade_name) empresa.trade_name = trade_name;
-    if (cnpj) empresa.cnpj = cnpj;
-    if (phone !== undefined) empresa.phone = phone;
-
-    salvarEmpresas(empresas);
-
-    res.json(empresa);
 });
 
 
@@ -349,7 +459,7 @@ router.put("/:id", function (req, res) {
  * /empresas/{id}:
  *   delete:
  *     summary: Remove uma empresa
- *     description: Os usuários vinculados a ela ficam sem empresa (company_id = null).
+ *     description: Os usuários vinculados a ela ficam sem empresa (company_id = null), o banco faz isso sozinho (ON DELETE SET NULL).
  *     tags: [Empresas]
  *     parameters:
  *       - in: path
@@ -371,21 +481,30 @@ router.put("/:id", function (req, res) {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Erro'
+ *       409:
+ *         description: Empresa tem clientes sem CPF que dependem dela
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Erro'
  */
-router.delete("/:id", function (req, res) {
-    const empresas = lerEmpresas();
-    const empresa = empresas.find(emp => emp.id === Number(req.params.id));
+router.delete("/:id", async function (req, res) {
+    try {
+        // RETURNING devolve a empresa que foi apagada 
+        // Os usuários dessa empresa ficam com company_id = null automaticamente:
+        // a chave estrangeira foi criada com ON DELETE SET NULL no banco.
+        const resultado = await pool.query(`DELETE FROM companies WHERE id = $1 RETURNING ${COLUNAS}`, [Number(req.params.id)]);
 
-    if (!empresa) return res.status(404).json({ erro: "Empresa não encontrada" });
+        if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
 
-    salvarEmpresas(empresas.filter(emp => emp.id !== empresa.id)); // salva a tabela sem a empresa apagada
-
-    // os usuários dessa empresa ficam sem empresa (em vez de apontar para uma que não existe mais)
-    const usuarios = JSON.parse(fs.readFileSync(arquivoUsuarios, "utf-8"));
-    usuarios.filter(u => u.company_id === empresa.id).forEach(u => { u.company_id = null; });
-    fs.writeFileSync(arquivoUsuarios, JSON.stringify(usuarios, null, 2));
-
-    res.json(empresa);
+        res.json(resultado.rows[0]);
+    } catch (err) {
+        // regra do banco: todo cliente precisa ter CPF OU empresa.
+        // Se um cliente só é identificado por esta empresa, ao apagá-la ele ficaria
+        // sem identificação; o banco recusa (código 23514) e respondemos 409.
+        if (err.code === "23514") return res.status(409).json({ erro: "A empresa tem clientes sem CPF vinculados a ela. Cadastre o CPF deles ou remova-os antes" });
+        responderErro(res, err);
+    }
 });
 
 

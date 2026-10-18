@@ -3,19 +3,21 @@ schema_version: "5.1"
 name: EMPRESAS
 meta:
   id: wrk_79888747d250520b8ff0feb151352219
-  created: 1791195123435
-  modified: 1791195123435
-  description: "Rode o servidor com npm start. Execute Cadastrar, Atualizar e Excluir nessa ordem (os dois ultimos usam o id 6, criado no Cadastrar)."
+  created: 1792300000000
+  modified: 1792300000000
+  description: Banco com o 01_schema.sql e o 02_seed.sql da versao_completa recem
+    executados. Rode o servidor com npm run dev e execute Cadastrar, Atualizar e
+    Excluir nessa ordem (os dois ultimos usam o id 3, criado no Cadastrar).
 collection:
   - url: http://localhost:3080/empresas
     name: Listar empresas
     meta:
-      id: req_ddf7f6fedfa3792eb7ba2b96f95e8e23
-      created: 1791195123436
-      modified: 1791195123436
+      id: req_39c47ee56268e8e3e89d6b03ffc1404f
+      created: 1792300000001
+      modified: 1792300000001
       isPrivate: false
       description: ""
-      sortKey: -1791195123435
+      sortKey: -1792300000000
     method: GET
     settings:
       renderRequestBody: true
@@ -28,12 +30,12 @@ collection:
   - url: http://localhost:3080/empresas/1
     name: Buscar por ID
     meta:
-      id: req_d6bce6b1a288740ccb7858ebe931e1db
-      created: 1791195123437
-      modified: 1791195123437
+      id: req_8f26bbe25107c176e7c862d8c563eb53
+      created: 1792300000002
+      modified: 1792300000002
       isPrivate: false
       description: ""
-      sortKey: -1791195123434
+      sortKey: -1792299999999
     method: GET
     settings:
       renderRequestBody: true
@@ -43,15 +45,15 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/empresas/nome/solucoes
+  - url: http://localhost:3080/empresas/nome/pesquisa
     name: Buscar por nome (razao social)
     meta:
-      id: req_a470ccc4d53ffd64cbf72f140af42e6a
-      created: 1791195123438
-      modified: 1791195123438
+      id: req_6d0b5bf0ebcb37999b651e143064551c
+      created: 1792300000003
+      modified: 1792300000003
       isPrivate: false
       description: ""
-      sortKey: -1791195123433
+      sortKey: -1792299999998
     method: GET
     settings:
       renderRequestBody: true
@@ -61,15 +63,15 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/empresas/nome/logmais
+  - url: http://localhost:3080/empresas/nome/technova
     name: Buscar por nome (nome fantasia)
     meta:
-      id: req_b5e1337082d96dc8f6fa44c74fe16e50
-      created: 1791195123439
-      modified: 1791195123439
+      id: req_cda5e58c57ef1ada00ad3518897098d9
+      created: 1792300000004
+      modified: 1792300000004
       isPrivate: false
       description: ""
-      sortKey: -1791195123432
+      sortKey: -1792299999997
     method: GET
     settings:
       renderRequestBody: true
@@ -79,15 +81,16 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/empresas/data/2026-01-10
-    name: Buscar por data
+  - url: http://localhost:3080/empresas/data/{% now 'custom', 'YYYY-MM-DD' %}
+    name: Buscar por data (hoje)
     meta:
-      id: req_ca38f8979f3a3396d136838ff542226f
-      created: 1791195123440
-      modified: 1791195123440
+      id: req_35e2cbda481df2620e4e9fb5787f3a6a
+      created: 1792300000005
+      modified: 1792300000005
       isPrivate: false
-      description: ""
-      sortKey: -1791195123431
+      description: Usa a data de hoje. Retorna as empresas cadastradas hoje (as do
+        seed, se ele foi executado hoje, e a criada no Cadastrar).
+      sortKey: -1792299999996
     method: GET
     settings:
       renderRequestBody: true
@@ -100,12 +103,12 @@ collection:
   - url: http://localhost:3080/empresas
     name: Cadastrar empresa
     meta:
-      id: req_8567f14e36c801e48d4589759366fede
-      created: 1791195123441
-      modified: 1791195123441
+      id: req_d04a7ba291175ceed387d74bbc2d8882
+      created: 1792300000006
+      modified: 1792300000006
       isPrivate: false
       description: ""
-      sortKey: -1791195123430
+      sortKey: -1792299999995
     method: POST
     body:
       mimeType: application/json
@@ -114,7 +117,9 @@ collection:
         	"corporate_name": "Acme Comercio de Equipamentos Ltda",
         	"trade_name": "Acme",
         	"cnpj": "11.222.333/0001-81",
-        	"phone": "(48) 3333-4444"
+        	"phone": "(48) 3333-4444",
+        	"legal_rep_name": "Joao da Silva",
+        	"legal_rep_cpf": "529.982.247-25"
         }
     headers:
       - name: Content-Type
@@ -127,15 +132,15 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/empresas/6
+  - url: http://localhost:3080/empresas/3
     name: Atualizar empresa
     meta:
-      id: req_c43d4aa832e3b687ccb079e2481ec41a
-      created: 1791195123442
-      modified: 1791195123442
+      id: req_4b7111a5653539eefb9ed2431727b5e5
+      created: 1792300000007
+      modified: 1792300000007
       isPrivate: false
       description: ""
-      sortKey: -1791195123429
+      sortKey: -1792299999994
     method: PUT
     body:
       mimeType: application/json
@@ -154,15 +159,15 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: http://localhost:3080/empresas/6
+  - url: http://localhost:3080/empresas/3
     name: Excluir empresa
     meta:
-      id: req_8a093bbb1729303dd4a1b12e3b223876
-      created: 1791195123443
-      modified: 1791195123443
+      id: req_7141ffd4661b43bf820a3c6f4310e59f
+      created: 1792300000008
+      modified: 1792300000008
       isPrivate: false
       description: ""
-      sortKey: -1791195123428
+      sortKey: -1792299999993
     method: DELETE
     settings:
       renderRequestBody: true
@@ -175,12 +180,12 @@ collection:
   - url: http://localhost:3080/empresas/9999
     name: ERRO 404 - ID que nao existe
     meta:
-      id: req_2480c2923400f19dba13ed01a6f11d75
-      created: 1791195123444
-      modified: 1791195123444
+      id: req_c2dc42105c61645e7fd3e0a9227ba6f0
+      created: 1792300000009
+      modified: 1792300000009
       isPrivate: false
       description: ""
-      sortKey: -1791195123427
+      sortKey: -1792299999992
     method: GET
     settings:
       renderRequestBody: true
@@ -193,19 +198,51 @@ collection:
   - url: http://localhost:3080/empresas
     name: ERRO 400 - Cadastrar sem CNPJ
     meta:
-      id: req_24703aefc90e29814055b912f922f38f
-      created: 1791195123445
-      modified: 1791195123445
+      id: req_18f8b32caa6bdd98c048064456365653
+      created: 1792300000010
+      modified: 1792300000010
       isPrivate: false
       description: ""
-      sortKey: -1791195123426
+      sortKey: -1792299999991
     method: POST
     body:
       mimeType: application/json
       text: |-
         {
         	"corporate_name": "Empresa sem CNPJ Ltda",
-        	"trade_name": "Sem CNPJ"
+        	"trade_name": "Sem CNPJ",
+        	"legal_rep_name": "Maria Souza",
+        	"legal_rep_cpf": "529.982.247-25"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/empresas
+    name: ERRO 400 - CNPJ invalido
+    meta:
+      id: req_9cafa9fd33f658b1a1eaab36c679959b
+      created: 1792300000011
+      modified: 1792300000011
+      isPrivate: false
+      description: ""
+      sortKey: -1792299999990
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"corporate_name": "Empresa CNPJ Errado Ltda",
+        	"cnpj": "12.345.678/0001-90",
+        	"legal_rep_name": "Maria Souza",
+        	"legal_rep_cpf": "529.982.247-25"
         }
     headers:
       - name: Content-Type
@@ -221,12 +258,12 @@ collection:
   - url: http://localhost:3080/empresas
     name: ERRO 409 - CNPJ repetido
     meta:
-      id: req_04096ba51af110f789367371de4e6e0c
-      created: 1791195123446
-      modified: 1791195123446
+      id: req_032936074fdf1c5794f6b0a963603fc2
+      created: 1792300000012
+      modified: 1792300000012
       isPrivate: false
       description: ""
-      sortKey: -1791195123425
+      sortKey: -1792299999989
     method: POST
     body:
       mimeType: application/json
@@ -234,7 +271,9 @@ collection:
         {
         	"corporate_name": "Copia da TechNova Ltda",
         	"trade_name": "Copia",
-        	"cnpj": "12.345.678/0001-90"
+        	"cnpj": "12.345.678/0001-95",
+        	"legal_rep_name": "Maria Souza",
+        	"legal_rep_cpf": "529.982.247-25"
         }
     headers:
       - name: Content-Type
@@ -251,12 +290,12 @@ cookieJar:
   name: Default Jar
   meta:
     id: jar_0128bfae776b0a4b6ec8e5362188e78e269dd84a
-    created: 1791195123435
-    modified: 1791195123435
+    created: 1792300000000
+    modified: 1792300000000
 environments:
   name: Base Environment
   meta:
     id: env_0128bfae776b0a4b6ec8e5362188e78e269dd84a
-    created: 1791195123435
-    modified: 1791195123435
+    created: 1792300000000
+    modified: 1792300000000
     isPrivate: false
