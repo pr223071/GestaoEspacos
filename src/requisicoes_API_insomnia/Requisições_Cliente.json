@@ -1,0 +1,161 @@
+{
+  "info": {
+    "_postman_id": "49eb92c6-0224-49e4-b33d-70f573a3d229",
+    "name": "Requisições Clientes",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59149174",
+    "_collection_link": "https://go.postman.co/collection/59149174-49eb92c6-0224-49e4-b33d-70f573a3d229?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "clients",
+      "item": [
+        {
+          "name": "Todos os Clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/clients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo nome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/clients/name/ana",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients",
+                "name",
+                "ana"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/clients/id/7",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients",
+                "id",
+                "7"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Altera um cliente",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/clients/status_true/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients",
+                "status_true",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deleta User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/clients/delete/8",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients",
+                "delete",
+                "8"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Adiciona um cliente",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Silva\",\n  \"email\": \"maria@email.com\",\n  \"password_hash\": \"123456\",\n  \"role\": \"CLIENT\", // a role tem q ser digitado em maiusculo ou mudar a formatação no back\n  \"cpf\": \"12345678900\",\n  \"phone\": \"48999999999\",\n  \"company_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3080/clients/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "clients",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

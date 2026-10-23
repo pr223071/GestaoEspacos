@@ -1,126 +1,205 @@
-//REQUISIÇÕES DE TABELA USUARIOS
-const express = require("express");
+const express = require('express'); // importa o express
+const { pool } = require("../config/db"); // cria uma intancia pra usar as funções do banco
+const { responderErro } = require("../utils/banco");
+// cria uma instância do roteador do Express
 const router = express.Router();
 
-const path = require("path");
-const fs = require("fs"); // biblioteca do node para ler e gravar arquivos
-const crypto = require("crypto"); // biblioteca do node usada para transformar a senha em hash
+ const COLUNAS = "id, name, email, password_hash, role, cpf, phone, company_id, is_active, created_at";
 
-const arquivo = path.join(__dirname, "../db/users.json"); // caminho da tabela users (o "banco de dados")
 
-// le a tabela users direto do arquivo, assim sempre pega a versão mais nova
-function lerUsers() {
-    return JSON.parse(fs.readFileSync(arquivo, "utf-8")); // o arquivo vem como texto, o JSON.parse transforma em lista
-}
-
-// grava a tabela users no arquivo, assim a alteração não se perde quando o servidor reinicia
-function salvarUsers(users) {
-    fs.writeFileSync(arquivo, JSON.stringify(users, null, 2)); // JSON.stringify transforma a lista em texto
-}
 
 /**
  * @swagger
  * tags:
- *   name: Clientes 
- *   description: Cadastro de clientes/usuários do sistema - Danilo
- *   
+ *   - name: Clientes
+ *     description: CRUD de clientes (tabela users)
  *
  * components:
  *   schemas:
- *     Client:
+ *     Cliente:
  *       type: object
  *       properties:
  *         id:
  *           type: integer
- *           example: 3
+ *           example: 1
  *         name:
  *           type: string
- *           example: Joao Pedro Almeida
+ *           example: Maria Silva
  *         email:
  *           type: string
- *           example: joao.almeida@technova.com
+ *           example: maria@email.com
+ *         password_hash:
+ *           type: string
+ *           example: "123456"
  *         role:
  *           type: string
- *           enum: [ADMIN, RECEPTION, CLIENT]
- *           example: CLIENT
- *         cpf_cnpj:
+ *           example: client
+ *         cpf:
  *           type: string
- *           example: 333.444.555-66
+ *           example: "12345678900"
+ *         phone:
+ *           type: string
+ *           example: "48999999999"
  *         company_id:
  *           type: integer
- *           nullable: true
  *           example: 1
+ *         is_active:
+ *           type: boolean
+ *           example: true
  *         created_at:
  *           type: string
  *           format: date-time
- *           example: 2026-01-12T11:00:00Z
- *     ClientInput:
+ *           example: "2026-10-23T13:00:00.000Z"
+ *
+ *     ClienteInput:
  *       type: object
- *       required:
- *         - name
- *         - email
+ *       required: [name, email, password_hash, role, cpf, phone, company_id]
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Maria Silva
+ *         email:
+ *           type: string
+ *           example: maria@email.com
+ *         password_hash:
+ *           type: string
+ *           example: "123456"
+ *         role:
+ *           type: string
+ *           example: client
+ *         cpf:
+ *           type: string
+ *           example: "12345678900"
+ *         phone:
+ *           type: string
+ *           example: "48999999999"
+ *         company_id:
+ *           type: integer
+ *           example: 1
+ *
+ *     ClienteUpdate:
+ *       type: object
+ *       description: Envie só os campos que quer alterar
  *       properties:
  *         name:
  *           type: string
  *           example: Maria Souza
  *         email:
  *           type: string
- *           example: maria.souza@email.com
- *         password:
+ *           example: novo@email.com
+ *         password_hash:
  *           type: string
- *           description: Senha em texto. É guardada como hash no campo password_hash.
- *           example: senha123
+ *           example: "nova_senha"
  *         role:
  *           type: string
- *           enum: [ADMIN, RECEPTION, CLIENT]
- *           example: CLIENT
- *         cpf_cnpj:
+ *           example: client
+ *         cpf:
  *           type: string
- *           example: 123.456.789-00
+ *           example: "12345678900"
+ *         phone:
+ *           type: string
+ *           example: "48988887777"
  *         company_id:
  *           type: integer
- *           nullable: true
  *           example: 1
+ *         is_active:
+ *           type: boolean
+ *           example: false
+ *
+ *     Erro:
+ *       type: object
+ *       properties:
+ *         erro:
+ *           type: string
+ *           example: mensagem do erro
+ *
+ *   responses:
+ *     ErroValidacao:
+ *       description: Dados inválidos
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Erro'
+ *     NaoEncontrado:
+ *       description: Registro não encontrado
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Erro'
+ *     Conflito:
+ *       description: Registro duplicado
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Erro'
+ *     ErroInterno:
+ *       description: Erro interno no servidor
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Erro'
  */
+
+
+
 
 /**
  * @swagger
  * /clients:
  *   get:
- *     summary: Retorna todos os clientes
+ *     summary: Lista todos os clientes
  *     tags: [Clientes]
  *     responses:
  *       200:
- *         description: Lista completa de clientes
+ *         description: Lista de clientes
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Client'
+ *                 $ref: '#/components/schemas/Cliente'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//reotorna toda a tabela de clientes
-router.get("/clients", function(req, res){ //req (request,requisição) pega o res (response, resposta), tudo da biblioteca express
-    const users = lerUsers(); // le a tabela users do arquivo
-    res.json(users); // resposta (res) em json sobre a tabela users
-});
+//RETORNA TODOS OS CLIENTES DO BANCO DE DADOS
 
+// "async" + "await": a consulta ao banco demora um pouco, então o código espera a resposta
+// sem travar o servidor (outras requisições continuam sendo atendidas enquanto isso)
+router.get("/clients", async function(req, res){ //req (request,requisição) pega o res (response, resposta), tudo da biblioteca express
+
+try{//pool. é a instância do banco de dados, query é a função que faz a query no banco
+    const resultado = await pool.query(`SELECT * FROM Users`); // faz a query no banco de dados
+    
+    //verifica se tem 0 clientes
+    if(resultado.rowCount === 0){
+        return res.status(404).json({ error: "nenhum cliente cadastrado"});
+    }
+    
+    res.json(resultado.rows); // retorna o resultado da query em formato json
+
+}
+catch (error) {
+    console.error("Erro ao buscar clientes:", error);//print no console do erro
+    res.status(500).json({ error: "Erro ao buscar clientes" });//retorna um json com o status 500 e a mensagem de erro
+}
+});
 
 
 /**
  * @swagger
- * /clients/nome/{nome}:
+ * /clients/name/{name}:
  *   get:
- *     summary: Busca clientes pelo nome
- *     description: Busca parcial, ignorando maiúsculas e minúsculas.
+ *     summary: Pesquisa clientes pelo nome (busca parcial, ignora maiúsculas)
  *     tags: [Clientes]
  *     parameters:
  *       - in: path
- *         name: nome
+ *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         example: silva
+ *         example: maria
  *     responses:
  *       200:
  *         description: Clientes encontrados
@@ -129,74 +208,40 @@ router.get("/clients", function(req, res){ //req (request,requisição) pega o r
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Client'
+ *                 $ref: '#/components/schemas/Cliente'
  *       404:
- *         description: Nenhum cliente encontrado com esse nome
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//procura clientes pelo nome (essa rota precisa ficar antes da "/clients/:id")
-router.get("/clients/nome/:nome", function(req, res) {
-    const nome = req.params.nome.toLowerCase(); // o nome que veio na url, em letra minuscula
-    const users = lerUsers();
-    const clients = users.filter(cli => cli.name.toLowerCase().includes(nome)); // filtra todos os clients que tem esse texto no nome
+//PESQUISA PELO NOME DO CLIENTE
+router.get("/clients/name/:name", async function (req,res){
 
-    if(clients.length === 0) return res.status(404).json({ erro: "Nenhum usuário encontrado com esse nome" }); // lista vazia, retornar 404
+// WHERE name = $1      -- igual, texto exato
+// WHERE name LIKE $1   -- busca parcial, diferencia maiúscula de minúscula
+// WHERE name ILIKE $1  -- busca parcial, ignora maiúscula/minúscula
 
-    res.json(clients); // retorna a lista de clients encontrados
+    try {
+        const resultado = await pool.query(`SELECT ${COLUNAS} FROM users WHERE name ILIKE $1`, ["%"+ req.params.name +"%"]);
+        
+        //retorna o erro se n tiver linhas
+        if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum cliente encontrado"});}
+
+        res.json(resultado.rows);
+    }
+catch (err){
+ responderErro(res, err);
+}
 });
+
+
+
 
 
 
 /**
  * @swagger
- * /clients/data/{data}:
- *   get:
- *     summary: Busca clientes pela data de cadastro
- *     tags: [Clientes]
- *     parameters:
- *       - in: path
- *         name: data
- *         required: true
- *         description: Data no formato AAAA-MM-DD
- *         schema:
- *           type: string
- *           format: date
- *         example: 2026-01-12
- *     responses:
- *       200:
- *         description: Clientes cadastrados nessa data
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Client'
- *       404:
- *         description: Nenhum cliente cadastrado nessa data
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
- */
-//procura clientes pela data de cadastro
-router.get("/clients/data/:data", function(req, res) {
-    const { data } = req.params; // a data que veio na url, exemplo: 2026-01-12
-    const users = lerUsers();
-    const clients = users.filter(cli => cli.created_at.startsWith(data)); // "2026-01-12T11:00:00Z" começa com "2026-01-12"
-
-    if(clients.length === 0) return res.status(404).json({ erro: "Nenhum usuário cadastrado nessa data" });
-
-    res.json(clients);
-});
-
-
-
-/**
- * @swagger
- * /clients/{id}:
+ * /clients/id/{id}:
  *   get:
  *     summary: Busca um cliente pelo id
  *     tags: [Clientes]
@@ -206,30 +251,216 @@ router.get("/clients/data/:data", function(req, res) {
  *         required: true
  *         schema:
  *           type: integer
- *         example: 3
+ *         example: 1
  *     responses:
  *       200:
  *         description: Cliente encontrado
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Client'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Cliente'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
  *       404:
- *         description: Cliente não encontrado
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
+ */
+// PESQUISA UM CLIENTE EM ESPECIFICO
+router.get("/clients/id/:id", async function (req, res){
+
+    // As crases (`) são utilizadas para isierir variaveis dentro de strings
+    //o $1 reserva o local onde o pg preenche com o primeiro item do array
+    //"[Number(req.params.id)]" acessa o id vindo da url e NUmber transforma ele em INT
+    try{
+
+        // trsnforma o id em inteiro 
+        const id = Number(req.params.id);
+        //verifica se id é um inteiro ou se é um numero maior que 0, se não da erro 
+        if(!Number.isInteger(id) || id < 0 ){return res.status(400).json({ erro: "informe um valor valido"})}
+        
+        const resultado = await pool.query(`SELECT ${COLUNAS} FROM users WHERE id = $1`, [Number(req.params.id)]);
+    
+        // se a quantidade de linhas for igual a 0, ele retorna o status 404 e a mensagem de erro em json
+        if (resultado.rowCount === 0){
+            return res.status(404).json({ erro: "cliente não encontrada"});
+        }
+        // se não, retorna o cliente prucarado
+        res.json(resultado.rows);
+    }
+catch (err) {
+    responderErro(res, err);
+}
+
+});
+
+
+/**
+ * @swagger
+ * /clients/update/{id}:
+ *   put:
+ *     summary: Altera os dados de um cliente (só os campos enviados)
+ *     description: Também serve para ativar/desativar o cliente com is_active. Email e cpf não podem pertencer a outro cliente.
+ *     tags: [Clientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ClienteUpdate'
+ *     responses:
+ *       200:
+ *         description: Cliente atualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       409:
+ *         $ref: '#/components/responses/Conflito'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
+ */
+//ALTERA OS DADOS DE UM CLIENTE
+router.put("/clients/update/:id", async (req, res) => {
+
+    try{
+
+    // trsnforma o id em inteiro 
+    const id = Number(req.params.id);
+
+    //verifica se id é um inteiro ou se é um numero maior que 0, se não da erro 
+    if(!Number.isInteger(id) || id <= 0 ){return res.status(400).json({ erro: "informe um valor valido"})}
+
+    // só os campos que vierem no body são alterados, o resto continua igual
+    const { name, email, password_hash, role, cpf, phone, company_id, is_active } = req.body;
+
+    //se não vier nenhum campo, retorna erro
+    if(name === undefined && email === undefined && password_hash === undefined && role === undefined &&
+       cpf === undefined && phone === undefined && company_id === undefined && is_active === undefined){
+        return res.status(400).json({ erro: "informe pelo menos um campo para alterar"});
+    }
+
+    // se mandar company_id, verifica se é valido
+    let empresa = null;
+    if(company_id !== undefined){
+        empresa = Number(company_id);
+        if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
+    }
+
+    // se mandar is_active, tem que ser true ou false
+    if(is_active !== undefined && typeof is_active !== "boolean"){return res.status(400).json({ erro: "is_active deve ser true ou false"})}
+
+    // verifica se o email ou cpf já pertencem a OUTRO cliente (id <> $3 ignora o próprio cliente)
+    if(email !== undefined || cpf !== undefined){
+        const repetido = await pool.query(
+            `SELECT email, cpf FROM users WHERE (email = $1 OR cpf = $2) AND id <> $3`,
+            [email ?? null, cpf ?? null, id]
+        );
+
+        if(repetido.rowCount > 0){
+            if(email !== undefined && repetido.rows.some(u => u.email === email)){return res.status(409).json({ erro: "email já cadastrado"})}
+            return res.status(409).json({ erro: "cpf já cadastrado"});
+        }
+    }
+
+    // COALESCE pega o primeiro valor que não for nulo:
+    // se o campo não veio (null), mantém o valor que já estava no banco
+    const resultado = await pool.query(
+        `UPDATE users SET
+            name = COALESCE($1, name),
+            email = COALESCE($2, email),
+            password_hash = COALESCE($3, password_hash),
+            role = COALESCE($4, role),
+            cpf = COALESCE($5, cpf),
+            phone = COALESCE($6, phone),
+            company_id = COALESCE($7, company_id),
+            is_active = COALESCE($8, is_active)
+         WHERE id = $9
+         RETURNING ${COLUNAS}`,
+        [name ?? null, email ?? null, password_hash ?? null, role ?? null, cpf ?? null, phone ?? null, empresa, is_active ?? null, id]
+    );
+
+    if(resultado.rowCount === 0){return res.status(404).json({ erro: "cliente não encontrado"})}
+
+    //retorna o cliente atualizado
+    res.json(resultado.rows[0]);
+}
+
+catch (err){
+    responderErro(res, err);
+}
+});
+
+
+
+/**
+ * @swagger
+ * /clients/delete/{id}:
+ *   delete:
+ *     summary: Deleta um cliente
+ *     tags: [Clientes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Cliente deletado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
+ *       400:
+ *         description: Id inválido ou cliente com registros ligados a ele
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Erro'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//procura um cadastro de cliente pelo id
-router.get("/clients/:id", function(req, res) {
-    const { id } = req.params; //params são os paramnetros da requisção, nesse caso, é o id
-    const users = lerUsers();
-    const client = users.find(cli => cli.id === Number(id)); // procure o client na tabela users q for igual a id e coloque na variael client e transfora em numero em vez de sting
+//DELETA UM USUARIO
+//DELETA UM USUARIO
+router.delete("/clients/delete/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({ erro: "informe um valor valido" });
+        }
 
-    if(!client) return res.status(404).json({ erro: "Usuário não encontrado" }); // Caso n tenha o cliente, retornar 404
+        // retorna só os campos seguros, sem o password_hash
+        const resultado = await pool.query(
+            `DELETE FROM users WHERE id = $1 RETURNING *`,
+            [id]
+        );
 
-    res.json(client); //retorna client em json
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: "cliente não encontrado" });
+        }
+
+        res.json(resultado.rows[0]);
+    }
+    catch (err) {
+        responderErro(res, err); // função que de fato foi importada
+    }
 });
 
 
@@ -239,160 +470,63 @@ router.get("/clients/:id", function(req, res) {
  * @swagger
  * /clients:
  *   post:
- *     summary: Adiciona um cliente
- *     description: Grava o novo cliente na tabela users. O id e a data de cadastro são gerados pelo servidor.
+ *     summary: Cria um cliente
  *     tags: [Clientes]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ClientInput'
+ *             $ref: '#/components/schemas/ClienteInput'
  *     responses:
  *       201:
- *         description: Cliente cadastrado
+ *         description: Cliente criado
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Client'
+ *               $ref: '#/components/schemas/Cliente'
  *       400:
- *         description: Nome ou e-mail não informados
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
+ *         $ref: '#/components/responses/ErroValidacao'
+ *       409:
+ *         $ref: '#/components/responses/Conflito'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//adiciona um cliente
-router.post("/clients", function(req, res) {//mesmo ele usando o mesmo diretorio de retorno da tabela, ele entregaum resultado diferente por contado do "post" um verbo diferente
-    const { name, email, password, role, cpf_cnpj, company_id } = req.body; //quais as "colunas" podem ser adicionadas e salva
+//CRIA UM CLIENTE NO BANCO DE DADOS
 
-    if(!name || !email) return res.status(400).json({ erro: "Nome e e-mail são obrigatórios" }); // sem nome ou sem email, retornar 400
+router.post("/clients", async function(req, res) {
+    
+    // o req.body vai pedir todos esses campos
+    const { name, email, password_hash, role, cpf, phone, company_id } = req.body
+    
+    //se algum vir nulo, retorna erro
+    if(!name || !email || !password_hash || !role || !cpf || !phone || !company_id){
+        return res.status(400).json({ erro : "é nescessarios todos os campos preenchidos"});
+    }
 
-    const users = lerUsers();
-    const novoId = users.length ? Math.max(...users.map(cli => cli.id)) + 1 : 1; // pega o maior id da tabela e soma 1
+    try{
+        // transforma o company_id em inteiro e verifica se é valido
+        const empresa = Number(company_id);
+        if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
 
-    const client = {
-        id: novoId,
-        name,
-        email,
-        password_hash: crypto.createHash("sha256").update(password || "").digest("hex"), // a senha não é guardada como texto, vira um hash
-        role: role || "CLIENT", // se não mandar o role, fica como CLIENT
-        cpf_cnpj: cpf_cnpj || "",
-        company_id: company_id || null, // id da empresa do cliente (null = sem empresa)
-        created_at: new Date().toISOString() // data e hora de agora
-    };
+        // insere o cliente e retorna o cliente criado
+        // is_active e created_at ficam com o valor padrão do banco
+        const resultado = await pool.query(
+            `INSERT INTO users (name, email, password_hash, role, cpf, phone, company_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING ${COLUNAS}`,
+            [name, email, password_hash, role, cpf, phone, empresa]
+        );
 
-    users.push(client); // coloca o novo client na tabela
-    salvarUsers(users); // grava a tabela no arquivo
+        // 201 = criado com sucesso
+        res.status(201).json(resultado.rows[0]);
+    }
+    catch (err){
+        // email/cpf repetido (23505) ou empresa que não existe (23503) caem aqui
+        responderErro(res, err);
+    }
+}
 
-    res.status(201).json(client); // retorna oq foi salvo em json, com o status 201 (criado)
-});
-
-
-/**
- * @swagger
- * /clients/{id}:
- *   put:
- *     summary: Atualiza os dados de um cliente
- *     description: Só os campos enviados são alterados.
- *     tags: [Clientes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         example: 3
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ClientInput'
- *     responses:
- *       200:
- *         description: Cliente atualizado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Client'
- *       404:
- *         description: Cliente não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
- */
-//atualiza um cliente
-router.put("/clients/:id", function(req, res) {
-    const { id } = req.params;
-    const users = lerUsers();
-    const client = users.find(cli => cli.id === Number(id));
-
-    if(!client) return res.status(404).json({ erro: "Usuário não encontrado" });
-
-    const { name, email, password, role, cpf_cnpj, company_id } = req.body; //pegua os dados que o usuario manda
-
-    // só troca o que foi mandado
-    if(name) client.name = name; //e define ele como client.name
-    if(email) client.email = email;
-    if(password) client.password_hash = crypto.createHash("sha256").update(password).digest("hex");
-    if(role) client.role = role;
-    if(cpf_cnpj !== undefined) client.cpf_cnpj = cpf_cnpj;
-    if(company_id !== undefined) client.company_id = company_id;
-
-    salvarUsers(users); // grava a tabela no arquivo
-
-    res.json(client); // responde o cliente atualizado
-});
-
-
-
-/**
- * @swagger
- * /clients/{id}:
- *   delete:
- *     summary: Remove um cliente
- *     description: Apaga o cliente da tabela users e retorna a lista dos clientes restantes.
- *     tags: [Clientes]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         example: 9
- *     responses:
- *       200:
- *         description: Lista de clientes restantes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Client'
- *       404:
- *         description: Cliente não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
- */
-//deeleta um cliente
-router.delete("/clients/:id", function(req, res) {
-    const { id } = req.params;
-    const users = lerUsers();
-    const client = users.find(cli => cli.id === Number(id));
-
-    if(!client) return res.status(404).json({ erro: "Usuário não encontrado" });
-
-    const clientsFiltered = users.filter(client => client.id != Number(id)); // ele filtra os clients, e todos que forem diferentes do id que eu passei serão retornados na lista
-
-    salvarUsers(clientsFiltered); // grava a lista sem o client, agora o delete apaga de verdade
-
-    res.json(clientsFiltered);
-});
-
-
+);
 
 module.exports = router;

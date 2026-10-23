@@ -1,32 +1,22 @@
-//REQUISIÇÕES DE TABELA ESPAÇOS
+const express = require('express'); // importa o express
+const { pool } = require("../config/db"); // cria uma intancia pra usar as funções do banco
+const { responderErro } = require("../utils/banco");
 
-const express = require("express");
+// cria uma instância do roteador do Express
 const router = express.Router();
-const path = require("path");
-const fs = require("fs"); // biblioteca do node para ler e gravar arquivos
 
-const arquivo = path.join(__dirname, "../db/spaces.json"); // caminho da tabela spaces (o "banco de dados")
-
-// le a tabela spaces direto do arquivo, assim sempre pega a versão mais nova
-function lerSpaces() {
-    return JSON.parse(fs.readFileSync(arquivo, "utf-8")); // o arquivo vem como texto, o JSON.parse transforma em lista
-}
-
-// grava a tabela spaces no arquivo, assim a alteração não se perde quando o servidor reinicia
-function salvarSpaces(spaces) {
-    fs.writeFileSync(arquivo, JSON.stringify(spaces, null, 2)); // JSON.stringify transforma a lista em texto
-}
+const COLUNAS = "id, name, type, capacity, description, terms_of_use, buffer_minutes, is_active, created_at";
 
 
 /**
  * @swagger
  * tags:
- *   name: Espaços
- *   description: Cadastro de espaços (coworking, laboratórios, salas de reunião) - Danilo
+ *   - name: Espaços
+ *     description: CRUD de espaços
  *
  * components:
  *   schemas:
- *     Space:
+ *     Espaco:
  *       type: object
  *       properties:
  *         id:
@@ -34,146 +24,136 @@ function salvarSpaces(spaces) {
  *           example: 1
  *         name:
  *           type: string
- *           example: Sala de Coworking Principal
+ *           example: Sala de Reunião 1
  *         type:
  *           type: string
- *           enum: [COWORKING, LAB, MEETING_ROOM]
- *           example: COWORKING
- *         capacity:
- *           type: integer
- *           example: 30
- *         description:
- *           type: string
- *           example: Espaco aberto com estacoes de trabalho compartilhadas e internet de alta velocidade
- *         is_active:
- *           type: boolean
- *           example: true
- *     SpaceInput:
- *       type: object
- *       required:
- *         - name
- *       properties:
- *         name:
- *           type: string
- *           example: Sala de Reuniao Nova
- *         type:
- *           type: string
- *           enum: [COWORKING, LAB, MEETING_ROOM]
- *           example: MEETING_ROOM
+ *           description: Tipo próprio do banco, precisa ser um dos valores aceitos
+ *           example: sala
  *         capacity:
  *           type: integer
  *           example: 10
  *         description:
  *           type: string
- *           example: Sala com TV e mesa para reunioes
+ *           nullable: true
+ *           example: Sala com projetor
+ *         terms_of_use:
+ *           type: string
+ *           nullable: true
+ *           example: Deixar a sala organizada
+ *         buffer_minutes:
+ *           type: integer
+ *           example: 15
  *         is_active:
  *           type: boolean
  *           example: true
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *           example: "2026-10-23T13:00:00.000Z"
+ *
+ *     EspacoInput:
+ *       type: object
+ *       required: [name, type, capacity]
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Sala de Reunião 1
+ *         type:
+ *           type: string
+ *           example: sala
+ *         capacity:
+ *           type: integer
+ *           example: 10
+ *         description:
+ *           type: string
+ *           example: Sala com projetor
+ *         terms_of_use:
+ *           type: string
+ *           example: Deixar a sala organizada
+ *         buffer_minutes:
+ *           type: integer
+ *           description: Se não for enviado, usa 0
+ *           example: 15
+ *
+ *     EspacoUpdate:
+ *       type: object
+ *       description: Envie só os campos que quer alterar
+ *       properties:
+ *         name:
+ *           type: string
+ *           example: Sala de Reunião 2
+ *         type:
+ *           type: string
+ *           example: sala
+ *         capacity:
+ *           type: integer
+ *           example: 20
+ *         description:
+ *           type: string
+ *           example: Sala com projetor e TV
+ *         terms_of_use:
+ *           type: string
+ *           example: Deixar a sala organizada
+ *         buffer_minutes:
+ *           type: integer
+ *           example: 10
+ *         is_active:
+ *           type: boolean
+ *           example: false
  */
+
 
 /**
  * @swagger
  * /spaces:
  *   get:
- *     summary: Retorna todos os espaços
+ *     summary: Lista todos os espaços
  *     tags: [Espaços]
  *     responses:
  *       200:
- *         description: Lista completa de espaços
+ *         description: Lista de espaços
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Space'
+ *                 $ref: '#/components/schemas/Espaco'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-router.get("/spaces", function(req, res){
-    const spaces = lerSpaces(); // le a tabela spaces do arquivo
-    res.json(spaces); //retorna toda a tabela space
-    //res = resposta
-    //.json = usa a notação .json
+//RETORNA TODOS OS ESPAÇOS
 
-});
+router.get("/spaces", async function(req, res){
 
-
-
-/**
- * @swagger
- * /spaces:
- *   post:
- *     summary: Adiciona um espaço
- *     description: Grava o novo espaço na tabela spaces. O id é gerado pelo servidor.
- *     tags: [Espaços]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/SpaceInput'
- *     responses:
- *       201:
- *         description: Espaço cadastrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Space'
- *       400:
- *         description: Nome não informado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
- */
-// adiciona um espaço
-router.post("/spaces", function(req, res){ //para por usuario, não é possivel uinserir pela url. O postman ou insomina fazem isso
-    const {name, type, capacity, description, is_active} = req.body; //para ser pela url, seria o metodo get
-
-    if(!name) return res.status(400).json({ erro: "O nome do espaço é obrigatório" }); // sem nome, retornar 400
-
-    const spaces = lerSpaces();
-    const novoId = spaces.length ? Math.max(...spaces.map(spc => spc.id)) + 1 : 1; // pega o maior id da tabela e soma 1
-
-    const espaço = {
-        id: novoId,
-        name,
-        type: type || "COWORKING", // se não mandar o type, fica como COWORKING
-        capacity: capacity || null,
-        description: description || "",
-        is_active: is_active !== false // o espaço já começa ativo, só fica inativo se mandar false
-    };
-
-    spaces.push(espaço); // coloca o novo espaço na tabela
-    salvarSpaces(spaces); // grava a tabela no arquivo
-
-    res.status(201).json(espaço); // retorna o espaço salvo, com o status 201 (criado)
-});
-/*
-para por no isnomia: body, no body, json
-
-{
-  "name": "Sala de Reuniao Nova",
-  "type": "MEETING_ROOM",
-  "capacity": 10
+try{
+const resultado = await pool.query("SELECT * FROM spaces");
+//verifica se tem 0 clientes
+if(resultado.rowCount === 0){
+return res.status(404).json({ error: "nenhum cliente cadastrado"});
+    }
+res.json(resultado.rows);
+    }
+catch (err){
+res.status(500).json({ error: "erro ao buscar os espaço"})
 }
-
-*/
-
+});
 
 
 /**
  * @swagger
- * /spaces/nome/{nome}:
+ * /spaces/name/{name}:
  *   get:
- *     summary: Busca espaços pelo nome
- *     description: Busca parcial, ignorando maiúsculas e minúsculas.
+ *     summary: Pesquisa espaços pelo nome (busca parcial, ignora maiúsculas)
  *     tags: [Espaços]
  *     parameters:
  *       - in: path
- *         name: nome
+ *         name: name
  *         required: true
  *         schema:
  *           type: string
- *         example: reuniao
+ *         example: reunião
  *     responses:
  *       200:
  *         description: Espaços encontrados
@@ -182,29 +162,84 @@ para por no isnomia: body, no body, json
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Space'
+ *                 $ref: '#/components/schemas/Espaco'
  *       404:
- *         description: Nenhum espaço encontrado com esse nome
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//procura espaços pelo nome (essa rota precisa ficar antes da "/spaces/:id")
-router.get("/spaces/nome/:nome", function(req, res){
-    const nome = req.params.nome.toLowerCase(); // o nome que veio na url, em letra minuscula
-    const spaces = lerSpaces();
-    const espaços = spaces.filter(spc => spc.name.toLowerCase().includes(nome)); // filtra todos os espaços que tem esse texto no nome
+//PESQUISA PELO NOME
+router.get("/spaces/name/:name", async function(req, res){
 
-    if(espaços.length === 0) return res.status(404).json({ erro: "Nenhum espaço encontrado com esse nome" }); // lista vazia, retornar 404
+//não precisa verificar se veio como inteiro, pois a url só retorna string
+try{
+const resultado = await pool.query(`SELECT ${COLUNAS} FROM spaces WHERE name ILIKE $1`, ["%" + req.params.name + "%"]);
 
-    res.json(espaços); // retorna a lista de espaços encontrados
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows);
+    }
+catch (err){
+res.status(500).json({ error: "erro ao buscar o espaço"})
+}
 });
+
+
 
 
 /**
  * @swagger
- * /spaces/{id}:
+ * /spaces/type/{type}:
+ *   get:
+ *     summary: Pesquisa espaços pelo tipo (busca parcial, ignora maiúsculas)
+ *     tags: [Espaços]
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: sala
+ *     responses:
+ *       200:
+ *         description: Espaços encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Espaco'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
+ */
+//PESQUISA PELO TIPO
+router.get("/spaces/type/:type", async function(req, res){
+
+/*
+        No banco, o tipo da coluna type, não string ou varchar.Foi criado
+        um tipo próprio para a coluna. E para resolver isso, basta tranformar
+        a coluna em text com essa sintaxe "type::text", pois LIKE só comapra texto
+    */
+try{
+const resultado = await pool.query(`SELECT ${COLUNAS} FROM spaces WHERE type::text ILIKE $1`, ["%" + req.params.type + "%"]);
+
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows);
+    }
+catch (err){
+res.status(500).json({ error: "erro ao buscar o espaço"})
+}
+});
+
+
+
+
+/**
+ * @swagger
+ * /spaces/id/{id}:
  *   get:
  *     summary: Busca um espaço pelo id
  *     tags: [Espaços]
@@ -221,34 +256,162 @@ router.get("/spaces/nome/:nome", function(req, res){
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Space'
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Espaco'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
  *       404:
- *         description: Espaço não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//procura um espaço pelo id
-router.get("/spaces/:id", function(req, res){
-    const { id } = req.params;
-    const spaces = lerSpaces();
-    const espaço = spaces.find(spc => spc.id === Number(id));
+//PESQUISA PELO ID
+router.get("/spaces/id/:id", async function(req, res){
+try{
+//verifica se o numero é valido
+const id = Number(req.params.id);
+if(!Number.isInteger(id)){return res.status(400).json({ errr: "informe um valor valido"});}
+const resultado = await pool.query(`SELECT ${COLUNAS} FROM spaces WHERE id = $1`, [id]);
 
-
-    if(!espaço) return res.status(404).json({ erro: "Espaço não encontrado" });
-
-    res.json(espaço); // retorna a varivel espaço
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows);
+    }
+catch (err){
+res.status(500).json({ error: "erro ao buscar o espaço"})
+}
 });
+
 
 
 
 /**
  * @swagger
- * /spaces/{id}:
+ * /spaces/status/{status}:
+ *   get:
+ *     summary: Lista os espaços ativos ou inativos
+ *     tags: [Espaços]
+ *     parameters:
+ *       - in: path
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: ["true", "false"]
+ *         example: "true"
+ *     responses:
+ *       200:
+ *         description: Espaços encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Espaco'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
+ */
+//RETORNA APENAS AS QUE ESTÃO ATIVAS
+router.get("/spaces/status/:status", async function(req, res){
+
+
+//req.params sempre retorna variaeis tipo string
+
+try {
+const status = req.params.status;
+// só aceita os textos "true" ou "false"
+if (status !== "true" && status !== "false"){return res.status(400).json({ error: "Insira um valor válido (true ou false)" });}
+
+const resultado = await pool.query(`SELECT ${COLUNAS} FROM spaces WHERE is_active = $1`, [status]);
+
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows);
+    }
+catch (err){
+res.status(500).json({ error: "erro ao buscar o espaço"})
+}
+});
+
+
+
+
+/**
+ * @swagger
+ * /spaces:
+ *   post:
+ *     summary: Cria um espaço
+ *     tags: [Espaços]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EspacoInput'
+ *     responses:
+ *       201:
+ *         description: Espaço criado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Espaco'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
+ *       409:
+ *         $ref: '#/components/responses/Conflito'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
+ */
+//CRIA UM ESPAÇO NO BANCO DE DADOS
+router.post("/spaces", async function(req, res){
+
+// o req.body vai pedir esses campos (description e terms_of_use são opcionais)
+const { name, type, capacity, description, terms_of_use, buffer_minutes } = req.body;
+
+//se algum obrigatorio vir nulo, retorna erro
+if(!name || !type || capacity === undefined){return res.status(400).json({ erro: "name, type e capacity são obrigatórios"});}
+
+try{
+// transforma a capacidade em inteiro e verifica se é valida
+const capacidade = Number(capacity);
+if(!Number.isInteger(capacidade) || capacidade <= 0){return res.status(400).json({ erro: "informe uma capacity valida"});}
+
+// se não mandar buffer_minutes, usa 0
+const buffer = buffer_minutes === undefined ? 0 : Number(buffer_minutes);
+if(!Number.isInteger(buffer) || buffer < 0){return res.status(400).json({ erro: "informe um buffer_minutes valido"});}
+
+// insere o espaço e retorna o espaço criado
+// is_active e created_at ficam com o valor padrão do banco
+const resultado = await pool.query(
+    `INSERT INTO spaces (name, type, capacity, description, terms_of_use, buffer_minutes)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING ${COLUNAS}`,
+    [name, type, capacidade, description || null, terms_of_use || null, buffer]
+);
+
+// 201 = criado com sucesso
+res.status(201).json(resultado.rows[0]);
+    }
+catch (err){
+// type que não existe no banco (22P02) ou nome repetido (23505) caem aqui
+responderErro(res, err);
+}
+});
+
+
+
+
+/**
+ * @swagger
+ * /spaces/update/{id}:
  *   put:
- *     summary: Atualiza os dados de um espaço
- *     description: Só os campos enviados são alterados.
+ *     summary: Altera os dados de um espaço (só os campos enviados)
+ *     description: Também serve para ativar/desativar o espaço com is_active.
  *     tags: [Espaços]
  *     parameters:
  *       - in: path
@@ -262,53 +425,90 @@ router.get("/spaces/:id", function(req, res){
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/SpaceInput'
+ *             $ref: '#/components/schemas/EspacoUpdate'
  *     responses:
  *       200:
  *         description: Espaço atualizado
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Space'
+ *               $ref: '#/components/schemas/Espaco'
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
  *       404:
- *         description: Espaço não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Erro'
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       409:
+ *         $ref: '#/components/responses/Conflito'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//atualiza um espaço
-router.put("/spaces/:id", function(req, res){
-    const { id } = req.params;
-    const spaces = lerSpaces();
-    const espaço = spaces.find(spc => spc.id === Number(id)); // epga um espaço rqueisitado e coloca na variavel espaço
+//ALTERA UM ESPAÇO
+router.put("/spaces/update/:id", async function(req, res){
 
-    if(!espaço)  return res.status(404).json({ erro: "Espaço não encontrado" });
+try{
+// transforma o id em inteiro e verifica se é valido
+const id = Number(req.params.id);
+if(!Number.isInteger(id) || id <= 0){return res.status(400).json({ erro: "informe um valor valido"});}
 
-    const { name, type, capacity, description, is_active } = req.body; // pega os dados que o usuario manda
+// só os campos que vierem no body são alterados, o resto continua igual
+const { name, type, capacity, description, terms_of_use, buffer_minutes, is_active } = req.body;
 
-    // só troca o que foi mandado
-    if(name) espaço.name = name; // na variavel name é colocado em name da vriavel de espaço
-    if(type) espaço.type = type;
-    if(capacity !== undefined) espaço.capacity = capacity;
-    if(description !== undefined) espaço.description = description;
-    if(is_active !== undefined) espaço.is_active = is_active;
+//se não vier nenhum campo, retorna erro
+if(name === undefined && type === undefined && capacity === undefined && description === undefined &&
+   terms_of_use === undefined && buffer_minutes === undefined && is_active === undefined){
+    return res.status(400).json({ erro: "informe pelo menos um campo para alterar"});
+}
 
-    salvarSpaces(spaces); // grava a tabela no arquivo
+// se mandar capacity, verifica se é valida
+let capacidade = null;
+if(capacity !== undefined){
+    capacidade = Number(capacity);
+    if(!Number.isInteger(capacidade) || capacidade <= 0){return res.status(400).json({ erro: "informe uma capacity valida"});}
+}
 
-    res.json(espaço); // retorna o espaço atualizado
+// se mandar buffer_minutes, verifica se é valido
+let buffer = null;
+if(buffer_minutes !== undefined){
+    buffer = Number(buffer_minutes);
+    if(!Number.isInteger(buffer) || buffer < 0){return res.status(400).json({ erro: "informe um buffer_minutes valido"});}
+}
+
+// se mandar is_active, tem que ser true ou false
+if(is_active !== undefined && typeof is_active !== "boolean"){return res.status(400).json({ erro: "is_active deve ser true ou false"});}
+
+// COALESCE pega o primeiro valor que não for nulo:
+// se o campo não veio (null), mantém o valor que já estava no banco
+const resultado = await pool.query(
+    `UPDATE spaces SET
+        name = COALESCE($1, name),
+        type = COALESCE($2, type),
+        capacity = COALESCE($3, capacity),
+        description = COALESCE($4, description),
+        terms_of_use = COALESCE($5, terms_of_use),
+        buffer_minutes = COALESCE($6, buffer_minutes),
+        is_active = COALESCE($7, is_active)
+     WHERE id = $8
+     RETURNING ${COLUNAS}`,
+    [name ?? null, type ?? null, capacidade, description ?? null, terms_of_use ?? null, buffer, is_active ?? null, id]
+);
+
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows[0]);
+    }
+catch (err){
+responderErro(res, err);
+}
 });
-
 
 
 
 
 /**
  * @swagger
- * /spaces/{id}:
+ * /spaces/delete/{id}:
  *   delete:
- *     summary: Remove um espaço
- *     description: Apaga o espaço da tabela spaces e retorna a lista dos espaços restantes.
+ *     summary: Deleta um espaço
  *     tags: [Espaços]
  *     parameters:
  *       - in: path
@@ -316,40 +516,47 @@ router.put("/spaces/:id", function(req, res){
  *         required: true
  *         schema:
  *           type: integer
- *         example: 5
+ *         example: 1
  *     responses:
  *       200:
- *         description: Lista de espaços restantes
+ *         description: Espaço deletado
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Space'
- *       404:
- *         description: Espaço não encontrado
+ *               $ref: '#/components/schemas/Espaco'
+ *       400:
+ *         description: Id inválido ou espaço com reservas/bloqueios ligados a ele
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Erro'
+ *       404:
+ *         $ref: '#/components/responses/NaoEncontrado'
+ *       500:
+ *         $ref: '#/components/responses/ErroInterno'
  */
-//deleta um espaço
-router.delete("/spaces/:id", function(req, res){
-    const { id } = req.params;
-    const spaces = lerSpaces();
-    const espaço = spaces.find(spc => spc.id === Number(id));
+//DELETA UM ESPAÇO
+router.delete("/spaces/delete/:id", async function(req, res){
 
-    if(!espaço) return res.status(404).json({ erro: "Espaço não encontrado" });
+try{
+// transforma o id em inteiro e verifica se é valido
+const id = Number(req.params.id);
+if(!Number.isInteger(id) || id <= 0){return res.status(400).json({ erro: "informe um valor valido"});}
 
-    const espaçosFiltrados = spaces.filter(spaces => spaces.id != Number(id)); // todos os espaços que forem diferentes do id passado
+// deleta o espaço pelo id e retorna o espaço deletado
+const resultado = await pool.query(`DELETE FROM spaces WHERE id = $1 RETURNING ${COLUNAS}`, [id]);
 
-    salvarSpaces(espaçosFiltrados); // grava a lista sem o espaço, agora o delete apaga de verdade
-
-    res.json(espaçosFiltrados);
+//retorna o erro se n tiver linhas
+if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum espaço encontrado"});}
+res.json(resultado.rows[0]);
+    }
+catch (err){
+// espaço com reservas/bloqueios ligados (23503) cai aqui
+responderErro(res, err);
+}
 });
 
 
-// (rota inexistente é tratada no server.js)
 
 
 module.exports = router;

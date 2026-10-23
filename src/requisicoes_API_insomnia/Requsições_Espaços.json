@@ -1,0 +1,177 @@
+{
+  "info": {
+    "_postman_id": "fe86a92d-250e-4002-9dbe-5b28a9c0f883",
+    "name": "Requsições Espaços",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59149174",
+    "_collection_link": "https://go.postman.co/collection/59149174-fe86a92d-250e-4002-9dbe-5b28a9c0f883?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Espaços",
+      "item": [
+        {
+          "name": "Todos os Espaços",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/spaces",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo nome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/spaces/name/co",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces",
+                "name",
+                "co"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo tipo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/spaces/type/lab",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces",
+                "type",
+                "lab"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/spaces/id/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces",
+                "id",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pesquisa pelo Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3080/spaces/status/false",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces",
+                "status",
+                "false"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cria um espaço",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sala de Reunião 1\",\n  \"type\": \"MEETING_ROOM\",\n  \"capacity\": 10,\n  \"description\": \"Sala com projetor\",\n  \"terms_of_use\": \"Deixar a sala organizada\",\n  \"buffer_minutes\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3080/spaces",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Altera um espaço",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"cu\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3080/spaces/update/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3080",
+              "path": [
+                "spaces",
+                "update",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
