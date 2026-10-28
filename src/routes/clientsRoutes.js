@@ -4,7 +4,13 @@ const { responderErro } = require("../utils/banco");
 // cria uma instância do roteador do Express
 const router = express.Router();
 
- const COLUNAS = "id, name, email, password_hash, role, cpf, phone, company_id, is_active, created_at";
+//instacia da biblioteca bcryptjs para fazer o hash das senhas
+const bcrypt = require('bcryptjs');
+
+
+
+//sem password hash para nenhuma rota devolver a senha 
+ const COLUNAS = "id, name, email, role, cpf, phone, company_id, is_active, created_at";
 
 
 
@@ -53,7 +59,7 @@ const router = express.Router();
  *
  *     ClienteInput:
  *       type: object
- *       required: [name, email, password_hash, role, cpf, phone, company_id]
+ *       required: [name, email, password, role, cpf, phone, company_id]
  *       properties:
  *         name:
  *           type: string
@@ -61,7 +67,7 @@ const router = express.Router();
  *         email:
  *           type: string
  *           example: maria@email.com
- *         password_hash:
+ *         password:
  *           type: string
  *           example: "123456"
  *         role:
@@ -497,17 +503,32 @@ router.delete("/clients/delete/:id", async (req, res) => {
 router.post("/clients", async function(req, res) {
     
     // o req.body vai pedir todos esses campos
-    const { name, email, password_hash, role, cpf, phone, company_id } = req.body
+    const { name, email, password, role, cpf, phone, company_id } = req.body
     
     //se algum vir nulo, retorna erro
-    if(!name || !email || !password_hash || !role || !cpf || !phone || !company_id){
+    if(!name || !email || !password || !role || !cpf || !phone || !company_id){
         return res.status(400).json({ erro : "é nescessarios todos os campos preenchidos"});
     }
+
+
+    // a senha tem que ser texto. Se alguém mandar um número no JSON (ex: 123456 sem aspas),
+    // o bcrypt dá erro, então barramos antes.
+    if (typeof password !== "string" || password.length < 6) {
+        return res.status(400).json({ erro: "a senha deve ter pelo menos 6 caracteres" });
+    }
+
+
 
     try{
         // transforma o company_id em inteiro e verifica se é valido
         const empresa = Number(company_id);
         if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
+
+
+        //transofrma a password em hash
+        const hash = await bcrypt.hash(password, 10);
+
+
 
         // insere o cliente e retorna o cliente criado
         // is_active e created_at ficam com o valor padrão do banco
@@ -515,7 +536,7 @@ router.post("/clients", async function(req, res) {
             `INSERT INTO users (name, email, password_hash, role, cpf, phone, company_id)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
              RETURNING ${COLUNAS}`,
-            [name, email, password_hash, role, cpf, phone, empresa]
+            [name, email, hash, role, cpf, phone, empresa]
         );
 
         // 201 = criado com sucesso
