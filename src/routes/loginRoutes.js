@@ -3,7 +3,7 @@ const { pool } = require("../config/db"); // cria uma intancia pra usar as funç
 const { responderErro } = require("../utils/banco");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");// biblioteca pra gerar o hash
+const jwt = require("jsonwebtoken");// biblioteca pra gerar o token
 
 
 /**

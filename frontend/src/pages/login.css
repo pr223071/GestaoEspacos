@@ -1,0 +1,154 @@
+/* a página inteira: dois lados, um ao lado do outro */
+.login-pagina {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ===== LADO ESQUERDO ===== */
+.login-banner {
+  display: flex;
+  flex-direction: column;
+  background: var(--azul-escuro);
+  color: var(--branco);
+}
+
+.login-marca {
+  padding: 48px 48px 32px;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.login-subtitulo {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.login-tags {
+  margin-top: 8px;
+  color: #b9c7d8;
+}
+
+/* a "foto": troque o gradiente por url('/sala.jpg') depois de colocar
+   uma imagem chamada sala.jpg na pasta public */
+.login-foto {
+  flex: 1;
+  background:
+    linear-gradient(180deg, rgba(11, 42, 74, 0.2), rgba(11, 42, 74, 0.6)),
+    linear-gradient(135deg, #6d8fb3 0%, #a3b9cf 45%, #d6c3a2 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+/* ===== LADO DIREITO ===== */
+.login-lado-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: var(--branco);
+}
+
+.login-form {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form h1 {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.login-instrucao {
+  margin: 6px 0 32px;
+  color: var(--texto-suave);
+}
+
+.login-form label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.login-form input:focus {
+  outline: 2px solid var(--azul);
+  border-color: transparent;
+}
+
+/* o olho fica "por cima" do input, no canto direito */
+.login-campo-senha {
+  position: relative;
+}
+
+.login-olho {
+  position: absolute;
+  right: 10px;
+  top: 11px;
+  background: none;
+  border: none;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+.login-erro {
+  color: #c62828;
+  font-size: 14px;
+  margin: -6px 0 14px;
+}
+
+.login-botao {
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: var(--azul);
+  color: var(--branco);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-botao:hover {
+  background: var(--azul-hover);
+}
+
+.login-botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.login-esqueci {
+  margin-top: 20px;
+  background: none;
+  border: none;
+  color: var(--azul);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* CELULAR: some o lado esquerdo e o form ocupa tudo */
+@media (max-width: 800px) {
+  .login-pagina {
+    grid-template-columns: 1fr;
+  }
+  .login-banner {
+    display: none;
+  }
+}

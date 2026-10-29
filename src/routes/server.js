@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const { testarConexao, pool } = require("../config/db");
 const app = express();
+const cors = require('cors');
+app.use(cors({ origin: 'http://localhost:5173' })); // define front como padrão pro navegador não conversar com o back diretamente 
 const PORT = Number(process.env.PORT || 3080);
 
 app.use(express.json());

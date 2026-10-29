@@ -1,0 +1,251 @@
+/* layout: sidebar fixa de 240px + o resto */
+.home {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+}
+
+/* ===== SIDEBAR ===== */
+.home-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 14px;
+  background: var(--azul-escuro);
+  color: var(--branco);
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 0 10px 28px;
+}
+
+.home-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #c9d6e5;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--branco);
+}
+
+/* item da página atual */
+.home-menu-item.ativo {
+  background: var(--azul);
+  color: var(--branco);
+}
+
+.home-sair {
+  margin-top: auto; /* empurra para o fim da sidebar */
+}
+
+/* ===== TOPO ===== */
+.home-conteudo {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-topo {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 32px;
+  background: var(--branco);
+  border-bottom: 1px solid var(--borda);
+}
+
+.home-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--texto-suave);
+}
+
+.home-usuario div {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-usuario strong {
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.home-usuario span {
+  font-size: 12px;
+}
+
+.home-mais {
+  background: none;
+  border: none;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+/* ===== CONTEÚDO PRINCIPAL ===== */
+.home-principal {
+  padding: 32px;
+  max-width: 900px;
+}
+
+.home-principal h1 {
+  font-size: 26px;
+}
+
+.home-sub {
+  margin-top: 4px;
+  color: var(--texto-suave);
+}
+
+/* os 3 cards lado a lado */
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.home-card strong {
+  font-size: 28px;
+}
+
+.home-card span {
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.home-card.azul {
+  background: #eef4fd;
+}
+
+.home-card.laranja {
+  background: #fff3eb;
+  border-color: #ffd9c2;
+}
+
+.home-card.laranja strong {
+  color: var(--laranja);
+}
+
+/* ===== RESERVAS ===== */
+.home-reservas {
+  padding: 22px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.home-reservas h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.home-reserva {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.home-reserva-info {
+  display: flex;
+  gap: 12px;
+}
+
+.home-reserva-info div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.home-reserva-info span {
+  font-size: 14px;
+  color: var(--texto-suave);
+}
+
+.home-status {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #e3f5ea;
+  color: var(--verde);
+}
+
+/* troque por background-image: url('/sala.jpg') quando tiver a foto */
+.home-reserva-foto {
+  width: 180px;
+  min-height: 100px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6d8fb3, #d6c3a2);
+}
+
+.home-vazio {
+  color: var(--texto-suave);
+}
+
+.home-ver-todas {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--branco);
+  color: var(--azul);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* CELULAR: sidebar vira barra no topo e os cards empilham */
+@media (max-width: 800px) {
+  .home {
+    grid-template-columns: 1fr;
+  }
+  .home-sidebar nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .home-sair {
+    margin-top: 0;
+  }
+  .home-cards {
+    grid-template-columns: 1fr;
+  }
+  .home-reserva-foto {
+    display: none;
+  }
+}
