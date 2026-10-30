@@ -1,109 +1,4 @@
-/* layout: sidebar fixa de 240px + o resto */
-.home {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 240px 1fr;
-}
-
-/* ===== SIDEBAR ===== */
-.home-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 24px 14px;
-  background: var(--azul-escuro);
-  color: var(--branco);
-}
-
-.home-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: 700;
-  padding: 0 10px 28px;
-}
-
-.home-sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.home-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 12px;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: #c9d6e5;
-  font-size: 14px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.home-menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--branco);
-}
-
-/* item da página atual */
-.home-menu-item.ativo {
-  background: var(--azul);
-  color: var(--branco);
-}
-
-.home-sair {
-  margin-top: auto; /* empurra para o fim da sidebar */
-}
-
-/* ===== TOPO ===== */
-.home-conteudo {
-  display: flex;
-  flex-direction: column;
-}
-
-.home-topo {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 32px;
-  background: var(--branco);
-  border-bottom: 1px solid var(--borda);
-}
-
-.home-usuario {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--texto-suave);
-}
-
-.home-usuario div {
-  display: flex;
-  flex-direction: column;
-}
-
-.home-usuario strong {
-  color: var(--texto);
-  font-size: 14px;
-}
-
-.home-usuario span {
-  font-size: 12px;
-}
-
-.home-mais {
-  background: none;
-  border: none;
-  color: var(--texto);
-  cursor: pointer;
-}
-
-/* ===== CONTEÚDO PRINCIPAL ===== */
+/* ===== CONTEÚDO DO DASHBOARD ===== */
 .home-principal {
   padding: 32px;
   max-width: 900px;
@@ -230,18 +125,8 @@
   cursor: pointer;
 }
 
-/* CELULAR: sidebar vira barra no topo e os cards empilham */
+/* CELULAR: cards empilham e a foto some */
 @media (max-width: 800px) {
-  .home {
-    grid-template-columns: 1fr;
-  }
-  .home-sidebar nav {
-    flex-direction: row;
-    overflow-x: auto;
-  }
-  .home-sair {
-    margin-top: 0;
-  }
   .home-cards {
     grid-template-columns: 1fr;
   }

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
 import Login from './pages/login';
 import Dashboard from './pages/home';
+import Espacos from './pages/espacos';
 
 // lê o token e diz se ele ainda está dentro da validade
 function tokenValido(token) {
@@ -21,7 +23,6 @@ function RotaProtegida({ children }) {
   const token = localStorage.getItem('token');
 
   if (!token || !tokenValido(token)) {
-    // limpa o que sobrou do login antigo
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
     return <Navigate to="/login" replace />;
@@ -35,14 +36,20 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        {/* ROTAS ANINHADAS: todas as rotas aqui dentro passam pelo porteiro
+            e aparecem dentro do Layout (sidebar + topo), no lugar do <Outlet /> */}
         <Route
-          path="/dashboard"
           element={
             <RotaProtegida>
-              <Dashboard />
+              <Layout />
             </RotaProtegida>
           }
-        />
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/espacos" element={<Espacos />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,119 @@
+/* sidebar fixa de 240px + o resto */
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+}
+
+/* ===== SIDEBAR ===== */
+.layout-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 14px;
+  background: var(--azul-escuro);
+  color: var(--branco);
+}
+
+.layout-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 0 10px 28px;
+}
+
+.layout-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.layout-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #c9d6e5;
+  font-size: 14px;
+  text-decoration: none; /* NavLink vira <a>, que vem sublinhado */
+  cursor: pointer;
+}
+
+.layout-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--branco);
+}
+
+/* página atual (o NavLink coloca essa classe) */
+.layout-item.ativo {
+  background: var(--azul);
+  color: var(--branco);
+}
+
+.layout-sair {
+  margin-top: auto; /* empurra para o fim da sidebar */
+}
+
+/* ===== TOPO ===== */
+.layout-conteudo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.layout-topo {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 32px;
+  background: var(--branco);
+  border-bottom: 1px solid var(--borda);
+}
+
+.layout-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--texto-suave);
+}
+
+.layout-usuario div {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-usuario strong {
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.layout-usuario span {
+  font-size: 12px;
+}
+
+.layout-mais {
+  background: none;
+  border: none;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+/* CELULAR: sidebar vira barra no topo */
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .layout-sidebar nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .layout-sair {
+    margin-top: 0;
+  }
+}

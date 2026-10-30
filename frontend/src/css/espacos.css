@@ -1,0 +1,123 @@
+.espacos {
+  padding: 32px;
+}
+
+.espacos h1 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* ===== FILTROS ===== */
+.espacos-filtros {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* a busca ocupa o espaço que sobrar */
+.espacos-busca {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--texto-suave);
+}
+
+.espacos-busca input {
+  flex: 1;
+  padding: 11px 0;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: none;
+}
+
+.espacos-filtros select {
+  min-width: 160px;
+  padding: 11px 12px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--texto);
+}
+
+.espacos-busca:focus-within,
+.espacos-filtros select:focus {
+  outline: 2px solid var(--azul);
+  border-color: transparent;
+}
+
+.espacos-aviso {
+  color: var(--texto-suave);
+}
+
+.espacos-aviso.erro {
+  color: #c62828;
+}
+
+/* ===== GRADE =====
+   auto-fill + minmax: cabe quantos cards de 220px couberem por linha,
+   e eles esticam para preencher. Assim fica responsivo sem media query */
+.espacos-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.espaco-card {
+  overflow: hidden; /* faz a foto respeitar a borda arredondada */
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+/* troque por background-image: url('/sala.jpg') quando tiver a foto */
+.espaco-foto {
+  height: 130px;
+  background: linear-gradient(135deg, #6d8fb3, #d6c3a2);
+  background-size: cover;
+  background-position: center;
+}
+
+.espaco-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+}
+
+.espaco-info h2 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.espaco-info p {
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.espaco-botao {
+  margin-top: 12px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--azul);
+  color: var(--branco);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.espaco-botao:hover {
+  background: var(--azul-hover);
+}
+
+@media (max-width: 800px) {
+  .espacos-filtros {
+    flex-direction: column;
+  }
+}

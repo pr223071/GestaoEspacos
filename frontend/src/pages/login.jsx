@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Eye, EyeOff } from 'lucide-react';
-import './login.css';
+import '../css/login.css';
 
 // endereço do backend; se um dia mudar a porta, muda só aqui
 const API_URL = 'http://localhost:3080';
