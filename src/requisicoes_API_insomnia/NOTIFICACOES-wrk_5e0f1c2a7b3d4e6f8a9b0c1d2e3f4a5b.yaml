@@ -1,0 +1,416 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: NOTIFICACOES
+meta:
+  id: wrk_5e0f1c2a7b3d4e6f8a9b0c1d2e3f4a5b
+  created: 1794000000000
+  modified: 1794000000000
+  description: Banco com o 01_schema.sql e o 02_seed.sql da versao_completa recem
+    executados, ANTES do 04_demo_checkin.sql (o seed gera 33 notificacoes; o 04
+    cria mais e muda os ids). Rode o servidor com npm start e execute Cadastrar,
+    Atualizar, Marcar como enviada e Excluir nessa ordem (usam o id 34, criado
+    no Cadastrar).
+collection:
+  - url: http://localhost:3080/notificacoes
+    name: Listar notificacoes
+    meta:
+      id: req_9adde8a5c3302b103a0fafdce160957a
+      created: 1794000000001
+      modified: 1794000000001
+      isPrivate: false
+      description: ""
+      sortKey: -1794000000000
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/pendentes
+    name: Fila de pendentes (nao enviadas)
+    meta:
+      id: req_56b8920b2162fc3c18880df6880a86ec
+      created: 1794000000002
+      modified: 1794000000002
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999999
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/1
+    name: Buscar por ID
+    meta:
+      id: req_39edd64650b89425234469d7ca2b4c7d
+      created: 1794000000003
+      modified: 1794000000003
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999998
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/nome/bruno
+    name: Buscar por nome do usuario
+    meta:
+      id: req_9fe3c7a89ab584707b665895f200c459
+      created: 1794000000004
+      modified: 1794000000004
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999997
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/nome/recusada
+    name: Buscar por assunto
+    meta:
+      id: req_5b4392b99fdce45739741a04cc9b8ec5
+      created: 1794000000005
+      modified: 1794000000005
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999996
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/data/{% now 'custom', 'YYYY-MM-DD' %}
+    name: Buscar por data (hoje)
+    meta:
+      id: req_d393d872cef757d161f6ac10e2b8df2b
+      created: 1794000000006
+      modified: 1794000000006
+      isPrivate: false
+      description: As notificacoes do seed sao criadas na data em que o 02_seed.sql
+        foi executado.
+      sortKey: -1793999999995
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/usuario/4
+    name: Minhas notificacoes (usuario 4)
+    meta:
+      id: req_425fee833453dfad12f02a1c6767557d
+      created: 1794000000007
+      modified: 1794000000007
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999994
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes
+    name: Cadastrar aviso manual
+    meta:
+      id: req_ec964d7f868a450805bf142bc7e68778
+      created: 1794000000008
+      modified: 1794000000008
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999993
+    method: POST
+    body:
+      mimeType: application/json
+      text: >-
+        {
+        	"user_id": 4,
+        	"booking_id": 14,
+        	"channel": "WHATSAPP",
+        	"subject": "Lembrete da sua reserva",
+        	"message": "Lembrete: sua reserva da Sala Ipe e amanha as 09:00. Leve o QR Code."
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/34
+    name: Atualizar aviso (antes de enviar)
+    meta:
+      id: req_80bdce1e136fa995e420be14ad08967f
+      created: 1794000000009
+      modified: 1794000000009
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999992
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"subject": "Lembrete da sua reserva (horario confirmado)"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/34/enviada
+    name: Marcar como enviada
+    meta:
+      id: req_a9bb58471075f3418608264f00020004
+      created: 1794000000010
+      modified: 1794000000010
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999991
+    method: PUT
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/34
+    name: ERRO 409 - Alterar notificacao ja enviada
+    meta:
+      id: req_5749a559db413489fbfd310ef3850153
+      created: 1794000000011
+      modified: 1794000000011
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999990
+    method: PUT
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"message": "Tentando mudar depois de enviar"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/34/enviada
+    name: ERRO 409 - Marcar como enviada de novo
+    meta:
+      id: req_69eb6f8527f21f412b059e5d042a6261
+      created: 1794000000012
+      modified: 1794000000012
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999989
+    method: PUT
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/34
+    name: Excluir notificacao
+    meta:
+      id: req_41bacd65be24b0b80e1fe4544f0d0d5b
+      created: 1794000000013
+      modified: 1794000000013
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999988
+    method: DELETE
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/9999
+    name: ERRO 404 - ID que nao existe
+    meta:
+      id: req_8d0fba1f33019e42a4a59f8c303ac405
+      created: 1794000000014
+      modified: 1794000000014
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999987
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes/usuario/9999
+    name: ERRO 404 - Usuario que nao existe
+    meta:
+      id: req_24f33ebccc4193a7b7de50ec90487cd4
+      created: 1794000000015
+      modified: 1794000000015
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999986
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes
+    name: ERRO 400 - Sem assunto
+    meta:
+      id: req_f1ac9f08f6ecab760e7bbdbcf47417b9
+      created: 1794000000016
+      modified: 1794000000016
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999985
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"user_id": 4,
+        	"message": "Mensagem sem assunto"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes
+    name: ERRO 400 - Canal invalido
+    meta:
+      id: req_748fc819e8489c8089645f8688d5953d
+      created: 1794000000017
+      modified: 1794000000017
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999984
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"user_id": 4,
+        	"channel": "SMS",
+        	"subject": "Teste",
+        	"message": "Canal que nao existe"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/notificacoes
+    name: ERRO 400 - Reserva de outro usuario
+    meta:
+      id: req_fe237bb35768a876edd2e9859babe48c
+      created: 1794000000018
+      modified: 1794000000018
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999983
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"user_id": 3,
+        	"booking_id": 14,
+        	"subject": "Teste",
+        	"message": "A reserva 14 e do usuario 4"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_9352c23e370b2861ca328399b12c6964
+    created: 1794000000000
+    modified: 1794000000000
+environments:
+  name: Base Environment
+  meta:
+    id: env_4592b1da20226d2e81ceb7d503b6440e
+    created: 1794000000000
+    modified: 1794000000000
+    isPrivate: false

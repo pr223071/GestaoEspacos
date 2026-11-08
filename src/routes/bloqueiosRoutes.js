@@ -1,71 +1,71 @@
 // =====================================================================
-// ROTAS DE BLOQUEIOS - Paulo
+// rotas de bloqueios - paulo
 //
-// Parte da Matriz de Disponibilidade: a especificação pede "janelas permitidas...
-// e bloqueios para manutenção ou eventos internos".
+// parte da matriz de disponibilidade: a especificacao pede "janelas permitidas...
+// e bloqueios para manutencao ou eventos internos"
 //
-// A disponibilidade diz quando o espaço abre TODA SEMANA (ex.: segunda 08h-18h).
-// O bloqueio fecha o espaço num período ESPECÍFICO (ex.: dia 23/10 das 08h às 18h,
-// manutenção das bancadas). Enquanto o bloqueio existir, o banco não aceita
-// reservas nesse espaço e período, e a agenda mostra os horários como BLOQUEADO.
+// a disponibilidade diz quando o espaco abre toda semana (ex.: segunda 08h-18h)
+// o bloqueio fecha o espaco num periodo especifico (ex.: dia 23/10 das 08h as 18h,
+// manutencao das bancadas). enquanto o bloqueio existir, o banco nao aceita
+// reservas nesse espaco e periodo, e a agenda mostra os horarios como bloqueado
 //
-// Os dados ficam na tabela "space_blocks" do PostgreSQL (schema sgec).
+// os dados ficam na tabela "space_blocks" do postgresql (schema sgec)
 //
-// Rotas:
-//   GET    /bloqueios              -> lista todos
-//   GET    /bloqueios/nome/:nome   -> busca pelo nome do espaço ou pelo motivo
-//   GET    /bloqueios/data/:data   -> bloqueios que valem nessa data
-//   GET    /bloqueios/:id          -> busca um pelo id
-//   POST   /bloqueios              -> bloqueia um espaço por um período
-//   PUT    /bloqueios/:id          -> atualiza (só os campos enviados)
-//   DELETE /bloqueios/:id          -> remove (o espaço volta a aceitar reservas)
+// rotas:
+//   get    /bloqueios              -> lista todos
+//   get    /bloqueios/nome/:nome   -> busca pelo nome do espaco ou pelo motivo
+//   get    /bloqueios/data/:data   -> bloqueios que valem nessa data
+//   get    /bloqueios/:id          -> busca um pelo id
+//   post   /bloqueios              -> bloqueia um espaco por um periodo
+//   put    /bloqueios/:id          -> atualiza (so os campos enviados)
+//   delete /bloqueios/:id          -> remove (o espaco volta a aceitar reservas)
 // =====================================================================
 
 const express = require("express");
-const { pool } = require("../config/db");                          // conexão com o banco (criada pelo Enzo)
+const { pool } = require("../config/db");                          // conexao com o banco (criada pelo enzo)
 const { responderErro, semAcento } = require("../utils/banco");    // tratamento de erros do banco e busca sem acento
 
-// o Router agrupa as rotas deste arquivo; no index.js ele é ligado ao caminho "/bloqueios"
+// o router agrupa as rotas deste arquivo; no index.js ele e ligado ao caminho "/bloqueios"
 const router = express.Router();
 
-// todas as datas e horas usam o horário de Brasília
-// (o banco guarda em UTC; o AT TIME ZONE converte na ida e na volta)
+// todas as datas e horas usam o horario de brasilia
+// (o banco guarda em utc; o at time zone converte na ida e na volta)
 const FUSO = "America/Sao_Paulo";
 
-// colunas devolvidas pela API (tabela sgec.space_blocks)
-// as datas saem como "2026-10-23T08:00" no horário de Brasília (mesmo formato que o usuário envia)
-// (os ids são BIGINT no banco; o ::int faz eles virem como número, e não como texto)
+// colunas devolvidas pela api (tabela sgec.space_blocks)
+// as datas saem como "2026-10-23t08:00" no horario de brasilia (mesmo formato que o usuario envia)
+// (os ids sao bigint no banco; o ::int faz eles virem como numero, e nao como texto)
 const COLUNAS = `id::int AS id, space_id::int AS space_id,
                  to_char(start_datetime AT TIME ZONE '${FUSO}', 'YYYY-MM-DD"T"HH24:MI') AS start_datetime,
                  to_char(end_datetime AT TIME ZONE '${FUSO}', 'YYYY-MM-DD"T"HH24:MI')   AS end_datetime,
                  reason, created_by::int AS created_by, created_at`;
 
-// "2026-10-23T08:00" ou "2026-10-23 08:00" (data, T ou espaço, hora:minuto)
+// "2026-10-23t08:00" ou "2026-10-23 08:00" (data, t ou espaco, hora:minuto)
 const dataHoraValida = valor => /^\d{4}-\d{2}-\d{2}[T ]([01]\d|2[0-3]):[0-5]\d$/.test(valor) && !isNaN(new Date(valor.replace(" ", "T")));
 
 // confere os dados enviados; devolve { status, erro } se tiver problema ou null se estiver tudo certo
-// fica numa função porque o POST e o PUT usam as mesmas regras
-// (se o espaço e o usuário existem, quem confere é o banco, pela chave estrangeira)
+// fica numa funcao porque o post e o put usam as mesmas regras
+// (se o espaco e o usuario existem, quem confere e o banco, pela chave estrangeira)
 function validar(dados) {
     if (!Number.isInteger(dados.space_id)) return { status: 400, erro: "space_id precisa ser o id de um espaço" };
     if (!dataHoraValida(dados.start_datetime) || !dataHoraValida(dados.end_datetime)) {
         return { status: 400, erro: "Datas precisam estar no formato AAAA-MM-DDTHH:MM (ex: 2026-10-23T08:00)" };
     }
-    // nesse formato dá para comparar as datas como texto ("2026-10-23T18:00" > "2026-10-23T08:00")
+    // nesse formato da para comparar as datas como texto ("2026-10-23t18:00" > "2026-10-23t08:00")
     if (dados.end_datetime.replace(" ", "T") <= dados.start_datetime.replace(" ", "T")) return { status: 400, erro: "O fim do bloqueio precisa ser depois do início" };
-    // o motivo é obrigatório: serve de registro de por que o espaço ficou fechado
+    // o motivo e obrigatorio: serve de registro de por que o espaco ficou fechado
     if (!dados.reason || !String(dados.reason).trim()) return { status: 400, erro: "Informe o motivo do bloqueio (reason)" };
     if (dados.created_by !== null && !Number.isInteger(dados.created_by)) return { status: 400, erro: "created_by precisa ser o id de um usuário" };
     return null;
 }
 
-// REGRA DE NEGÓCIO: não deixa bloquear um período que já tem reservas pendentes ou aprovadas.
-// Senão um cliente teria a reserva aprovada e chegaria com o espaço fechado.
-// O gestor precisa cancelar (e avisar) essas reservas antes de bloquear.
-// Devolve a lista de ids das reservas que atrapalham (lista vazia = pode bloquear).
+// regra de negocio: nao deixa bloquear um periodo que ja tem reservas pendentes ou aprovadas
+// senao um cliente teria a reserva aprovada e chegaria com o espaco fechado
+// o gestor precisa cancelar (e avisar) essas reservas antes de bloquear
+// devolve a lista de ids das reservas que atrapalham (lista vazia = pode bloquear)
 async function reservasNoPeriodo(dados) {
     // tstzrange cria um intervalo de tempo e o && pergunta "esses dois intervalos se cruzam?"
-    // o "::timestamp AT TIME ZONE" diz ao banco que a hora enviada é do horário de Brasília
+    // o "::timestamp at time zone" diz ao banco que a hora enviada e do horario de brasilia
     const resultado = await pool.query(
         `SELECT id::int AS id FROM bookings
           WHERE space_id = $1
@@ -78,8 +78,8 @@ async function reservasNoPeriodo(dados) {
     return resultado.rows.map(r => r.id);
 }
 
-// erros do banco que têm mensagem própria nesta tabela
-//   23503 = chave estrangeira -> o space_id ou o created_by não existe -> 400
+// erros do banco que tem mensagem propria nesta tabela
+//   23503 = chave estrangeira -> o space_id ou o created_by nao existe -> 400
 function responderErroBloqueio(res, err) {
     if (err.code === "23503") return res.status(400).json({ erro: "O espaço (space_id) ou o usuário (created_by) informado não existe" });
     responderErro(res, err);
@@ -210,8 +210,8 @@ router.get("/", async function (req, res) {
  */
 router.get("/nome/:nome", async function (req, res) {
     try {
-        // procura o texto no motivo OU no nome do espaço (subconsulta na tabela spaces)
-        // o texto vai no $1, separado do SQL, para evitar SQL Injection
+        // procura o texto no motivo ou no nome do espaco (subconsulta na tabela spaces)
+        // o texto vai no $1, separado do sql, para evitar sql injection
         const resultado = await pool.query(
             `SELECT ${COLUNAS} FROM space_blocks
               WHERE ${semAcento("reason")} LIKE ${semAcento("$1")}
@@ -273,8 +273,8 @@ router.get("/data/:data", async function (req, res) {
     }
 
     try {
-        // um bloqueio "pega" o dia se começa antes do fim do dia E termina depois do começo do dia
-        // (assim aparece também um bloqueio de vários dias que passa por essa data)
+        // um bloqueio "pega" o dia se comeca antes do fim do dia e termina depois do comeco do dia
+        // (assim aparece tambem um bloqueio de varios dias que passa por essa data)
         // $1::date + 1 = meia-noite do dia seguinte
         const resultado = await pool.query(
             `SELECT ${COLUNAS} FROM space_blocks
@@ -320,7 +320,7 @@ router.get("/data/:data", async function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-// esta rota fica DEPOIS de /nome e /data: se viesse antes, "/bloqueios/nome" seria
+// esta rota fica depois de /nome e /data: se viesse antes, "/bloqueios/nome" seria
 // entendido como se "nome" fosse um id
 router.get("/:id", async function (req, res) {
     try {
@@ -371,7 +371,7 @@ router.get("/:id", async function (req, res) {
 router.post("/", async function (req, res) {
     const { space_id, start_datetime, end_datetime, reason, created_by } = req.body;
 
-    // monta os dados já convertidos; created_by é opcional (null se não vier)
+    // monta os dados ja convertidos; created_by e opcional (null se nao vier)
     const dados = {
         space_id: Number(space_id),
         start_datetime,
@@ -380,19 +380,19 @@ router.post("/", async function (req, res) {
         created_by: created_by !== undefined && created_by !== null ? Number(created_by) : null
     };
 
-    // 1º) valida o formato; se tiver problema, já responde 400 e para aqui
+    // 1) valida o formato; se tiver problema, ja responde 400 e para aqui
     const problema = validar(dados);
     if (problema) return res.status(problema.status).json({ erro: problema.erro });
 
     try {
-        // 2º) regra de negócio: não pode ter reserva ativa no período -> 409 (conflito)
+        // 2) regra de negocio: nao pode ter reserva ativa no periodo -> 409 (conflito)
         const reservas = await reservasNoPeriodo(dados);
         if (reservas.length > 0) {
             return res.status(409).json({ erro: `Existem reservas ativas nesse período (ids: ${reservas.join(", ")}). Cancele-as antes de bloquear o espaço` });
         }
 
-        // 3º) grava no banco; $1...$5 são trocados pelos valores da lista (protege contra SQL Injection)
-        // RETURNING devolve o bloqueio criado, já com o id gerado pelo banco
+        // 3) grava no banco; $1...$5 sao trocados pelos valores da lista (protege contra sql injection)
+        // returning devolve o bloqueio criado, ja com o id gerado pelo banco
         const resultado = await pool.query(
             `INSERT INTO space_blocks (space_id, start_datetime, end_datetime, reason, created_by)
              VALUES ($1, $2::timestamp AT TIME ZONE '${FUSO}', $3::timestamp AT TIME ZONE '${FUSO}', $4, $5)
@@ -455,14 +455,14 @@ router.post("/", async function (req, res) {
  */
 router.put("/:id", async function (req, res) {
     try {
-        // ATUALIZAÇÃO PARCIAL: busca o bloqueio atual para completar os campos que não foram enviados
+        // atualizacao parcial: busca o bloqueio atual para completar os campos que nao foram enviados
         const atual = await pool.query(`SELECT ${COLUNAS} FROM space_blocks WHERE id = $1`, [Number(req.params.id)]);
         if (atual.rows.length === 0) return res.status(404).json({ erro: "Bloqueio não encontrado" });
 
         const bloqueio = atual.rows[0];
         const { space_id, start_datetime, end_datetime, reason, created_by } = req.body;
 
-        // para cada campo: se veio no corpo (!== undefined) usa o novo, senão mantém o atual
+        // para cada campo: se veio no corpo (!== undefined) usa o novo, senao mantem o atual
         const dados = {
             space_id: space_id !== undefined ? Number(space_id) : bloqueio.space_id,
             start_datetime: start_datetime !== undefined ? start_datetime : bloqueio.start_datetime,
@@ -474,7 +474,7 @@ router.put("/:id", async function (req, res) {
         const problema = validar(dados);
         if (problema) return res.status(problema.status).json({ erro: problema.erro });
 
-        // se o período mudou, confere de novo se não pegou nenhuma reserva ativa
+        // se o periodo mudou, confere de novo se nao pegou nenhuma reserva ativa
         const reservas = await reservasNoPeriodo(dados);
         if (reservas.length > 0) {
             return res.status(409).json({ erro: `Existem reservas ativas nesse período (ids: ${reservas.join(", ")}). Cancele-as antes de bloquear o espaço` });
@@ -527,7 +527,7 @@ router.put("/:id", async function (req, res) {
  */
 router.delete("/:id", async function (req, res) {
     try {
-        // RETURNING devolve o bloqueio apagado; se não voltar nada, o id não existia -> 404
+        // returning devolve o bloqueio apagado; se nao voltar nada, o id nao existia -> 404
         const resultado = await pool.query(`DELETE FROM space_blocks WHERE id = $1 RETURNING ${COLUNAS}`, [Number(req.params.id)]);
 
         if (resultado.rows.length === 0) return res.status(404).json({ erro: "Bloqueio não encontrado" });

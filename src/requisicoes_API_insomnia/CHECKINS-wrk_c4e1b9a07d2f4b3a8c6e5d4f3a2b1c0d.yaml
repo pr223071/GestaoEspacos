@@ -1,0 +1,362 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: CHECKINS
+meta:
+  id: wrk_c4e1b9a07d2f4b3a8c6e5d4f3a2b1c0d
+  created: 1794000000000
+  modified: 1794000000000
+  description: "Banco com o 01_schema.sql e o 02_seed.sql da versao_completa recem
+    executados. Para testar a entrada e a saida: rode o 04_demo_checkin.sql no
+    pgAdmin, copie o qr_token que ele mostra e cole na variavel qr_token do
+    ambiente (Base Environment). Para o erro de QR expirado, copie o qr_token do
+    'Check-in da reserva 16' na variavel qr_token_expirado."
+collection:
+  - url: http://localhost:3080/checkins
+    name: Listar check-ins
+    meta:
+      id: req_e241cadf682c37551563d835e44b9cb6
+      created: 1794000000001
+      modified: 1794000000001
+      isPrivate: false
+      description: ""
+      sortKey: -1794000000000
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/1
+    name: Buscar por ID
+    meta:
+      id: req_22d4c450e15fd216ea5fcb0f327dab3a
+      created: 1794000000002
+      modified: 1794000000002
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999999
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/nome/ana
+    name: Buscar por nome (cliente ou espaco)
+    meta:
+      id: req_6d514a55f52a62045ae72431c50bb21c
+      created: 1794000000003
+      modified: 1794000000003
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999998
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/data/2026-09-15
+    name: Buscar por data da reserva
+    meta:
+      id: req_16b24ac13a45e147ac7ff4bac4a823a8
+      created: 1794000000004
+      modified: 1794000000004
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999997
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/reserva/16
+    name: Check-in da reserva 16
+    meta:
+      id: req_ebee69db7152318752d888696873622c
+      created: 1794000000005
+      modified: 1794000000005
+      isPrivate: false
+      description: "Mostra o qr_token da reserva 16 (ja passou: QR Code expirado)."
+      sortKey: -1793999999996
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}
+    name: Ler QR Code
+    meta:
+      id: req_6a9f0e8823e5c14e246cb3f94587fc74
+      created: 1794000000006
+      modified: 1794000000006
+      isPrivate: false
+      description: Usa a variavel qr_token do ambiente.
+      sortKey: -1793999999995
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}/entrada
+    name: Validar ENTRADA (recepcao)
+    meta:
+      id: req_db49563d027f5b70f7bebd575ce82b86
+      created: 1794000000007
+      modified: 1794000000007
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999994
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}/saida
+    name: Registrar SAIDA (recepcao)
+    meta:
+      id: req_668ea9409341688134d343d7e8bbd9a0
+      created: 1794000000008
+      modified: 1794000000008
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999993
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}/entrada
+    name: ERRO 409 - Entrada repetida
+    meta:
+      id: req_159006e2b88e1c996c906485cdc71551
+      created: 1794000000009
+      modified: 1794000000009
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999992
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}/saida
+    name: ERRO 409 - Saida repetida
+    meta:
+      id: req_72b2db6ee164bc47433a30c00ffb5db3
+      created: 1794000000010
+      modified: 1794000000010
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999991
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token_expirado }}/entrada
+    name: ERRO 409 - QR Code expirado
+    meta:
+      id: req_b2740c39ef5adc4e7253660e5a725c81
+      created: 1794000000011
+      modified: 1794000000011
+      isPrivate: false
+      description: Usa a variavel qr_token_expirado (reserva 16, que ja terminou).
+      sortKey: -1793999999990
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/{{ _.qr_token }}/entrada
+    name: ERRO 403 - Cliente tentando validar
+    meta:
+      id: req_d0b51919ac76c56599c9d127979385c4
+      created: 1794000000012
+      modified: 1794000000012
+      isPrivate: false
+      description: "O usuario 3 e cliente: so recepcao ou gestor validam."
+      sortKey: -1793999999989
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 3
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/abc123/entrada
+    name: ERRO 400 - QR Code invalido
+    meta:
+      id: req_6ddaa3adcff3ce724cf529aa37f00ba6
+      created: 1794000000013
+      modified: 1794000000013
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999988
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"validated_by": 2
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/token/00000000-0000-4000-8000-000000000000
+    name: ERRO 404 - QR Code que nao existe
+    meta:
+      id: req_e066b2efe8fab0d0c5e765d51b1ce889
+      created: 1794000000014
+      modified: 1794000000014
+      isPrivate: false
+      description: ""
+      sortKey: -1793999999987
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:3080/checkins/reserva/14
+    name: ERRO 404 - Reserva sem check-in (pendente)
+    meta:
+      id: req_630f6e04b5cdc6c5a811f7cfb14d396f
+      created: 1794000000015
+      modified: 1794000000015
+      isPrivate: false
+      description: "A reserva 14 ainda esta pendente: so reserva aprovada tem QR Code."
+      sortKey: -1793999999986
+    method: GET
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_d4bec913bdfa3560f7118e09c94b7373
+    created: 1794000000000
+    modified: 1794000000000
+environments:
+  name: Base Environment
+  meta:
+    id: env_0dfc673f01d47a5ff367a3448269ac78
+    created: 1794000000000
+    modified: 1794000000000
+    isPrivate: false
+  data:
+    qr_token: cole-aqui-o-qr_token-do-04_demo_checkin
+    qr_token_expirado: cole-aqui-o-qr_token-da-reserva-16

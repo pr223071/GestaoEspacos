@@ -1,38 +1,38 @@
 // =====================================================================
-// ROTAS DE EMPRESAS - Paulo
+// rotas de empresas - paulo
 //
-// Cadastro das empresas (pessoa jurídica) que pedem reservas.
-// Os dados ficam na tabela "companies" do PostgreSQL (schema sgec).
+// cadastro das empresas (pessoa juridica) que pedem reservas
+// os dados ficam na tabela "companies" do postgresql (schema sgec)
 //
-// Rotas:
-//   GET    /empresas              -> lista todas
-//   GET    /empresas/nome/:nome   -> busca pela razão social ou nome fantasia
-//   GET    /empresas/data/:data   -> busca pela data de cadastro
-//   GET    /empresas/:id          -> busca uma pelo id
-//   POST   /empresas              -> cadastra
-//   PUT    /empresas/:id          -> atualiza (só os campos enviados)
-//   DELETE /empresas/:id          -> remove
+// rotas:
+//   get    /empresas              -> lista todas
+//   get    /empresas/nome/:nome   -> busca pela razao social ou nome fantasia
+//   get    /empresas/data/:data   -> busca pela data de cadastro
+//   get    /empresas/:id          -> busca uma pelo id
+//   post   /empresas              -> cadastra
+//   put    /empresas/:id          -> atualiza (so os campos enviados)
+//   delete /empresas/:id          -> remove
 //
-// Respostas usadas:
-//   200 = deu certo | 201 = criado | 400 = dado errado enviado pelo usuário
-//   404 = não encontrado | 409 = conflito (ex.: CNPJ repetido) | 500 = erro no servidor
+// respostas usadas:
+//   200 = deu certo | 201 = criado | 400 = dado errado enviado pelo usuario
+//   404 = nao encontrado | 409 = conflito (ex.: cnpj repetido) | 500 = erro no servidor
 // =====================================================================
 
 const express = require("express");
-const { pool } = require("../config/db");                          // conexão com o banco 
+const { pool } = require("../config/db");                          // conexao com o banco
 const { responderErro, semAcento } = require("../utils/banco");    // tratamento de erros do banco e busca sem acento
-const { cpfValido, cnpjValido } = require("../utils/documentos");  // validação de CPF e CNPJ
+const { cpfValido, cnpjValido } = require("../utils/documentos");  // validacao de cpf e cnpj
 
-// o Router agrupa as rotas deste arquivo; no index.js ele é ligado ao caminho "/empresas"
+// o router agrupa as rotas deste arquivo; no index.js ele e ligado ao caminho "/empresas"
 const router = express.Router();
 
-// colunas devolvidas pela API (tabela sgec.companies)
-// fica numa constante para não repetir a lista em todas as consultas
+// colunas devolvidas pela api (tabela sgec.companies)
+// fica numa constante para nao repetir a lista em todas as consultas
 const COLUNAS = "id::int AS id, corporate_name, trade_name, cnpj, phone, legal_rep_name, legal_rep_cpf, created_at";
 
-// no banco o CNPJ e o CPF ficam só com números sem pontuacao
-// assim o usuário pode digitar com ou sem pontuação e o banco sempre guarda do mesmo jeito
-// /\D/g  pega tudo que NÃO é número e troca por vazio 
+// no banco o cnpj e o cpf ficam so com numeros sem pontuacao
+// assim o usuario pode digitar com ou sem pontuacao e o banco sempre guarda do mesmo jeito
+// /\d/g  pega tudo que nao e numero e troca por vazio
 const somenteNumeros = valor => (valor === undefined || valor === null) ? valor : String(valor).replace(/\D/g, "");
 
 
@@ -133,13 +133,13 @@ const somenteNumeros = valor => (valor === undefined || valor === null) ? valor 
  *               items:
  *                 $ref: '#/components/schemas/Empresa'
  */
-// "async" + "await": a consulta ao banco demora um pouco, então o código espera a resposta
-// sem travar o servidor (outras requisições continuam sendo atendidas enquanto isso)
+// "async" + "await": a consulta ao banco demora um pouco, entao o codigo espera a resposta
+// sem travar o servidor (outras requisicoes continuam sendo atendidas enquanto isso)
 router.get("/", async function (req, res) {
     // try/catch: se o banco der erro (ex.: fora do ar), cai no catch e responde com o erro certo
     try {
         const resultado = await pool.query(`SELECT ${COLUNAS} FROM companies ORDER BY id`);
-        res.json(resultado.rows); // "rows" é a lista de linhas que o banco devolveu
+        res.json(resultado.rows); // "rows" e a lista de linhas que o banco devolveu
     } catch (err) {
         responderErro(res, err);
     }
@@ -178,9 +178,9 @@ router.get("/", async function (req, res) {
  */
 router.get("/nome/:nome", async function (req, res) {
     try {
-        // compara sem maiúsculas/minúsculas e sem acentos 
-        // os % no começo e no fim deixam a busca parcial
-        // texto do usuário NÃO é colado dentro do SQL. Ele vai separado, no lugar do $1. Isso evita SQL Injection
+        // compara sem maiusculas/minusculas e sem acentos
+        // os % no comeco e no fim deixam a busca parcial
+        // texto do usuario nao e colado dentro do sql. ele vai separado, no lugar do $1. isso evita sql injection
         const resultado = await pool.query(
             `SELECT ${COLUNAS} FROM companies
               WHERE ${semAcento("corporate_name")} LIKE ${semAcento("$1")}
@@ -241,9 +241,9 @@ router.get("/data/:data", async function (req, res) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(req.params.data)) return res.status(400).json({ erro: "Data inválida. Use o formato AAAA-MM-DD" });
 
     try {
-        // o created_at guarda data E hora; aqui comparamos só a parte da data
-        // convertendo antes para o fuso de Brasília (senão uma empresa cadastrada
-        // às 22h apareceria no dia seguinte, porque o banco guarda em UTC)
+        // o created_at guarda data e hora; aqui comparamos so a parte da data
+        // convertendo antes para o fuso de brasilia (senao uma empresa cadastrada
+        // as 22h apareceria no dia seguinte, porque o banco guarda em utc)
         const resultado = await pool.query(
             `SELECT ${COLUNAS} FROM companies
               WHERE (created_at AT TIME ZONE 'America/Sao_Paulo')::date = $1
@@ -287,16 +287,16 @@ router.get("/data/:data", async function (req, res) {
  *             schema:
  *               $ref: '#/components/schemas/Erro'
  */
-// esta rota fica DEPOIS de /nome e /data: se viesse antes, "/empresas/nome" seria
+// esta rota fica depois de /nome e /data: se viesse antes, "/empresas/nome" seria
 // entendido como se "nome" fosse um id
 router.get("/:id", async function (req, res) {
     try {
-        // req.params.id vem da URL como texto ("1"); o Number() transforma em número
+        // req.params.id vem da url como texto ("1"); o number() transforma em numero
         const resultado = await pool.query(`SELECT ${COLUNAS} FROM companies WHERE id = $1`, [Number(req.params.id)]);
 
         if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
 
-        res.json(resultado.rows[0]); // [0] = só a primeira (e única) linha, já que o id é único
+        res.json(resultado.rows[0]); // [0] = so a primeira (e unica) linha, ja que o id e unico
     } catch (err) {
         responderErro(res, err);
     }
@@ -336,28 +336,28 @@ router.get("/:id", async function (req, res) {
  *               $ref: '#/components/schemas/Erro'
  */
 router.post("/", async function (req, res) {
-    // pega os campos do corpo (JSON) da requisição
+    // pega os campos do corpo (json) da requisicao
     const { corporate_name, trade_name, phone, legal_rep_name } = req.body;
     const cnpj = somenteNumeros(req.body.cnpj);
     const legal_rep_cpf = somenteNumeros(req.body.legal_rep_cpf);
 
-    //  confere os dados ANTES de ir ao banco e devolve 400 com uma mensagem clara
+    //  confere os dados antes de ir ao banco e devolve 400 com uma mensagem clara
     if (!corporate_name || !cnpj || !legal_rep_name || !legal_rep_cpf) {
         return res.status(400).json({ erro: "Razão social (corporate_name), CNPJ, responsável legal (legal_rep_name) e CPF do responsável (legal_rep_cpf) são obrigatórios" });
     }
-    // confere os dígitos verificadores 2 últimos números são calculados a partir dos outros
+    // confere os digitos verificadores 2 ultimos numeros sao calculados a partir dos outros
     if (!cnpjValido(cnpj)) return res.status(400).json({ erro: "CNPJ inválido (confira os números e os dígitos verificadores)" });
     if (!cpfValido(legal_rep_cpf)) return res.status(400).json({ erro: "CPF do responsável inválido (confira os números e os dígitos verificadores)" });
 
     try {
-        // grava no banco 
-        // $1, $2... são substituídos pelos valores da lista, na mesma ordem 
-        // RETURNING faz o INSERT já devolver a empresa criada
+        // grava no banco
+        // $1, $2... sao substituidos pelos valores da lista, na mesma ordem
+        // returning faz o insert ja devolver a empresa criada
         const resultado = await pool.query(
             `INSERT INTO companies (corporate_name, trade_name, cnpj, phone, legal_rep_name, legal_rep_cpf)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING ${COLUNAS}`,
-            [corporate_name, trade_name || corporate_name, cnpj, phone || null, legal_rep_name, legal_rep_cpf] // sem nome fantasia, usa a razão social
+            [corporate_name, trade_name || corporate_name, cnpj, phone || null, legal_rep_name, legal_rep_cpf] // sem nome fantasia, usa a razao social
         );
 
         res.status(201).json(resultado.rows[0]); 
@@ -420,13 +420,13 @@ router.put("/:id", async function (req, res) {
     const cnpj = somenteNumeros(req.body.cnpj);
     const legal_rep_cpf = somenteNumeros(req.body.legal_rep_cpf);
 
-    // no PUT os campos são opcionais: só valida o CNPJ/CPF se ele foi enviado
+    // no put os campos sao opcionais: so valida o cnpj/cpf se ele foi enviado
     if (cnpj && !cnpjValido(cnpj)) return res.status(400).json({ erro: "CNPJ inválido (confira os números e os dígitos verificadores)" });
     if (legal_rep_cpf && !cpfValido(legal_rep_cpf)) return res.status(400).json({ erro: "CPF do responsável inválido (confira os números e os dígitos verificadores)" });
 
     try {
-        // ATUALIZAÇÃO PARCIAL: só troca o que veio preenchido.
-        // coalesce $1, corporate_name = se $1  for null, mantém o valor antigo
+        // atualizacao parcial: so troca o que veio preenchido
+        // coalesce $1, corporate_name = se $1  for null, mantem o valor antigo
         const resultado = await pool.query(
             `UPDATE companies SET
                  corporate_name = COALESCE($1, corporate_name),
@@ -442,7 +442,7 @@ router.put("/:id", async function (req, res) {
              legal_rep_name || null, legal_rep_cpf || null, Number(req.params.id)]
         );
 
-        // se nenhuma linha foi atualizada, é porque não existe empresa com esse id
+        // se nenhuma linha foi atualizada, e porque nao existe empresa com esse id
         if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
 
         res.json(resultado.rows[0]);
@@ -490,18 +490,18 @@ router.put("/:id", async function (req, res) {
  */
 router.delete("/:id", async function (req, res) {
     try {
-        // RETURNING devolve a empresa que foi apagada 
-        // Os usuários dessa empresa ficam com company_id = null automaticamente:
-        // a chave estrangeira foi criada com ON DELETE SET NULL no banco.
+        // returning devolve a empresa que foi apagada
+        // os usuarios dessa empresa ficam com company_id = null automaticamente:
+        // a chave estrangeira foi criada com on delete set null no banco
         const resultado = await pool.query(`DELETE FROM companies WHERE id = $1 RETURNING ${COLUNAS}`, [Number(req.params.id)]);
 
         if (resultado.rows.length === 0) return res.status(404).json({ erro: "Empresa não encontrada" });
 
         res.json(resultado.rows[0]);
     } catch (err) {
-        // regra do banco: todo cliente precisa ter CPF OU empresa.
-        // Se um cliente só é identificado por esta empresa, ao apagá-la ele ficaria
-        // sem identificação; o banco recusa (código 23514) e respondemos 409.
+        // regra do banco: todo cliente precisa ter cpf ou empresa
+        // se um cliente so e identificado por esta empresa, ao apaga-la ele ficaria
+        // sem identificacao; o banco recusa (codigo 23514) e respondemos 409
         if (err.code === "23514") return res.status(409).json({ erro: "A empresa tem clientes sem CPF vinculados a ela. Cadastre o CPF deles ou remova-os antes" });
         responderErro(res, err);
     }

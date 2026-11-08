@@ -17,6 +17,8 @@ const swaggerSpec = swaggerJsdoc({
         path.resolve(__dirname, './espacosRoutes.js'),
         path.resolve(__dirname, './disponibilidadesRoutes.js'),
         path.resolve(__dirname, './bloqueiosRoutes.js'),
+        path.resolve(__dirname, './notificacoesRoutes.js'),
+        path.resolve(__dirname, './checkinsRoutes.js'),
         path.resolve(__dirname, './loginRoutes.js')
     ]
 });
@@ -27,6 +29,8 @@ router.use('/empresas', require('./empresasRoutes'));
 router.use('/reservas', require('./reservasRoutes'));
 router.use('/disponibilidades', require('./disponibilidadesRoutes'));
 router.use('/bloqueios', require('./bloqueiosRoutes'));
+router.use('/notificacoes', require('./notificacoesRoutes'));
+router.use('/checkins', require('./checkinsRoutes'));
 router.use(require('./clientsRoutes'));
 router.use(require('./espacosRoutes'));
 router.use('/login', require('./loginRoutes'));
