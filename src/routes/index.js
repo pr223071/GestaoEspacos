@@ -1,42 +1,69 @@
-const express = require('express');
-const path = require('path');
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const express = require("express");
+const path = require("path");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 const router = express.Router();
+const {
+  verificarToken,
+  exigirRole,
+  somenteAdminAltera,
+} = require("../middleware/auth");
 
 const swaggerSpec = swaggerJsdoc({
-    definition: {
-        openapi: '3.0.0',
-        info: { title: 'API Gestão de Espaços', version: '1.0.0', description: 'CRUD de empresas, espaços, reservas e usuários' },
-        servers: [{ url: 'http://localhost:3080' }]
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "API Gestão de Espaços",
+      version: "1.0.0",
+      description: "CRUD de empresas, espaços, reservas e usuários",
     },
-    apis: [
-        path.resolve(__dirname, './empresasRoutes.js'),
-        path.resolve(__dirname, './reservasRoutes.js'),
-        path.resolve(__dirname, './clientsRoutes.js'),
-        path.resolve(__dirname, './espacosRoutes.js'),
-        path.resolve(__dirname, './disponibilidadesRoutes.js'),
-        path.resolve(__dirname, './bloqueiosRoutes.js'),
-        path.resolve(__dirname, './notificacoesRoutes.js'),
-        path.resolve(__dirname, './checkinsRoutes.js'),
-        path.resolve(__dirname, './loginRoutes.js'),
-        path.resolve(__dirname, './historicoRoutes.js'),
-        path.resolve(__dirname, './reservasEquipamentosRoutes.js')
-    ]
+    servers: [{ url: "http://localhost:3080" }],
+  },
+  apis: [
+    path.resolve(__dirname, "./empresasRoutes.js"),
+    path.resolve(__dirname, "./reservasRoutes.js"),
+    path.resolve(__dirname, "./clientsRoutes.js"),
+    path.resolve(__dirname, "./espacosRoutes.js"),
+    path.resolve(__dirname, "./disponibilidadesRoutes.js"),
+    path.resolve(__dirname, "./bloqueiosRoutes.js"),
+    path.resolve(__dirname, "./notificacoesRoutes.js"),
+    path.resolve(__dirname, "./checkinsRoutes.js"),
+    path.resolve(__dirname, "./loginRoutes.js"),
+    path.resolve(__dirname, "./historicoRoutes.js"),
+    path.resolve(__dirname, "./reservasEquipamentosRoutes.js"),
+  ],
 });
 
-router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-router.get('/docs.json', (req, res) => res.json(swaggerSpec));
-router.use('/empresas', require('./empresasRoutes'));
-router.use('/reservas', require('./reservasRoutes'));
-router.use('/disponibilidades', require('./disponibilidadesRoutes'));
-router.use('/bloqueios', require('./bloqueiosRoutes'));
-router.use('/notificacoes', require('./notificacoesRoutes'));
-router.use('/checkins', require('./checkinsRoutes'));
-router.use('/historico', require('./historicoRoutes'));
-router.use('/reservas-equipamentos', require('./reservasEquipamentosRoutes'));
-router.use(require('./clientsRoutes'));
-router.use(require('./espacosRoutes'));
-router.use('/login', require('./loginRoutes'));
+router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.get("/docs.json", (req, res) => res.json(swaggerSpec));
+// ---------------------------------------------------------------
+// MIDDLEWARE DE AUTENTICAÇÃO / PERFIL
+// /docs e /login ficam acima (ou abaixo) e são PÚBLICOS; o resto exige token.
+// ADMIN = tudo | CLIENT = reservar e consultar | RECEPTION = check-in/out
+// ---------------------------------------------------------------
+router.use("/login", require("./loginRoutes")); // público (é onde se gera o token)
+
+router.use(verificarToken); // daqui para baixo: precisa estar logado
+
+router.use("/empresas", somenteAdminAltera, require("./empresasRoutes"));
+router.use(
+  "/disponibilidades",
+  somenteAdminAltera,
+  require("./disponibilidadesRoutes"),
+);
+router.use("/bloqueios", somenteAdminAltera, require("./bloqueiosRoutes"));
+router.use("/spaces", somenteAdminAltera); // espaços: todos veem, só ADMIN cria/edita/apaga
+router.use("/clients", exigirRole("ADMIN")); // gestão de usuários: só ADMIN
+router.use("/historico", exigirRole("ADMIN", "RECEPTION"));
+router.use("/checkins", exigirRole("ADMIN", "RECEPTION"));
+
+// liberadas para qualquer perfil logado
+router.use("/reservas", require("./reservasRoutes"));
+router.use("/notificacoes", require("./notificacoesRoutes"));
+router.use("/reservas-equipamentos", require("./reservasEquipamentosRoutes"));
+router.use("/historico", require("./historicoRoutes"));
+router.use("/checkins", require("./checkinsRoutes"));
+router.use(require("./clientsRoutes"));
+router.use(require("./espacosRoutes"));
 
 module.exports = router;

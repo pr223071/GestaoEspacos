@@ -1,0 +1,185 @@
+.reservas-pagina {
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+.reservas-voltar {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: var(--azul);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+.reservas-titulo {
+  margin-bottom: 24px;
+}
+.reservas-titulo h1 {
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.reservas-titulo p,
+.reserva-form-card > p {
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.reserva-form-card {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 760px;
+}
+.reserva-form-card h2 {
+  font-size: 19px;
+  margin-bottom: 6px;
+}
+.reservas-regras {
+  padding: 12px;
+  background: #f5f8fc;
+  border-radius: 8px;
+}
+.reserva-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+.reserva-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.reserva-form input,
+.reserva-form textarea {
+  width: 100%;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 11px;
+  background: var(--branco);
+  color: var(--texto);
+  font: inherit;
+  font-weight: 400;
+}
+.reserva-largo {
+  grid-column: 1/-1;
+}
+.reserva-submit {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--azul);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.reserva-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.reservas-alerta {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  grid-column: 1/-1;
+}
+.reservas-alerta.erro {
+  background: #fff1f0;
+  color: #b42318;
+}
+.reservas-alerta.sucesso {
+  background: #ecfdf3;
+  color: #067647;
+}
+.reservas-lista {
+  display: grid;
+  gap: 12px;
+}
+.reserva-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+.reserva-item h2 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.reserva-item p {
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin-top: 4px;
+}
+.reserva-status {
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 700;
+}
+.status-approved {
+  background: #ecfdf3;
+  color: #067647;
+}
+.status-pending {
+  background: #fffaeb;
+  color: #b54708;
+}
+.status-rejected,
+.status-cancelled {
+  background: #fff1f0;
+  color: #b42318;
+}
+.reservas-vazio {
+  padding: 24px;
+  border: 1px dashed var(--borda);
+  border-radius: 10px;
+  color: var(--texto-suave);
+}
+.link-botao {
+  margin-top: 10px;
+}
+@media (max-width: 650px) {
+  .reservas-pagina {
+    padding: 20px;
+  }
+  .reserva-form {
+    grid-template-columns: 1fr;
+  }
+  .reserva-largo {
+    grid-column: auto;
+  }
+  .reserva-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.reservas-disponibilidade {
+  padding: 12px;
+  margin: 12px 0;
+  background: #f5f8fc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.reservas-disponibilidade ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+.reservas-disponibilidade li {
+  margin: 4px 0;
+}

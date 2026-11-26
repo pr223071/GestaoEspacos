@@ -1,28 +1,46 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  Box, Home, Building2, CalendarDays, Bell, User, LogOut, UserCircle, Plus,
-} from 'lucide-react';
-import '../css/Layout.css';
+  Box,
+  Home,
+  Building2,
+  CalendarDays,
+  Bell,
+  User,
+  LogOut,
+  UserCircle,
+  Plus,
+} from "lucide-react";
+import "../css/Layout.css";
 
-// itens do menu: "para" é a URL de cada página
+// itens do menu: "para" é a URL de cada página.
+// "roles" (opcional) limita quem VÊ o item; sem "roles", todos veem.
 const MENU = [
-  { texto: 'Início', icone: Home, para: '/dashboard' },
-  { texto: 'Espaços', icone: Building2, para: '/espacos' },
-  { texto: 'Minhas Reservas', icone: CalendarDays, para: '/reservas' },
-  { texto: 'Notificações', icone: Bell, para: '/notificacoes' },
-  { texto: 'Perfil', icone: User, para: '/perfil' },
+  { texto: "Início", icone: Home, para: "/dashboard" },
+  { texto: "Espaços", icone: Building2, para: "/espacos" },
+  { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas" },
+  { texto: "Notificações", icone: Bell, para: "/notificacoes" },
+  { texto: "Perfil", icone: User, para: "/perfil" },
+  // exemplo: { texto: 'Aprovações', icone: Home, para: '/admin/aprovacoes', roles: ['ADMIN'] },
 ];
+
+// nome bonito de cada perfil para mostrar no topo
+const NOME_ROLE = {
+  ADMIN: "Administrador",
+  CLIENT: "Cliente",
+  RECEPTION: "Recepção",
+};
 
 // Moldura das páginas logadas: sidebar + topo.
 // O conteúdo de cada página aparece no lugar do <Outlet />.
 function Layout() {
   const navigate = useNavigate();
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const role = String(usuario.role || "").toUpperCase(); // ADMIN, CLIENT ou RECEPTION
 
   function sair() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    navigate('/login');
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/login");
   }
 
   return (
@@ -34,21 +52,25 @@ function Layout() {
         </div>
 
         <nav>
-          {MENU.map((item) => {
-            const Icone = item.icone;
-            return (
-              // NavLink é um link do React Router que sabe se é a página atual.
-              // Ele chama a função do className passando { isActive }.
-              <NavLink
-                key={item.para}
-                to={item.para}
-                className={({ isActive }) => (isActive ? 'layout-item ativo' : 'layout-item')}
-              >
-                <Icone size={18} />
-                {item.texto}
-              </NavLink>
-            );
-          })}
+          {MENU.filter((item) => !item.roles || item.roles.includes(role)).map(
+            (item) => {
+              const Icone = item.icone;
+              return (
+                // NavLink é um link do React Router que sabe se é a página atual.
+                // Ele chama a função do className passando  isActive .
+                <NavLink
+                  key={item.para}
+                  to={item.para}
+                  className={({ isActive }) =>
+                    isActive ? "layout-item ativo" : "layout-item"
+                  }
+                >
+                  <Icone size={18} />
+                  {item.texto}
+                </NavLink>
+              );
+            },
+          )}
         </nav>
 
         <button className="layout-item layout-sair" onClick={sair}>
@@ -63,7 +85,7 @@ function Layout() {
             <UserCircle size={34} strokeWidth={1.5} />
             <div>
               <strong>{usuario.name}</strong>
-              <span>{usuario.role === 'client' ? 'Cliente' : usuario.role}</span>
+              <span>{NOME_ROLE[role] || role}</span>
             </div>
           </div>
           <button className="layout-mais" aria-label="Nova reserva">

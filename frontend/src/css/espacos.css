@@ -121,3 +121,318 @@
     flex-direction: column;
   }
 }
+/* Cabeçalho e modal de cadastro/edição */
+.espacos-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.espacos-cabecalho h1 {
+  margin-bottom: 6px;
+}
+.espacos-cabecalho p {
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+.espacos-novo,
+.equipamento-adicionar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 11px 15px;
+  background: var(--azul);
+  color: var(--branco);
+  font-weight: 600;
+  cursor: pointer;
+}
+.espacos-novo:hover,
+.equipamento-adicionar:hover {
+  background: var(--azul-hover);
+}
+.espaco-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.espaco-acoes .espaco-botao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 0;
+}
+.espaco-botao.secundario {
+  background: transparent;
+  color: var(--azul);
+  border: 1px solid var(--borda);
+}
+.espaco-botao.secundario:hover {
+  background: #f2f6fb;
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.58);
+}
+.espaco-modal {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--branco);
+  border-radius: 14px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+.modal-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--borda);
+}
+.modal-cabecalho h2 {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+.modal-cabecalho p,
+.equipamentos-cabecalho p {
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+.modal-fechar {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  padding: 5px;
+  cursor: pointer;
+}
+.espaco-modal form {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.modal-corpo {
+  overflow: auto;
+  padding: 22px 24px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.form-grid label,
+.equipamento-linha label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texto);
+}
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
+.equipamento-linha input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 10px 11px;
+  color: var(--texto);
+  background: var(--branco);
+  font: inherit;
+  font-weight: 400;
+  outline: none;
+}
+.form-grid textarea {
+  resize: vertical;
+}
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus,
+.equipamento-linha input:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 2px rgba(44, 105, 160, 0.12);
+}
+.form-largo {
+  grid-column: 1/-1;
+}
+.equipamentos-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 26px 0 12px;
+}
+.equipamentos-cabecalho h3 {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.equipamento-adicionar {
+  padding: 9px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.equipamentos-vazio {
+  padding: 14px;
+  border: 1px dashed var(--borda);
+  border-radius: 8px;
+  color: var(--texto-suave);
+  font-size: 13px;
+  text-align: center;
+}
+.equipamento-linha {
+  display: grid;
+  grid-template-columns: 1.2fr 0.55fr 1.2fr 32px;
+  align-items: end;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+.equipamento-remover {
+  display: grid;
+  place-items: center;
+  height: 38px;
+  border: 0;
+  border-radius: 7px;
+  background: #fff1f0;
+  color: #b42318;
+  cursor: pointer;
+}
+.modal-erro {
+  margin-top: 16px;
+  color: #b42318;
+  font-size: 13px;
+}
+.modal-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--borda);
+  background: #fafafa;
+}
+.modal-cancelar,
+.modal-salvar {
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.modal-cancelar {
+  border: 1px solid var(--borda);
+  background: var(--branco);
+  color: var(--texto);
+}
+.modal-salvar {
+  border: 0;
+  background: var(--azul);
+  color: var(--branco);
+}
+.modal-salvar:disabled,
+.modal-cancelar:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media (max-width: 700px) {
+  .espacos {
+    padding: 20px;
+  }
+  .espacos-cabecalho {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .espacos-novo {
+    width: 100%;
+  }
+  .modal-overlay {
+    padding: 8px;
+  }
+  .espaco-modal {
+    max-height: calc(100vh - 16px);
+  }
+  .modal-cabecalho,
+  .modal-corpo {
+    padding: 18px;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-largo {
+    grid-column: auto;
+  }
+  .equipamento-linha {
+    grid-template-columns: 1fr 90px 32px;
+  }
+  .equipamento-desc {
+    grid-column: 1/3;
+  }
+  .equipamento-remover {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .modal-rodape {
+    padding: 14px 18px;
+  }
+}
+
+/* Cadastro de horários semanais */
+.horarios-lista {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.horario-linha {
+  display: grid;
+  grid-template-columns: 1.1fr 0.75fr 0.75fr 1.4fr;
+  gap: 12px;
+  align-items: end;
+  padding: 10px 12px;
+  border: 1px solid var(--borda);
+  border-radius: 9px;
+}
+.horario-linha label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+.horario-linha .horario-dia,
+.horario-linha .horario-externo {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+}
+.horario-linha input[type="checkbox"] {
+  width: auto;
+}
+.horario-linha input:disabled {
+  opacity: 0.55;
+}
+@media (max-width: 700px) {
+  .horario-linha {
+    grid-template-columns: 1fr 1fr;
+  }
+  .horario-linha .horario-dia,
+  .horario-linha .horario-externo {
+    grid-column: span 2;
+  }
+}

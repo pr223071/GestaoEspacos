@@ -131,7 +131,7 @@ router.post("/", async function (req, res) {
     const token = jwt.sign(
         {id: usuario.id, role: usuario.role },
         process.env.JWT_SECRET,
-        { expiresIn: "30s"}
+        { expiresIn: "8h"} //ENZO: Alterei para testes
         
     );
 
