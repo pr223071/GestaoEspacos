@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { CalendarCheck, Clock, Bell, ArrowUpRight } from 'lucide-react';
 import '../css/home.css';
+import { fotoDoEspaco } from '../utils/fotosEspacos';
 
 // DADOS DE EXEMPLO: por enquanto fixos aqui.
 // Depois do middleware, eles vão vir do backend com fetch (rota de reservas).
@@ -79,7 +80,14 @@ function Home() {
                 <tr key={reserva.id}>
                   <td>
                     <div className="home-espaco">
-                      <span className="home-reserva-foto" />
+                      <span
+                        className="home-reserva-foto"
+                        style={
+                          fotoDoEspaco(reserva.espaco)
+                            ? { backgroundImage: `url(${fotoDoEspaco(reserva.espaco)})` }
+                            : undefined
+                        }
+                      />
                       <strong>{reserva.espaco}</strong>
                     </div>
                   </td>

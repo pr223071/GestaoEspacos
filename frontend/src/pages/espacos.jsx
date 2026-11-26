@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Pencil, X, Trash2 } from "lucide-react";
 import "../css/espacos.css";
+import { fotoDoEspaco } from "../utils/fotosEspacos";
 
 // Constantes e funcoes auxiliares usadas pela tela.
 const API_URL = "http://localhost:3080";
@@ -376,7 +377,15 @@ function Espacos() {
       <section className="espacos-grade">
         {espacosFiltrados.map((espaco) => (
           <article key={espaco.id} className="espaco-card">
-            <div className="espaco-foto" />
+            <div className="espaco-foto">
+              {fotoDoEspaco(espaco.name, espaco.type) && (
+                <img
+                  src={fotoDoEspaco(espaco.name, espaco.type)}
+                  alt={espaco.name}
+                  loading="lazy"
+                />
+              )}
+            </div>
             <div className="espaco-info">
               <h2>{espaco.name}</h2>
               <p>Tipo: {mostrarNomeDoTipo(espaco.type)}</p>

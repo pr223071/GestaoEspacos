@@ -162,12 +162,13 @@
   font-weight: 500;
 }
 
-/* troque por background-image: url('/sala.jpg') quando tiver a foto */
 .home-reserva-foto {
   width: 40px;
   height: 40px;
   border-radius: 10px;
   background: linear-gradient(135deg, #d9d9dd, #8b8b93);
+  background-size: cover;
+  background-position: center;
 }
 
 .home-status {
