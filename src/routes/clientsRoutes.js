@@ -443,13 +443,21 @@ catch (err){
  *       500:
  *         $ref: '#/components/responses/ErroInterno'
  */
-//DELETA UM USUARIO
+
+
 //DELETA UM USUARIO
 router.delete("/clients/delete/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
         if (!Number.isInteger(id) || id <= 0) {
             return res.status(400).json({ erro: "informe um valor valido" });
+        }
+
+
+        //verifica se o user tem vagas ativas
+        const { rows } = await pool.query(`SELECT * FROM bookings WHERE user_id = $1 AND status != 'REJECTED' `, [id]);
+        if(rows.length > 0){
+            return res.status(409).json({ erro: "não é possivel excluir um usuario com uma reserva ativa"})
         }
 
         // retorna só os campos seguros, sem o password_hash
@@ -463,7 +471,8 @@ router.delete("/clients/delete/:id", async (req, res) => {
         }
 
         res.json(resultado.rows[0]);
-    }
+        }
+ 
     catch (err) {
         responderErro(res, err); // função que de fato foi importada
     }
