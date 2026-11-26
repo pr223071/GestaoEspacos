@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -13,6 +14,7 @@ import {
   QrCode,
 } from "lucide-react";
 import Logo from "./Logo";
+import PerfilCard from "./PerfilCard";
 import "../css/Layout.css";
 
 // itens do menu: "para" é a URL de cada página.
@@ -26,7 +28,7 @@ const MENU = [
   { texto: "Salas", icone: DoorOpen, para: "/gestao/salas", roles: ["RECEPTION", "ADMIN"] },
   { texto: "Equipamentos", icone: Wrench, para: "/gestao/equipamentos", roles: ["RECEPTION", "ADMIN"] },
   { texto: "Notificações", icone: Bell, para: "/notificacoes" },
-  { texto: "Perfil", icone: User, para: "/perfil" },
+  { texto: "Perfil", icone: User, para: "/perfil", abreCard: true }, // abre o card em vez de trocar de página
   // exemplo: { texto: 'Aprovações', icone: Home, para: '/admin/aprovacoes', roles: ['ADMIN'] },
 ];
 
@@ -57,7 +59,8 @@ function iniciais(nome) {
 function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario") || "{}"));
+  const [perfilAberto, setPerfilAberto] = useState(false);
   const role = String(usuario.role || "").toUpperCase(); // ADMIN, CLIENT ou RECEPTION
 
   // quem entra como ADMIN vê o sistema inteiro com as cores invertidas
@@ -103,6 +106,19 @@ function Layout() {
 
           {menuVisivel.map((item) => {
             const Icone = item.icone;
+            if (item.abreCard) {
+              return (
+                <button
+                  key={item.para}
+                  type="button"
+                  className={perfilAberto ? "layout-item aberto" : "layout-item"}
+                  onClick={() => setPerfilAberto(true)}
+                >
+                  <Icone size={18} strokeWidth={1.8} />
+                  {item.texto}
+                </button>
+              );
+            }
             return (
               // NavLink é um link do React Router que sabe se é a página atual.
               // Ele chama a função do className passando  isActive .
@@ -134,13 +150,18 @@ function Layout() {
               <Plus size={16} /> Nova reserva
             </button>
 
-            <div className="layout-usuario">
+            <button
+              type="button"
+              className="layout-usuario"
+              onClick={() => setPerfilAberto(true)}
+              title="Meu perfil"
+            >
               <span className="layout-avatar">{iniciais(usuario.name)}</span>
               <div>
                 <strong>{usuario.name}</strong>
                 <span>{NOME_ROLE[role] || role}</span>
               </div>
-            </div>
+            </button>
 
             <button type="button" className="layout-sair" onClick={sair} aria-label="Sair" title="Sair">
               <LogOut size={18} />
@@ -154,6 +175,10 @@ function Layout() {
           <Outlet />
         </div>
       </div>
+
+      {perfilAberto && (
+        <PerfilCard onFechar={() => setPerfilAberto(false)} onAtualizado={setUsuario} />
+      )}
     </div>
   );
 }

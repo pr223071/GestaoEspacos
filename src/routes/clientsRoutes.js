@@ -498,6 +498,182 @@ router.delete("/clients/delete/:id", async (req, res) => {
 
 /**
  * @swagger
+ * /perfil:
+ *   get:
+ *     summary: Dados do próprio usuário logado
+ *     tags: [Perfil]
+ *     responses:
+ *       200:
+ *         description: Usuário logado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Cliente'
+ *   put:
+ *     summary: Altera os dados do próprio usuário (nome, email, cpf, telefone, senha)
+ *     description: Para trocar a senha é preciso mandar senha_atual. Perfil, empresa e status não podem ser alterados aqui.
+ *     tags: [Perfil]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               email: { type: string }
+ *               cpf: { type: string }
+ *               phone: { type: string }
+ *               password: { type: string, description: nova senha }
+ *               senha_atual: { type: string }
+ *     responses:
+ *       200:
+ *         description: Usuário atualizado
+ *       400:
+ *         $ref: '#/components/responses/ErroValidacao'
+ *       409:
+ *         $ref: '#/components/responses/Conflito'
+ *   delete:
+ *     summary: Exclui a própria conta
+ *     description: Pede a senha para confirmar. Se o usuário tiver histórico de reservas, a conta é desativada em vez de apagada.
+ *     tags: [Perfil]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               senha: { type: string }
+ *     responses:
+ *       200:
+ *         description: Conta excluída ou desativada
+ *       401:
+ *         description: Senha incorreta
+ *       409:
+ *         description: Usuário tem reservas ativas
+ */
+// VER O PRÓPRIO PERFIL (o id vem do token, não da url)
+router.get("/perfil", async (req, res) => {
+    try {
+        const resultado = await pool.query(`SELECT ${COLUNAS} FROM users WHERE id = $1`, [req.usuario.id]);
+        if (resultado.rowCount === 0) return res.status(404).json({ erro: "usuário não encontrado" });
+        res.json(resultado.rows[0]);
+    } catch (err) {
+        responderErro(res, err);
+    }
+});
+
+// ALTERA O PRÓPRIO PERFIL
+router.put("/perfil", async (req, res) => {
+    try {
+        const id = req.usuario.id;
+        const { name, password, senha_atual } = req.body;
+        const email = limparEmail(req.body.email);
+        const cpf = soNumeros(req.body.cpf);
+        const phone = soNumeros(req.body.phone);
+
+        if (name === undefined && email === undefined && cpf === undefined && phone === undefined && password === undefined) {
+            return res.status(400).json({ erro: "informe pelo menos um campo para alterar" });
+        }
+        if (name !== undefined && (typeof name !== "string" || name.trim() === "")) {
+            return res.status(400).json({ erro: "o nome não pode ficar vazio" });
+        }
+        if (email !== undefined && (typeof email !== "string" || email === "")) {
+            return res.status(400).json({ erro: "o e-mail não pode ficar vazio" });
+        }
+        if (cpf !== undefined) {
+            const problema = problemaCpf(cpf);
+            if (problema) return res.status(400).json({ erro: problema });
+        }
+        if (phone !== undefined) {
+            const problema = problemaTelefone(phone);
+            if (problema) return res.status(400).json({ erro: problema });
+        }
+
+        // trocar a senha exige a senha atual
+        let hash = null;
+        if (password !== undefined && password !== "") {
+            if (typeof password !== "string" || password.length < 6) {
+                return res.status(400).json({ erro: "a nova senha deve ter pelo menos 6 caracteres" });
+            }
+            if (!senha_atual) return res.status(400).json({ erro: "informe a senha atual para trocar a senha" });
+            const atual = await pool.query(`SELECT password_hash FROM users WHERE id = $1`, [id]);
+            if (atual.rowCount === 0) return res.status(404).json({ erro: "usuário não encontrado" });
+            const confere = await bcrypt.compare(String(senha_atual), atual.rows[0].password_hash);
+            if (!confere) return res.status(401).json({ erro: "senha atual incorreta" });
+            hash = await bcrypt.hash(password, 10);
+        }
+
+        // e-mail ou cpf de outro usuário
+        if (email !== undefined || cpf !== undefined) {
+            const repetido = await pool.query(
+                `SELECT lower(email) AS email, cpf FROM users WHERE (lower(email) = $1 OR cpf = $2) AND id <> $3`,
+                [email ?? null, cpf ?? null, id]
+            );
+            if (repetido.rowCount > 0) {
+                if (email !== undefined && repetido.rows.some(u => u.email === email)) return res.status(409).json({ erro: "email já cadastrado" });
+                return res.status(409).json({ erro: "cpf já cadastrado" });
+            }
+        }
+
+        const resultado = await pool.query(
+            `UPDATE users SET
+                name = COALESCE($1, name),
+                email = COALESCE($2, email),
+                cpf = COALESCE($3, cpf),
+                phone = COALESCE($4, phone),
+                password_hash = COALESCE($5, password_hash)
+             WHERE id = $6
+             RETURNING ${COLUNAS}`,
+            [name !== undefined ? name.trim() : null, email ?? null, cpf ?? null, phone ?? null, hash, id]
+        );
+        if (resultado.rowCount === 0) return res.status(404).json({ erro: "usuário não encontrado" });
+        res.json(resultado.rows[0]);
+    } catch (err) {
+        responderErro(res, err);
+    }
+});
+
+// EXCLUI A PRÓPRIA CONTA
+router.delete("/perfil", async (req, res) => {
+    try {
+        const id = req.usuario.id;
+        const { senha } = req.body || {};
+        if (!senha) return res.status(400).json({ erro: "informe sua senha para excluir a conta" });
+
+        const atual = await pool.query(`SELECT password_hash FROM users WHERE id = $1`, [id]);
+        if (atual.rowCount === 0) return res.status(404).json({ erro: "usuário não encontrado" });
+        const confere = await bcrypt.compare(String(senha), atual.rows[0].password_hash);
+        if (!confere) return res.status(401).json({ erro: "senha incorreta" });
+
+        // reservas pendentes ou aprovadas que ainda não terminaram
+        const ativas = await pool.query(
+            `SELECT 1 FROM bookings WHERE user_id = $1 AND status IN ('PENDING', 'APPROVED') AND end_datetime >= now() LIMIT 1`,
+            [id]
+        );
+        if (ativas.rowCount > 0) {
+            return res.status(409).json({ erro: "você tem reservas ativas; cancele-as antes de excluir a conta" });
+        }
+
+        try {
+            await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+            return res.json({ mensagem: "conta excluída" });
+        } catch (err) {
+            // 23503: o usuário aparece no histórico (reservas antigas, check-ins...), então só desativa
+            if (err.code !== "23503") throw err;
+            await pool.query(`UPDATE users SET is_active = false WHERE id = $1`, [id]);
+            return res.json({ mensagem: "conta desativada (seu histórico de reservas foi mantido)" });
+        }
+    } catch (err) {
+        responderErro(res, err);
+    }
+});
+
+
+
+/**
+ * @swagger
  * /clients:
  *   post:
  *     summary: Cria um cliente
