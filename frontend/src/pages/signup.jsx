@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { mascaraCpf, mascaraTelefone, soNumeros } from '../utils/mascaras';
 
 // endereço do backend; se um dia mudar a porta, muda só aqui
 const API_URL = 'http://localhost:3080';
@@ -24,14 +25,28 @@ function Signup({ onCadastrado }) {
   const navigate = useNavigate();
 
   // atualiza só o campo que mudou (usa o "name" do input)
+  // cpf e telefone já ganham a máscara enquanto digita
   function alterar(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let valor = value;
+    if (name === 'cpf') valor = mascaraCpf(value);
+    if (name === 'phone') valor = mascaraTelefone(value);
+    setForm({ ...form, [name]: valor });
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErro('');
 
+    if (soNumeros(form.cpf).length !== 11) {
+      setErro('CPF inválido: deve ter 11 números');
+      return;
+    }
+    const tel = soNumeros(form.phone);
+    if (tel.length !== 10 && tel.length !== 11) {
+      setErro('Telefone inválido: informe o DDD + número');
+      return;
+    }
     if (form.password.length < 6) {
       setErro('A senha deve ter pelo menos 6 caracteres');
       return;
@@ -51,8 +66,8 @@ function Signup({ onCadastrado }) {
           name: form.name,
           email: form.email,
           // no banco cpf e telefone ficam só com números
-          cpf: form.cpf.replace(/\D/g, ''),
-          phone: form.phone.replace(/\D/g, ''),
+          cpf: soNumeros(form.cpf),
+          phone: soNumeros(form.phone),
           password: form.password,
           role: 'CLIENT',
         }),
@@ -103,7 +118,7 @@ function Signup({ onCadastrado }) {
 
           <div className="auth-campo">
             <label htmlFor="cad-tel">Telefone</label>
-            <input id="cad-tel" name="phone" type="tel" placeholder="(48) 99999-9999"
+            <input id="cad-tel" name="phone" type="tel" inputMode="numeric" placeholder="(48) 99999-9999" maxLength={15}
               autoComplete="tel" value={form.phone} onChange={alterar} required />
           </div>
 

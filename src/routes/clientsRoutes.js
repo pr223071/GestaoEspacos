@@ -1,7 +1,7 @@
 const express = require('express'); // importa o express
 const { pool } = require("../config/db"); // cria uma intancia pra usar as funções do banco
 const { responderErro } = require("../utils/banco");
-const { limparEmail } = require("../utils/documentos");
+const { limparEmail, soNumeros, problemaCpf, problemaTelefone } = require("../utils/documentos");
 // cria uma instância do roteador do Express
 const router = express.Router();
 
@@ -352,13 +352,26 @@ router.put("/clients/update/:id", async (req, res) => {
     if(!Number.isInteger(id) || id <= 0 ){return res.status(400).json({ erro: "informe um valor valido"})}
 
     // só os campos que vierem no body são alterados, o resto continua igual
-    const { name, password_hash, role, cpf, phone, company_id, is_active } = req.body;
+    const { name, password_hash, role, company_id, is_active } = req.body;
     const email = limparEmail(req.body.email); // e-mail padronizado
+    // cpf e telefone ficam só com números no banco (aceita "529.982.247-25" ou "52998224725")
+    const cpf = soNumeros(req.body.cpf);
+    const phone = soNumeros(req.body.phone);
 
     //se não vier nenhum campo, retorna erro
     if(name === undefined && email === undefined && password_hash === undefined && role === undefined &&
        cpf === undefined && phone === undefined && company_id === undefined && is_active === undefined){
         return res.status(400).json({ erro: "informe pelo menos um campo para alterar"});
+    }
+
+    // se mandar cpf ou telefone, confere se são válidos
+    if(cpf !== undefined){
+        const problema = problemaCpf(cpf);
+        if(problema){return res.status(400).json({ erro: problema })}
+    }
+    if(phone !== undefined){
+        const problema = problemaTelefone(phone);
+        if(problema){return res.status(400).json({ erro: problema })}
     }
 
     // se mandar company_id, verifica se é valido
@@ -514,13 +527,26 @@ router.delete("/clients/delete/:id", async (req, res) => {
 router.post("/clients", async function(req, res) {
     
     // o req.body vai pedir todos esses campos
-    const { name, password, role, cpf, phone, company_id } = req.body
+    const { name, password, role, company_id } = req.body
     const email = limparEmail(req.body.email); // e-mail padronizado
-    
-    //se algum vir nulo, retorna erro (company_id é opcional: o cadastro pela tela de signup não manda)
-    if(!name || !email || !password || !role || !cpf || !phone){
-        return res.status(400).json({ erro : "é nescessarios todos os campos preenchidos"});
+    // cpf e telefone ficam só com números no banco (aceita "529.982.247-25" ou "52998224725")
+    const cpf = soNumeros(req.body.cpf);
+    const phone = soNumeros(req.body.phone);
+
+    //se algum vir vazio, retorna erro dizendo QUAIS faltaram (company_id é opcional: o signup não manda)
+    const obrigatorios = { nome: name, email, senha: password, perfil: role, CPF: cpf, telefone: phone };
+    const faltando = Object.keys(obrigatorios).filter(campo => !obrigatorios[campo]);
+    if(faltando.length > 0){
+        return res.status(400).json({ erro : `preencha os campos obrigatórios: ${faltando.join(", ")}`});
     }
+
+    // confere se o cpf tem 11 números
+    const problemaDoCpf = problemaCpf(cpf);
+    if(problemaDoCpf){return res.status(400).json({ erro: problemaDoCpf })}
+
+    // confere o telefone (DDD + número)
+    const problemaDoTelefone = problemaTelefone(phone);
+    if(problemaDoTelefone){return res.status(400).json({ erro: problemaDoTelefone })}
 
 
     // a senha tem que ser texto. Se alguém mandar um número no JSON (ex: 123456 sem aspas),

@@ -38,4 +38,25 @@ function limparEmail(email) {
     return typeof email === "string" ? email.trim().toLowerCase() : email;
 }
 
-module.exports = { cpfValido, cnpjValido, limparEmail };
+// tira tudo que nao for numero ("529.982.247-25" vira "52998224725")
+function soNumeros(valor) {
+    if (typeof valor === "number") valor = String(valor);
+    return typeof valor === "string" ? valor.replace(/\D/g, "") : valor;
+}
+
+// devolve a mensagem de erro do cpf, ou null se estiver ok
+function problemaCpf(cpf) {
+    if (typeof cpf !== "string" || cpf.length === 0) return "informe o CPF";
+    if (cpf.length !== 11) return `CPF inválido: deve ter 11 números`;
+    // aceita qualquer sequencia de 11 numeros (nao confere os digitos verificadores)
+    return null;
+}
+
+// telefone brasileiro com ddd: 10 numeros (fixo) ou 11 (celular)
+function problemaTelefone(phone) {
+    if (typeof phone !== "string" || phone.length === 0) return "informe o telefone";
+    if (phone.length !== 10 && phone.length !== 11) return "telefone inválido: informe o DDD + número (10 ou 11 números)";
+    return null;
+}
+
+module.exports = { cpfValido, cnpjValido, limparEmail, soNumeros, problemaCpf, problemaTelefone };
