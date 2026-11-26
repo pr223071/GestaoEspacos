@@ -1,18 +1,64 @@
 /* fonte Inter, a mesma do layout */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* CORES DO SISTEMA: mude aqui e o site inteiro acompanha */
+/* =========================================================
+   CORES DO SISTEMA: mude aqui e o site inteiro acompanha.
+   Visual claro e neutro: fundo cinza, cartões brancos e o preto como destaque.
+   ========================================================= */
 :root {
-  --azul-escuro: #0b2a4a;   /* sidebar e painel do login */
-  --azul: #1a6dff;          /* botões e links */
-  --azul-hover: #0f5ce6;
-  --fundo: #f4f7fb;         /* fundo das páginas */
-  --branco: #ffffff;
-  --borda: #e3e8ef;
-  --texto: #1b2533;
-  --texto-suave: #6b7686;
-  --verde: #1f9d55;
-  --laranja: #f26a1b;
+  --fundo: #f3f3f4;          /* fundo das páginas */
+  --superficie: #ffffff;     /* cartões, sidebar, tabelas */
+  --superficie-2: #f6f6f7;   /* fundo de campos, linhas e caixinhas */
+  --borda: #e9e9eb;
+  --texto: #111113;
+  --texto-suave: #6f6f76;
+
+  --destaque: #111113;       /* botões principais, item ativo do menu, cartão em destaque */
+  --destaque-hover: #2b2b2f;
+  --destaque-texto: #ffffff; /* texto em cima do destaque */
+
+  --sombra: 0 1px 2px rgba(17, 17, 19, 0.04), 0 8px 24px rgba(17, 17, 19, 0.05);
+  --sombra-forte: 0 24px 64px rgba(17, 17, 19, 0.18);
+
+  /* cores de status (etiquetas e avisos) */
+  --ok: #15803d;      --ok-fundo: #dcfce7;
+  --alerta: #b45309;  --alerta-fundo: #fef3c7;
+  --erro: #b91c1c;    --erro-fundo: #fee2e2;
+  --info: #1d4ed8;    --info-fundo: #dbeafe;
+
+  --raio: 16px;         /* arredondado dos cartões */
+  --raio-pequeno: 10px; /* arredondado de botões e campos */
+
+  /* animações: mesma curva em todo o site para tudo ficar "fluido" */
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+  --tempo: 0.45s;
+}
+
+/* =========================================================
+   TEMA INVERTIDO: usado nas telas de gestão (/gestao/*).
+   O Layout coloca a classe "tema-invertido" e todas as cores acima trocam.
+   ========================================================= */
+.tema-invertido {
+  --fundo: #0a0a0b;
+  --superficie: #151517;
+  --superficie-2: #202024;
+  --borda: #2e2e33;
+  --texto: #f4f4f5;
+  --texto-suave: #9d9da6;
+
+  --destaque: #ffffff;
+  --destaque-hover: #e2e2e5;
+  --destaque-texto: #111113;
+
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --sombra-forte: 0 24px 64px rgba(0, 0, 0, 0.6);
+
+  --ok: #4ade80;      --ok-fundo: rgba(74, 222, 128, 0.12);
+  --alerta: #fbbf24;  --alerta-fundo: rgba(251, 191, 36, 0.12);
+  --erro: #f87171;    --erro-fundo: rgba(248, 113, 113, 0.12);
+  --info: #60a5fa;    --info-fundo: rgba(96, 165, 250, 0.12);
+
+  color-scheme: dark; /* deixa scrollbar, select e calendário nativos escuros também */
 }
 
 * {
@@ -25,9 +71,22 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   background: var(--fundo);
   color: var(--texto);
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font-family: inherit;
+}
+
+/* quem pede menos movimento no sistema: sem animações */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

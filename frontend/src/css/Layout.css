@@ -1,86 +1,245 @@
-/* sidebar fixa de 240px + o resto */
+/* =========================================================
+   MOLDURA DAS PÁGINAS LOGADAS
+   fundo cinza, sidebar em cartão branco à esquerda, topo e o conteúdo
+   ========================================================= */
+
+/* tudo dentro do layout troca de cor suavemente
+   (é isso que faz a passagem para o tema invertido ficar fluida) */
+.layout,
+.layout * {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, opacity, transform;
+  transition-duration: var(--tempo);
+  transition-timing-function: var(--curva);
+}
+
 .layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 264px 1fr;
+  gap: 16px;
+  padding: 16px;
+  background: var(--fundo);
+  color: var(--texto);
 }
 
 /* ===== SIDEBAR ===== */
 .layout-sidebar {
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 24px 14px;
-  background: var(--azul-escuro);
-  color: var(--branco);
+  padding: 22px 16px 16px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
 }
 
 .layout-logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 22px;
+  padding: 0 8px 28px;
+  font-size: 21px;
   font-weight: 700;
-  padding: 0 10px 28px;
+  letter-spacing: -0.02em;
 }
 
-.layout-sidebar nav {
+/* o menu é "position: relative" para a pílula ficar atrás dos itens */
+.layout-menu {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 4px; /* = ESPACO_ITEM no Layout.jsx */
+}
+
+.layout-indicador {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42px; /* = ALTURA_ITEM no Layout.jsx */
+  border-radius: var(--raio-pequeno);
+  background: var(--destaque);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.55s var(--curva),
+    background-color var(--tempo) var(--curva);
 }
 
 .layout-item {
+  position: relative; /* fica por cima da pílula */
+  height: 42px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 12px;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: #c9d6e5;
+  padding: 0 12px;
+  border-radius: var(--raio-pequeno);
+  color: var(--texto-suave);
   font-size: 14px;
+  font-weight: 500;
   text-decoration: none; /* NavLink vira <a>, que vem sublinhado */
-  cursor: pointer;
 }
 
 .layout-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--branco);
+  color: var(--texto);
+  background: var(--superficie-2);
 }
 
-/* página atual (o NavLink coloca essa classe) */
-.layout-item.ativo {
-  background: var(--azul);
-  color: var(--branco);
+/* página atual: a pílula já está atrás, então o fundo fica transparente */
+.layout-item.ativo,
+.layout-item.ativo:hover {
+  background: transparent;
+  color: var(--destaque-texto);
 }
 
-.layout-sair {
-  margin-top: auto; /* empurra para o fim da sidebar */
+/* cartão de atalho no fim da sidebar (usa as cores do destaque) */
+.layout-atalho {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--destaque);
+  color: var(--destaque-texto);
 }
 
-/* ===== TOPO ===== */
+.layout-atalho-icone {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  border-radius: 9px;
+  background: var(--destaque-texto);
+  color: var(--destaque);
+}
+
+.layout-atalho strong {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.layout-atalho p {
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.65;
+}
+
+.layout-atalho button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 9px;
+  background: rgba(127, 127, 127, 0.28);
+  color: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.layout-atalho button:hover {
+  background: rgba(127, 127, 127, 0.42);
+}
+
+/* ===== CONTEÚDO ===== */
 .layout-conteudo {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
+/* ===== TOPO ===== */
 .layout-topo {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 14px 32px;
-  background: var(--branco);
-  border-bottom: 1px solid var(--borda);
+  padding: 10px 8px 18px;
+}
+
+.layout-topo-titulo {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-topo-titulo strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.layout-topo-titulo span {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* primeira letra maiúscula: "quinta-feira" -> "Quinta-feira" */
+.layout-topo-titulo span::first-letter {
+  text-transform: uppercase;
+}
+
+.layout-topo-direita {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* etiqueta que aparece nas telas de gestão */
+.layout-modo {
+  padding: 6px 12px;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texto-suave);
+  animation: layout-aparecer 0.5s var(--curva);
+}
+
+.layout-nova {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--raio-pequeno);
+  background: var(--destaque);
+  color: var(--destaque-texto);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.layout-nova:hover {
+  background: var(--destaque-hover);
+  transform: translateY(-1px);
 }
 
 .layout-usuario {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--texto-suave);
+  padding: 5px 14px 5px 5px;
+  background: var(--superficie);
+  border-radius: 999px;
+  box-shadow: var(--sombra);
+}
+
+.layout-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--destaque);
+  color: var(--destaque-texto);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .layout-usuario div {
@@ -89,31 +248,56 @@
 }
 
 .layout-usuario strong {
-  color: var(--texto);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .layout-usuario span {
-  font-size: 12px;
+  font-size: 11px;
+  color: var(--texto-suave);
 }
 
-.layout-mais {
-  background: none;
+.layout-sair {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
   border: none;
-  color: var(--texto);
+  border-radius: 50%;
+  background: var(--superficie);
+  color: var(--texto-suave);
+  box-shadow: var(--sombra);
   cursor: pointer;
 }
 
-/* CELULAR: sidebar vira barra no topo */
-@media (max-width: 800px) {
-  .layout {
-    grid-template-columns: 1fr;
+.layout-sair:hover {
+  color: var(--erro);
+}
+
+/* ===== TROCA DE PÁGINA =====
+   cada página nova entra subindo e aparecendo */
+.layout-pagina {
+  animation: layout-entrar 0.55s var(--curva);
+}
+
+@keyframes layout-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-  .layout-sidebar nav {
-    flex-direction: row;
-    overflow-x: auto;
+  to {
+    opacity: 1;
+    transform: none;
   }
-  .layout-sair {
-    margin-top: 0;
+}
+
+@keyframes layout-aparecer {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

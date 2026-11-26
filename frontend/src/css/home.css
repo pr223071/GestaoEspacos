@@ -1,136 +1,193 @@
 /* ===== CONTEÚDO DO DASHBOARD ===== */
 .home-principal {
-  padding: 32px;
-  max-width: 900px;
+  padding: 8px 8px 32px;
 }
 
 .home-principal h1 {
-  font-size: 26px;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.home-principal h1 strong {
+  font-weight: 600;
 }
 
 .home-sub {
-  margin-top: 4px;
+  margin-top: 6px;
+  font-size: 14px;
   color: var(--texto-suave);
 }
 
-/* os 3 cards lado a lado */
+/* ===== OS 3 CARTÕES LADO A LADO ===== */
 .home-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin: 28px 0;
+  margin: 28px 0 16px;
 }
 
 .home-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   padding: 20px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  animation: home-subir 0.6s var(--curva) backwards;
+}
+
+.home-card:hover {
+  transform: translateY(-3px);
+}
+
+.home-card-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.home-card-icone {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--borda);
-  border-radius: 10px;
+  border-radius: var(--raio-pequeno);
 }
 
 .home-card strong {
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 
-.home-card span {
-  font-size: 14px;
+.home-card small {
+  font-size: 12px;
   color: var(--texto-suave);
 }
 
-.home-card.azul {
-  background: #eef4fd;
+/* o primeiro cartão é o "destaque": preto no tema claro, branco no invertido */
+.home-card.destaque {
+  background: var(--destaque);
+  color: var(--destaque-texto);
 }
 
-.home-card.laranja {
-  background: #fff3eb;
-  border-color: #ffd9c2;
+.home-card.destaque .home-card-icone {
+  background: var(--destaque-texto);
+  color: var(--destaque);
+  border-color: transparent;
 }
 
-.home-card.laranja strong {
-  color: var(--laranja);
+.home-card.destaque small {
+  color: inherit;
+  opacity: 0.6;
 }
 
-/* ===== RESERVAS ===== */
+/* ===== PRÓXIMAS RESERVAS ===== */
 .home-reservas {
-  padding: 22px;
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 10px;
+  padding: 20px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  animation: home-subir 0.6s var(--curva) 0.2s backwards;
+}
+
+.home-reservas-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
 }
 
 .home-reservas h2 {
-  font-size: 18px;
-  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.home-reserva {
+.home-ver-todas {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid var(--borda);
-  border-radius: 10px;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie-2);
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
-.home-reserva-info {
+.home-ver-todas:hover {
+  background: var(--borda);
+}
+
+.home-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.home-tabela th {
+  padding: 12px;
+  border-top: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda);
+  color: var(--texto-suave);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.home-tabela td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.home-tabela tr:last-child td {
+  border-bottom: none;
+}
+
+.home-espaco {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.home-reserva-info div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.home-reserva-info span {
-  font-size: 14px;
-  color: var(--texto-suave);
-}
-
-.home-status {
-  font-style: normal;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: #e3f5ea;
-  color: var(--verde);
+.home-espaco strong {
+  font-weight: 500;
 }
 
 /* troque por background-image: url('/sala.jpg') quando tiver a foto */
 .home-reserva-foto {
-  width: 180px;
-  min-height: 100px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #6d8fb3, #d6c3a2);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d9d9dd, #8b8b93);
+}
+
+.home-status {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ok);
 }
 
 .home-vazio {
   color: var(--texto-suave);
 }
 
-.home-ver-todas {
-  width: 100%;
-  margin-top: 14px;
-  padding: 11px;
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  background: var(--branco);
-  color: var(--azul);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* CELULAR: cards empilham e a foto some */
-@media (max-width: 800px) {
-  .home-cards {
-    grid-template-columns: 1fr;
+@keyframes home-subir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
-  .home-reserva-foto {
-    display: none;
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

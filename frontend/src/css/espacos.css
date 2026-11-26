@@ -1,10 +1,30 @@
+/* ===== TELA DE ESPAÇOS ===== */
 .espacos {
-  padding: 32px;
+  padding: 8px 8px 32px;
 }
 
 .espacos h1 {
-  font-size: 22px;
-  margin-bottom: 20px;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+/* ===== CABEÇALHO (título + botão de cadastrar) ===== */
+.espacos-cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.espacos-cabecalho h1 {
+  margin-bottom: 6px;
+}
+
+.espacos-cabecalho p {
+  color: var(--texto-suave);
+  font-size: 14px;
 }
 
 /* ===== FILTROS ===== */
@@ -19,37 +39,39 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
+  gap: 10px;
+  padding: 0 14px;
+  background: var(--superficie);
+  border-radius: var(--raio-pequeno);
+  box-shadow: var(--sombra);
   color: var(--texto-suave);
 }
 
 .espacos-busca input {
   flex: 1;
-  padding: 11px 0;
+  padding: 13px 0;
   border: none;
   outline: none;
   font-size: 14px;
   background: none;
+  color: var(--texto);
 }
 
 .espacos-filtros select {
-  min-width: 160px;
-  padding: 11px 12px;
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
+  min-width: 170px;
+  padding: 0 14px;
+  background: var(--superficie);
+  border: none;
+  border-radius: var(--raio-pequeno);
+  box-shadow: var(--sombra);
   font-size: 14px;
   color: var(--texto);
+  cursor: pointer;
 }
 
 .espacos-busca:focus-within,
 .espacos-filtros select:focus {
-  outline: 2px solid var(--azul);
-  border-color: transparent;
+  outline: 2px solid var(--destaque);
 }
 
 .espacos-aviso {
@@ -57,29 +79,43 @@
 }
 
 .espacos-aviso.erro {
-  color: #c62828;
+  color: var(--erro);
 }
 
-/* ===== GRADE =====
-   auto-fill + minmax: cabe quantos cards de 220px couberem por linha,
-   e eles esticam para preencher. Assim fica responsivo sem media query */
+/* ===== GRADE DE CARTÕES =====
+   auto-fill + minmax: cabe quantos cards de 240px couberem por linha */
 .espacos-grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .espaco-card {
   overflow: hidden; /* faz a foto respeitar a borda arredondada */
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 10px;
+  padding: 10px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  animation: espacos-subir 0.6s var(--curva) backwards;
 }
+
+.espaco-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-forte);
+}
+
+/* os cartões entram um depois do outro */
+.espaco-card:nth-child(2) { animation-delay: 50ms; }
+.espaco-card:nth-child(3) { animation-delay: 100ms; }
+.espaco-card:nth-child(4) { animation-delay: 150ms; }
+.espaco-card:nth-child(5) { animation-delay: 200ms; }
+.espaco-card:nth-child(n + 6) { animation-delay: 250ms; }
 
 /* troque por background-image: url('/sala.jpg') quando tiver a foto */
 .espaco-foto {
-  height: 130px;
-  background: linear-gradient(135deg, #6d8fb3, #d6c3a2);
+  height: 140px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 100%);
   background-size: cover;
   background-position: center;
 }
@@ -88,11 +124,12 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 14px;
+  padding: 14px 6px 6px;
 }
 
 .espaco-info h2 {
   font-size: 16px;
+  font-weight: 600;
   margin-bottom: 4px;
 }
 
@@ -101,80 +138,60 @@
   color: var(--texto-suave);
 }
 
-.espaco-botao {
-  margin-top: 12px;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: var(--azul);
-  color: var(--branco);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.espaco-botao:hover {
-  background: var(--azul-hover);
-}
-
-@media (max-width: 800px) {
-  .espacos-filtros {
-    flex-direction: column;
-  }
-}
-/* Cabeçalho e modal de cadastro/edição */
-.espacos-cabecalho {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.espacos-cabecalho h1 {
-  margin-bottom: 6px;
-}
-.espacos-cabecalho p {
-  color: var(--texto-suave);
-  font-size: 14px;
-}
+/* ===== BOTÕES ===== */
+.espaco-botao,
 .espacos-novo,
 .equipamento-adicionar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 0;
-  border-radius: 8px;
-  padding: 11px 15px;
-  background: var(--azul);
-  color: var(--branco);
+  border: none;
+  border-radius: var(--raio-pequeno);
+  background: var(--destaque);
+  color: var(--destaque-texto);
   font-weight: 600;
   cursor: pointer;
 }
+
+.espaco-botao {
+  margin-top: 12px;
+  padding: 11px;
+  font-size: 13px;
+}
+
+.espacos-novo {
+  padding: 12px 18px;
+  font-size: 14px;
+}
+
+.espaco-botao:hover,
 .espacos-novo:hover,
 .equipamento-adicionar:hover {
-  background: var(--azul-hover);
+  background: var(--destaque-hover);
 }
+
 .espaco-acoes {
   display: flex;
   gap: 8px;
   margin-top: 12px;
 }
+
 .espaco-acoes .espaco-botao {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
   margin-top: 0;
 }
+
 .espaco-botao.secundario {
-  background: transparent;
-  color: var(--azul);
-  border: 1px solid var(--borda);
+  background: var(--superficie-2);
+  color: var(--texto);
 }
+
 .espaco-botao.secundario:hover {
-  background: #f2f6fb;
+  background: var(--borda);
 }
+
+/* ===== MODAL DE CADASTRO / EDIÇÃO ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -183,95 +200,128 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(15, 23, 42, 0.58);
+  background: rgba(10, 10, 11, 0.45);
+  backdrop-filter: blur(6px);
+  animation: espacos-fundo 0.3s ease;
 }
+
 .espaco-modal {
   width: min(760px, 100%);
   max-height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--branco);
-  border-radius: 14px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  background: var(--superficie);
+  color: var(--texto);
+  border-radius: 20px;
+  box-shadow: var(--sombra-forte);
+  animation: espacos-modal 0.45s var(--curva);
 }
+
 .modal-cabecalho {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 22px 24px 18px;
+  padding: 24px 24px 18px;
   border-bottom: 1px solid var(--borda);
 }
+
 .modal-cabecalho h2 {
   font-size: 20px;
+  font-weight: 600;
   margin-bottom: 6px;
 }
+
 .modal-cabecalho p,
 .equipamentos-cabecalho p {
   color: var(--texto-suave);
   font-size: 13px;
 }
+
 .modal-fechar {
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-  border: 0;
-  background: transparent;
+  border: none;
+  border-radius: 50%;
+  background: var(--superficie-2);
   color: var(--texto-suave);
-  padding: 5px;
   cursor: pointer;
 }
+
+.modal-fechar:hover {
+  color: var(--texto);
+  transform: rotate(90deg);
+}
+
 .espaco-modal form {
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
+
 .modal-corpo {
   overflow: auto;
   padding: 22px 24px;
 }
+
+/* ===== CAMPOS DO FORMULÁRIO ===== */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+
 .form-grid label,
 .equipamento-linha label {
   display: flex;
   flex-direction: column;
   gap: 7px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--texto);
 }
+
 .form-grid input,
 .form-grid select,
 .form-grid textarea,
-.equipamento-linha input {
+.equipamento-linha input,
+.horario-linha input,
+.horario-linha select {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--borda);
-  border-radius: 8px;
-  padding: 10px 11px;
+  border-radius: var(--raio-pequeno);
+  padding: 11px 12px;
   color: var(--texto);
-  background: var(--branco);
+  background: var(--superficie-2);
   font: inherit;
+  font-size: 14px;
   font-weight: 400;
   outline: none;
 }
+
 .form-grid textarea {
   resize: vertical;
 }
+
 .form-grid input:focus,
 .form-grid select:focus,
 .form-grid textarea:focus,
-.equipamento-linha input:focus {
-  border-color: var(--azul);
-  box-shadow: 0 0 0 2px rgba(44, 105, 160, 0.12);
+.equipamento-linha input:focus,
+.horario-linha input:focus,
+.horario-linha select:focus {
+  border-color: var(--destaque);
+  background: var(--superficie);
 }
+
 .form-largo {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
 }
+
+/* ===== EQUIPAMENTOS DENTRO DO MODAL ===== */
 .equipamentos-cabecalho {
   display: flex;
   align-items: center;
@@ -279,126 +329,107 @@
   gap: 12px;
   margin: 26px 0 12px;
 }
+
 .equipamentos-cabecalho h3 {
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
   margin-bottom: 4px;
 }
+
 .equipamento-adicionar {
   padding: 9px 12px;
   font-size: 13px;
   white-space: nowrap;
 }
+
 .equipamentos-vazio {
-  padding: 14px;
+  padding: 16px;
   border: 1px dashed var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio-pequeno);
   color: var(--texto-suave);
   font-size: 13px;
   text-align: center;
 }
+
 .equipamento-linha {
   display: grid;
-  grid-template-columns: 1.2fr 0.55fr 1.2fr 32px;
+  grid-template-columns: 1.2fr 0.55fr 1.2fr 38px;
   align-items: end;
   gap: 10px;
   margin-top: 10px;
   padding: 12px;
   border: 1px solid var(--borda);
-  border-radius: 10px;
+  border-radius: 12px;
+  animation: espacos-subir 0.4s var(--curva) backwards;
 }
+
 .equipamento-remover {
   display: grid;
   place-items: center;
-  height: 38px;
-  border: 0;
-  border-radius: 7px;
-  background: #fff1f0;
-  color: #b42318;
+  height: 42px;
+  border: none;
+  border-radius: var(--raio-pequeno);
+  background: var(--erro-fundo);
+  color: var(--erro);
   cursor: pointer;
 }
+
 .modal-erro {
   margin-top: 16px;
-  color: #b42318;
+  color: var(--erro);
   font-size: 13px;
 }
+
 .modal-rodape {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 24px;
   border-top: 1px solid var(--borda);
-  background: #fafafa;
 }
+
 .modal-cancelar,
 .modal-salvar {
-  padding: 10px 15px;
-  border-radius: 8px;
+  padding: 11px 18px;
+  border-radius: var(--raio-pequeno);
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
+
 .modal-cancelar {
-  border: 1px solid var(--borda);
-  background: var(--branco);
+  border: none;
+  background: var(--superficie-2);
   color: var(--texto);
 }
-.modal-salvar {
-  border: 0;
-  background: var(--azul);
-  color: var(--branco);
+
+.modal-cancelar:hover {
+  background: var(--borda);
 }
+
+.modal-salvar {
+  border: none;
+  background: var(--destaque);
+  color: var(--destaque-texto);
+}
+
+.modal-salvar:hover {
+  background: var(--destaque-hover);
+}
+
 .modal-salvar:disabled,
 .modal-cancelar:disabled {
   opacity: 0.6;
   cursor: wait;
 }
-@media (max-width: 700px) {
-  .espacos {
-    padding: 20px;
-  }
-  .espacos-cabecalho {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-  .espacos-novo {
-    width: 100%;
-  }
-  .modal-overlay {
-    padding: 8px;
-  }
-  .espaco-modal {
-    max-height: calc(100vh - 16px);
-  }
-  .modal-cabecalho,
-  .modal-corpo {
-    padding: 18px;
-  }
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .form-largo {
-    grid-column: auto;
-  }
-  .equipamento-linha {
-    grid-template-columns: 1fr 90px 32px;
-  }
-  .equipamento-desc {
-    grid-column: 1/3;
-  }
-  .equipamento-remover {
-    grid-column: 3;
-    grid-row: 1;
-  }
-  .modal-rodape {
-    padding: 14px 18px;
-  }
-}
 
-/* Cadastro de horários semanais */
+/* ===== HORÁRIOS SEMANAIS (dentro do modal) ===== */
 .horarios-lista {
   display: grid;
   gap: 8px;
   margin-top: 12px;
 }
+
 .horario-linha {
   display: grid;
   grid-template-columns: 1.1fr 0.75fr 0.75fr 1.4fr;
@@ -406,33 +437,61 @@
   align-items: end;
   padding: 10px 12px;
   border: 1px solid var(--borda);
-  border-radius: 9px;
+  border-radius: 12px;
 }
+
 .horario-linha label {
   display: flex;
   flex-direction: column;
   gap: 5px;
   font-size: 12px;
 }
+
 .horario-linha .horario-dia,
 .horario-linha .horario-externo {
   flex-direction: row;
   align-items: center;
   gap: 8px;
-  min-height: 38px;
+  min-height: 42px;
 }
-.horario-linha input[type="checkbox"] {
+
+.horario-linha input[type='checkbox'] {
   width: auto;
+  accent-color: var(--destaque);
 }
+
 .horario-linha input:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
 }
-@media (max-width: 700px) {
-  .horario-linha {
-    grid-template-columns: 1fr 1fr;
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes espacos-subir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
-  .horario-linha .horario-dia,
-  .horario-linha .horario-externo {
-    grid-column: span 2;
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes espacos-fundo {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes espacos-modal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

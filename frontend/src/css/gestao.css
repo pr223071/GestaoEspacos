@@ -1,65 +1,79 @@
 /* css das telas do funcionario (gestao de reservas, check-in, salas e equipamentos).
    deixei tudo num arquivo so pq as telas usam os mesmos forms, tabelas e avisos.
-   as cores sao as variaveis do index.css */
+   as cores sao as variaveis do index.css; nessas telas o Layout liga o tema invertido */
 
 .gestao {
-  padding: 32px;
+  padding: 8px 8px 32px;
 }
 
 .gestao h1 {
-  font-size: 22px;
-  margin-bottom: 4px;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
 }
 
 .gestao-sub {
   color: var(--texto-suave);
   font-size: 14px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .gestao h2 {
   font-size: 16px;
-  margin-bottom: 14px;
-}
-
-/* ===== CARTAO (o fundo branco em volta do form e da tabela) ===== */
-.gestao-cartao {
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 22px;
-}
-
-/* ===== ABAS DE STATUS ===== */
-.gestao-abas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  font-weight: 600;
   margin-bottom: 16px;
+}
+
+/* ===== CARTAO (o fundo em volta do form e da tabela) ===== */
+.gestao-cartao {
+  padding: 20px;
+  margin-bottom: 16px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  animation: gestao-subir 0.6s var(--curva) backwards;
+}
+
+.gestao-cartao + .gestao-cartao {
+  animation-delay: 90ms;
+}
+
+/* ===== ABAS DE STATUS (botões "pílula" lado a lado) ===== */
+.gestao-abas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: var(--superficie);
+  border-radius: 12px;
+  box-shadow: var(--sombra);
 }
 
 .gestao-aba {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border: 1px solid var(--borda);
-  border-radius: 20px;
-  background: var(--branco);
-  color: var(--texto);
+  padding: 9px 16px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--texto-suave);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .gestao-aba:hover {
-  border-color: var(--azul);
+  color: var(--texto);
+  background: var(--superficie-2);
 }
 
-.gestao-aba.ativa {
-  background: var(--azul);
-  border-color: var(--azul);
-  color: var(--branco);
+.gestao-aba.ativa,
+.gestao-aba.ativa:hover {
+  background: var(--destaque);
+  color: var(--destaque-texto);
 }
 
 /* bolinha com o numero de pendentes */
@@ -67,8 +81,8 @@
   min-width: 20px;
   padding: 1px 6px;
   border-radius: 10px;
-  background: var(--laranja);
-  color: var(--branco);
+  background: var(--alerta);
+  color: #111113;
   font-size: 11px;
   font-weight: 700;
   text-align: center;
@@ -78,18 +92,17 @@
 .gestao-busca {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 12px;
+  gap: 10px;
+  padding: 0 14px;
   margin-bottom: 16px;
-  background: var(--branco);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
+  background: var(--superficie-2);
+  border-radius: var(--raio-pequeno);
   color: var(--texto-suave);
 }
 
-.gestao-busca input {
+.gestao .gestao-busca input {
   flex: 1;
-  padding: 11px 0;
+  padding: 12px 0;
   border: none;
   outline: none;
   font-size: 14px;
@@ -97,12 +110,11 @@
 }
 
 .gestao-busca:focus-within {
-  outline: 2px solid var(--azul);
-  border-color: transparent;
+  outline: 2px solid var(--destaque);
 }
 
 /* ===== TABELA =====
-   a div em volta é pra tabela rolar pro lado quando a tela é pequena */
+   a div em volta é pra tabela rolar pro lado se não couber */
 .gestao-tabela-caixa {
   overflow-x: auto;
 }
@@ -114,20 +126,24 @@
 }
 
 .gestao-tabela th {
-  padding: 10px 12px;
+  padding: 12px;
+  border-top: 1px solid var(--borda);
   border-bottom: 1px solid var(--borda);
   color: var(--texto-suave);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   text-align: left;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .gestao-tabela td {
-  padding: 12px;
+  padding: 14px 12px;
   border-bottom: 1px solid var(--borda);
   vertical-align: middle;
+}
+
+.gestao-tabela tbody tr:hover td {
+  background: var(--superficie-2);
 }
 
 .gestao-tabela tr:last-child td {
@@ -139,21 +155,31 @@
   font-size: 13px;
 }
 
-/* ===== ETIQUETA DE STATUS ===== */
+/* ===== ETIQUETA DE STATUS (bolinha + texto) ===== */
 .gestao-status {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
 
-.gestao-status.pendente { background: #fff1e6; color: #b4500f; }
-.gestao-status.aprovada { background: #e3f6ec; color: #17794a; }
-.gestao-status.recusada { background: #fdecec; color: #c62828; }
-.gestao-status.cancelada { background: #eef1f5; color: var(--texto-suave); }
-.gestao-status.concluido { background: #e8f0ff; color: var(--azul-hover); }
+.gestao-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.gestao-status.pendente { background: var(--alerta-fundo); color: var(--alerta); }
+.gestao-status.aprovada { background: var(--ok-fundo); color: var(--ok); }
+.gestao-status.recusada { background: var(--erro-fundo); color: var(--erro); }
+.gestao-status.cancelada { background: var(--superficie-2); color: var(--texto-suave); }
+.gestao-status.concluido { background: var(--info-fundo); color: var(--info); }
 
 /* ===== BOTÕES DE AÇÃO DA TABELA ===== */
 .gestao-acoes {
@@ -165,9 +191,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 10px;
+  padding: 7px 11px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
@@ -175,22 +201,23 @@
 }
 
 .gestao-acao:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
-.gestao-acao.aprovar { background: var(--verde); color: var(--branco); }
-.gestao-acao.aprovar:hover:not(:disabled) { background: #188247; }
+.gestao-acao.aprovar { background: var(--destaque); color: var(--destaque-texto); }
+.gestao-acao.aprovar:hover:not(:disabled) { background: var(--destaque-hover); }
 
-.gestao-acao.recusar { background: var(--branco); border-color: #e3a3a3; color: #c62828; }
-.gestao-acao.recusar:hover:not(:disabled) { background: #fdecec; }
+.gestao-acao.recusar { background: var(--erro-fundo); color: var(--erro); }
+.gestao-acao.recusar:hover:not(:disabled) { border-color: var(--erro); }
 
-.gestao-acao.cancelar { background: var(--branco); border-color: var(--borda); color: var(--texto-suave); }
-.gestao-acao.cancelar:hover:not(:disabled) { background: #eef1f5; color: var(--texto); }
+.gestao-acao.cancelar { background: var(--superficie-2); color: var(--texto-suave); }
+.gestao-acao.cancelar:hover:not(:disabled) { color: var(--texto); border-color: var(--borda); }
 
 /* linha que aparece embaixo da reserva pra digitar o motivo da recusa */
 .gestao-recusa td {
-  background: #fff8f8;
+  background: var(--erro-fundo);
+  animation: gestao-subir 0.35s var(--curva) backwards;
 }
 
 .gestao-recusa-caixa {
@@ -210,13 +237,13 @@
 .gestao-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 18px;
+  gap: 16px 18px;
 }
 
 .gestao-campo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
 .gestao-campo.inteiro {
@@ -225,7 +252,7 @@
 
 .gestao-campo label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .gestao-campo small {
@@ -236,25 +263,25 @@
 .gestao input,
 .gestao select,
 .gestao textarea {
-  padding: 10px 12px;
+  padding: 11px 12px;
   border: 1px solid var(--borda);
-  border-radius: 8px;
-  background: var(--branco);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie-2);
   color: var(--texto);
   font-size: 14px;
   font-family: inherit;
+  outline: none;
 }
 
 .gestao textarea {
-  min-height: 70px;
+  min-height: 80px;
   resize: vertical;
 }
 
 .gestao input:focus,
 .gestao select:focus,
 .gestao textarea:focus {
-  outline: 2px solid var(--azul);
-  border-color: transparent;
+  border-color: var(--destaque);
 }
 
 .gestao-form-rodape {
@@ -267,18 +294,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 11px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
-  background: var(--azul);
-  color: var(--branco);
+  border-radius: var(--raio-pequeno);
+  background: var(--destaque);
+  color: var(--destaque-texto);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .gestao-botao:hover:not(:disabled) {
-  background: var(--azul-hover);
+  background: var(--destaque-hover);
+  transform: translateY(-1px);
 }
 
 .gestao-botao:disabled {
@@ -293,24 +321,15 @@
 }
 
 .gestao-mensagem {
-  padding: 10px 14px;
+  padding: 12px 14px;
   margin-bottom: 16px;
-  border-radius: 8px;
+  border-radius: var(--raio-pequeno);
   font-size: 14px;
+  animation: gestao-subir 0.4s var(--curva) backwards;
 }
 
-.gestao-mensagem.erro { background: #fdecec; color: #c62828; }
-.gestao-mensagem.sucesso { background: #e3f6ec; color: #17794a; }
-
-@media (max-width: 800px) {
-  .gestao {
-    padding: 20px;
-  }
-
-  .gestao-form {
-    grid-template-columns: 1fr;
-  }
-}
+.gestao-mensagem.erro { background: var(--erro-fundo); color: var(--erro); }
+.gestao-mensagem.sucesso { background: var(--ok-fundo); color: var(--ok); }
 
 /* ===== CHECK-IN (tela da recepçao) ===== */
 .checkin-busca {
@@ -331,11 +350,11 @@
   align-items: center;
   gap: 16px;
   margin-top: 16px;
-  padding: 14px 16px;
-  border: 1px solid var(--borda);
-  border-left: 4px solid var(--azul);
-  border-radius: 8px;
-  background: var(--fundo);
+  padding: 16px 18px;
+  border-radius: 12px;
+  border-left: 3px solid var(--destaque);
+  background: var(--superficie-2);
+  animation: gestao-subir 0.45s var(--curva) backwards;
 }
 
 .checkin-resultado > div:first-child {
@@ -378,10 +397,13 @@
   color: var(--texto-suave);
 }
 
-@media (max-width: 800px) {
-  .checkin-busca,
-  .checkin-resultado {
-    flex-direction: column;
-    align-items: stretch;
+@keyframes gestao-subir {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
