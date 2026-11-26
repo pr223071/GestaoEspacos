@@ -7,8 +7,9 @@ import Reservas from './pages/reservas';
 import GestaoReservas from './pages/gestaoReservas';
 import CadastroSala from './pages/cadastroSala';
 import CadastroEquipamento from './pages/cadastroEquipamento';
+import Checkin from './pages/checkin';
 
-// perfis que podem abrir as telas de gestão (funcionário e administrador)
+// quem pode abrir as telas de gestao (funcionario e adm)
 const EQUIPE = ['RECEPTION', 'ADMIN'];
 
 // abre o token e devolve o payload id, role, exp, ou null se estiver mal formado
@@ -21,6 +22,14 @@ function lerToken(token) {
   }
 }
 
+// ve se o token ainda nao venceu
+// tive que tirar de dentro do componente pq o react nao deixa usar Date.now() no render
+// (o lint dava erro de "impure function")
+function dentroDaValidade(payload) {
+  // exp vem em segundos; Date.now() vem em milissegundos, por isso o * 1000
+  return payload.exp * 1000 > Date.now();
+}
+
 // "porteiro" das páginas protegidas.
 // Sem "roles": qualquer usuário logado entra.
 // Com "roles" (ex.: roles={['ADMIN']}): só esses perfis entram.
@@ -28,8 +37,7 @@ function RotaProtegida({ children, roles }) {
   const token = localStorage.getItem('token');
   const payload = token ? lerToken(token) : null;
 
-  // exp vem em segundos; Date.now() vem em milissegundos, por isso o * 1000
-  const valido = payload && payload.exp * 1000 > Date.now();
+  const valido = payload && dentroDaValidade(payload);
 
   if (!valido) {
     console.log('sem login ou token vencido -> /login');
@@ -73,10 +81,11 @@ function App() {
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/reservas/nova/:spaceId" element={<Reservas />} />
 
-          {/* telas do funcionário (também liberadas para o ADM) */}
+          {/* telas do funcionario (o adm tambem pode ver) */}
           <Route path="/gestao/reservas" element={<RotaProtegida roles={EQUIPE}><GestaoReservas /></RotaProtegida>} />
           <Route path="/gestao/salas" element={<RotaProtegida roles={EQUIPE}><CadastroSala /></RotaProtegida>} />
           <Route path="/gestao/equipamentos" element={<RotaProtegida roles={EQUIPE}><CadastroEquipamento /></RotaProtegida>} />
+          <Route path="/gestao/checkin" element={<RotaProtegida roles={EQUIPE}><Checkin /></RotaProtegida>} />
 
           {/* EXEMPLO de rota só para um perfil (quando a página existir):
           <Route

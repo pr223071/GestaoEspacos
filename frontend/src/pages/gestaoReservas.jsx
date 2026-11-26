@@ -5,7 +5,7 @@ import '../css/gestao.css';
 
 const API_URL = 'http://localhost:3080';
 
-// o status vem do banco em inglês; aqui vira o texto da tela e a cor da etiqueta
+// o status vem do banco em ingles, aqui eu traduzo e escolho a cor da etiqueta
 const STATUS = {
   PENDING: { texto: 'Pendente', classe: 'pendente' },
   APPROVED: { texto: 'Aprovada', classe: 'aprovada' },
@@ -13,7 +13,7 @@ const STATUS = {
   CANCELLED: { texto: 'Cancelada', classe: 'cancelada' },
 };
 
-// abas do topo; '' = mostrar todas
+// abas lá de cima, o '' é pra mostrar todas
 const ABAS = [
   { valor: 'PENDING', texto: 'Pendentes' },
   { valor: 'APPROVED', texto: 'Aprovadas' },
@@ -22,7 +22,7 @@ const ABAS = [
   { valor: '', texto: 'Todas' },
 ];
 
-// o banco guarda a data em UTC; mostramos no horário de Brasília
+// o banco salva em UTC entao tem que converter pro horario de brasilia senao fica 3h errado
 const FUSO = 'America/Sao_Paulo';
 
 function formatarData(iso) {
@@ -33,7 +33,7 @@ function formatarHora(iso) {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: FUSO });
 }
 
-// Tela do funcionário: aprovar, recusar e cancelar reservas
+// tela do funcionario, aqui ele aprova, recusa e cancela as reservas
 function GestaoReservas() {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -43,17 +43,17 @@ function GestaoReservas() {
   const [erro, setErro] = useState('');
   const [mensagem, setMensagem] = useState('');
 
-  const [aba, setAba] = useState('PENDING'); // abre mostrando o que precisa de ação
+  const [aba, setAba] = useState('PENDING'); // já abre nas pendentes que é o que importa
   const [busca, setBusca] = useState('');
 
-  // id da reserva que está sendo recusada (abre a caixa do motivo) e o motivo digitado
+  // qual reserva ta sendo recusada (pra abrir a caixinha do motivo) e o motivo que digitou
   const [recusando, setRecusando] = useState(null);
   const [motivo, setMotivo] = useState('');
 
-  // id da reserva que está sendo salva, para desabilitar os botões dela
+  // reserva que ta salvando agora, pra travar os botoes dela e nao clicar 2x
   const [processando, setProcessando] = useState(null);
 
-  // sem token válido não tem o que fazer aqui: volta para o login
+  // se o token venceu manda pro login
   function sair() {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
@@ -90,14 +90,14 @@ function GestaoReservas() {
     buscarReservas();
   }, [navigate]);
 
-  // troca o status de uma reserva no back-end (aprovar, recusar ou cancelar)
+  // muda o status da reserva no back (aprovar, recusar ou cancelar)
   async function alterarStatus(reserva, novoStatus, motivoRecusa) {
     setErro('');
     setMensagem('');
     setProcessando(reserva.id);
 
     const corpo = { status: novoStatus };
-    // quem aprovou/recusou fica registrado na reserva
+    // salva quem aprovou ou recusou
     if (novoStatus === 'APPROVED' || novoStatus === 'REJECTED') corpo.reviewed_by = usuario.id;
     if (novoStatus === 'REJECTED') corpo.rejection_reason = motivoRecusa;
 
@@ -118,14 +118,14 @@ function GestaoReservas() {
 
       const dados = await response.json();
 
-      // o banco recusa quando a regra não deixa (ex.: horário já ocupado); mostra o motivo
+      // se o banco barrar (tipo horario ja ocupado) mostra o motivo que ele mandou
       if (!response.ok) {
         setErro(dados.erro || 'Não foi possível atualizar a reserva');
         return;
       }
 
-      // o PUT devolve a reserva sem os nomes do espaço e do cliente,
-      // então juntamos o que já tínhamos com o que voltou
+      // o PUT volta sem o nome do espaço e do cliente
+      // entao junto o que ja tinha com o que voltou
       setReservas((lista) => lista.map((r) => (r.id === reserva.id ? { ...r, ...dados } : r)));
       setMensagem(`Reserva de ${reserva.user_name} em "${reserva.space_name}" ${STATUS[novoStatus].texto.toLowerCase()}.`);
       setRecusando(null);
@@ -146,14 +146,14 @@ function GestaoReservas() {
   }
 
   function cancelar(reserva) {
-    // cancelar não tem volta, por isso pergunta antes
+    // cancelar nao tem volta entao pergunta antes
     const ok = window.confirm(`Cancelar a reserva de ${reserva.user_name} em "${reserva.space_name}" no dia ${formatarData(reserva.start_datetime)}?`);
     if (ok) alterarStatus(reserva, 'CANCELLED');
   }
 
   const pendentes = reservas.filter((r) => r.status === 'PENDING').length;
 
-  // lista da tela: filtra pela aba e pela busca e ordena pela data da reserva
+  // filtra pela aba e pela busca e deixa em ordem de data
   const termo = busca.toLowerCase();
   const reservasFiltradas = reservas
     .filter((r) => aba === '' || r.status === aba)
@@ -220,7 +220,7 @@ function GestaoReservas() {
                   const ocupado = processando === reserva.id;
 
                   return (
-                    // Fragment: cada reserva pode ter 2 linhas (a dela + a do motivo da recusa)
+                    // usei Fragment pq cada reserva pode ter 2 linhas (a normal e a do motivo da recusa)
                     <Fragment key={reserva.id}>
                       <tr>
                         <td><strong>{reserva.space_name}</strong></td>
@@ -237,8 +237,8 @@ function GestaoReservas() {
                           )}
                         </td>
                         <td>
-                          {/* só aparecem as ações que o banco aceita para cada status:
-                              pendente -> aprovar, recusar ou cancelar; aprovada -> cancelar */}
+                          {/* so mostra o botao que o banco deixa fazer:
+                              pendente da pra aprovar, recusar ou cancelar, aprovada so cancelar */}
                           <div className="gestao-acoes">
                             {reserva.status === 'PENDING' && (
                               <>

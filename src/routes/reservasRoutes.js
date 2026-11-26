@@ -311,7 +311,7 @@ router.put('/:id', async (req, res) => {
             space_id: 'space_id', user_id: 'user_id', start_datetime: 'start_datetime',
             end_datetime: 'end_datetime', attendees: 'attendees', notes: 'notes',
             status: 'status', rejection_reason: 'rejection_reason',
-            reviewed_by: 'reviewed_by' // quem aprovou/recusou (o banco preenche reviewed_at sozinho)
+            reviewed_by: 'reviewed_by' // quem aprovou ou recusou (o reviewed_at o banco ja preenche sozinho)
         };
         const values = [];
         const sets = fields.map((field, index) => {

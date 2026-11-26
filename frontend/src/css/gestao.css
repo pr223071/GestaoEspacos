@@ -1,6 +1,6 @@
-/* estilos das telas do funcionário (gestão de reservas, salas e equipamentos).
-   as três telas usam os mesmos formulários, tabelas e avisos, por isso ficam
-   num arquivo só. As cores vêm das variáveis do index.css */
+/* css das telas do funcionario (gestao de reservas, check-in, salas e equipamentos).
+   deixei tudo num arquivo so pq as telas usam os mesmos forms, tabelas e avisos.
+   as cores sao as variaveis do index.css */
 
 .gestao {
   padding: 32px;
@@ -22,7 +22,7 @@
   margin-bottom: 14px;
 }
 
-/* ===== CARTÃO (fundo branco que envolve formulário e tabela) ===== */
+/* ===== CARTAO (o fundo branco em volta do form e da tabela) ===== */
 .gestao-cartao {
   background: var(--branco);
   border: 1px solid var(--borda);
@@ -62,7 +62,7 @@
   color: var(--branco);
 }
 
-/* bolinha com a quantidade (ex.: quantas pendentes) */
+/* bolinha com o numero de pendentes */
 .gestao-contador {
   min-width: 20px;
   padding: 1px 6px;
@@ -102,7 +102,7 @@
 }
 
 /* ===== TABELA =====
-   a div em volta deixa a tabela rolar de lado em tela pequena */
+   a div em volta é pra tabela rolar pro lado quando a tela é pequena */
 .gestao-tabela-caixa {
   overflow-x: auto;
 }
@@ -153,6 +153,7 @@
 .gestao-status.aprovada { background: #e3f6ec; color: #17794a; }
 .gestao-status.recusada { background: #fdecec; color: #c62828; }
 .gestao-status.cancelada { background: #eef1f5; color: var(--texto-suave); }
+.gestao-status.concluido { background: #e8f0ff; color: var(--azul-hover); }
 
 /* ===== BOTÕES DE AÇÃO DA TABELA ===== */
 .gestao-acoes {
@@ -187,7 +188,7 @@
 .gestao-acao.cancelar { background: var(--branco); border-color: var(--borda); color: var(--texto-suave); }
 .gestao-acao.cancelar:hover:not(:disabled) { background: #eef1f5; color: var(--texto); }
 
-/* linha extra que aparece embaixo da reserva para digitar o motivo da recusa */
+/* linha que aparece embaixo da reserva pra digitar o motivo da recusa */
 .gestao-recusa td {
   background: #fff8f8;
 }
@@ -205,7 +206,7 @@
 }
 
 /* ===== FORMULÁRIO =====
-   duas colunas; os campos com a classe "inteiro" ocupam a linha toda */
+   duas colunas, quem tem a classe "inteiro" pega a linha toda */
 .gestao-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -308,5 +309,79 @@
 
   .gestao-form {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== CHECK-IN (tela da recepçao) ===== */
+.checkin-busca {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.checkin-busca .gestao-busca {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* cartao que mostra a reserva que achou pelo codigo */
+.checkin-resultado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--azul);
+  border-radius: 8px;
+  background: var(--fundo);
+}
+
+.checkin-resultado > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+}
+
+.checkin-resultado strong {
+  font-size: 16px;
+}
+
+.checkin-resultado .suave {
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.checkin-resultado-acoes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkin-topo-lista {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.checkin-topo-lista input {
+  width: auto;
+}
+
+.checkin-resumo {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 800px) {
+  .checkin-busca,
+  .checkin-resultado {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

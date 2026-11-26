@@ -52,14 +52,14 @@ router.use(
   require("./disponibilidadesRoutes"),
 );
 router.use("/bloqueios", somenteAdminAltera, require("./bloqueiosRoutes"));
-// espaços: todos veem; CADASTRAR (POST /spaces) é ADMIN ou RECEPTION (funcionário cadastra sala);
-// editar e apagar continuam só com o ADMIN
+// espaços: todo mundo ve, mas cadastrar (POST /spaces) é so ADMIN ou RECEPTION pq o funcionario tambem cadastra sala
+// editar e apagar continua so o ADMIN
 router.use("/spaces", (req, res, next) =>
   req.method === "POST" && req.path === "/"
     ? exigirRole("ADMIN", "RECEPTION")(req, res, next)
     : somenteAdminAltera(req, res, next),
 );
-// equipamentos: todos veem; só ADMIN ou RECEPTION cadastram, editam e apagam
+// equipamentos: todo mundo ve, mas so ADMIN ou RECEPTION cadastra, edita e apaga
 router.use("/reservas-equipamentos/equipamentos", (req, res, next) =>
   req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next),
 );

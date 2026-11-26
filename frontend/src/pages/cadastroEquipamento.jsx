@@ -7,12 +7,12 @@ const API_URL = 'http://localhost:3080';
 
 const FORM_VAZIO = { space_id: '', name: '', quantity: '1', description: '' };
 
-// Tela do funcionário: cadastrar equipamento em uma sala e ver os que já existem
+// tela do funcionario pra cadastrar equipamento numa sala e ver os que ja tem
 function CadastroEquipamento() {
   const navigate = useNavigate();
 
   const [equipamentos, setEquipamentos] = useState([]);
-  const [salas, setSalas] = useState([]); // para o select "Sala"
+  const [salas, setSalas] = useState([]); // pro select de sala
   const [carregando, setCarregando] = useState(true);
 
   const [form, setForm] = useState(FORM_VAZIO);
@@ -20,7 +20,7 @@ function CadastroEquipamento() {
   const [erro, setErro] = useState('');
   const [mensagem, setMensagem] = useState('');
 
-  // filtro da lista de baixo: '' = todas as salas
+  // filtro da lista de baixo, '' é todas as salas
   const [filtroSala, setFiltroSala] = useState('');
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function CadastroEquipamento() {
       const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
       try {
-        // Promise.all: faz as duas buscas ao mesmo tempo e espera as duas terminarem
+        // Promise.all faz as duas buscas juntas e espera as duas acabarem
         const [respEquip, respSalas] = await Promise.all([
           fetch(`${API_URL}/reservas-equipamentos/equipamentos`, { headers }),
           fetch(`${API_URL}/spaces`, { headers }),
@@ -47,7 +47,7 @@ function CadastroEquipamento() {
         }
 
         setEquipamentos(await respEquip.json());
-        // a rota de espaços responde 404 quando não tem nenhuma sala
+        // se nao tiver sala a rota manda 404, ai fica vazio
         setSalas(respSalas.ok ? await respSalas.json() : []);
       } catch {
         setErro('Não foi possível conectar ao servidor');
@@ -99,7 +99,7 @@ function CadastroEquipamento() {
 
       setEquipamentos((lista) => [...lista, dados]);
       setMensagem(`Equipamento "${dados.name}" cadastrado em "${dados.space_name}".`);
-      // mantém a sala escolhida: normalmente se cadastram vários itens na mesma sala
+      // deixa a sala escolhida pq geralmente cadastra varios itens na mesma sala
       setForm({ ...FORM_VAZIO, space_id: form.space_id });
     } catch {
       setErro('Não foi possível conectar ao servidor');
@@ -110,7 +110,7 @@ function CadastroEquipamento() {
 
   const salasOrdenadas = [...salas].sort((a, b) => a.name.localeCompare(b.name));
 
-  // ids vêm do banco como número ou texto; String() deixa a comparação igual nos dois casos
+  // o id as vezes vem numero e as vezes texto, com String() compara certo nos dois
   const equipamentosFiltrados = equipamentos
     .filter((eq) => filtroSala === '' || String(eq.space_id) === filtroSala)
     .sort((a, b) => a.space_name.localeCompare(b.space_name) || a.name.localeCompare(b.name));

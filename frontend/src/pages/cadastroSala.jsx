@@ -5,7 +5,7 @@ import '../css/gestao.css';
 
 const API_URL = 'http://localhost:3080';
 
-// tipos aceitos pelo banco (enum space_type) e o texto que aparece na tela
+// tipos que o banco aceita (enum space_type) e o nome que aparece pro usuario
 const TIPOS = [
   { valor: 'MEETING_ROOM', texto: 'Sala de reunião' },
   { valor: 'COWORKING', texto: 'Coworking' },
@@ -17,7 +17,7 @@ function nomeDoTipo(tipo) {
   return encontrado ? encontrado.texto : tipo;
 }
 
-// formulário vazio; usado no começo e para limpar depois de salvar
+// form vazio, uso no começo e pra limpar depois que salva
 const FORM_VAZIO = {
   name: '',
   type: 'MEETING_ROOM',
@@ -27,14 +27,14 @@ const FORM_VAZIO = {
   terms_of_use: '',
 };
 
-// Tela do funcionário: cadastrar sala (espaço) e ver as que já existem
+// tela do funcionario pra cadastrar sala e ver as que ja tem
 function CadastroSala() {
   const navigate = useNavigate();
 
   const [salas, setSalas] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
-  // um objeto só para o formulário inteiro; cada input muda a sua chave
+  // deixei o form todo num objeto so, cada input muda o seu campo
   const [form, setForm] = useState(FORM_VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
@@ -54,7 +54,7 @@ function CadastroSala() {
           return;
         }
 
-        // o back-end responde 404 quando ainda não tem nenhuma sala: lista vazia
+        // o back manda 404 quando nao tem nenhuma sala, ai so deixo a lista vazia
         if (response.status === 404) {
           setSalas([]);
           return;
@@ -76,7 +76,7 @@ function CadastroSala() {
     buscarSalas();
   }, [navigate]);
 
-  // atualiza só o campo que mudou; o "name" do input diz qual chave do form é
+  // muda so o campo que mexeu, o "name" do input fala qual é
   function mudarCampo(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
@@ -110,14 +110,14 @@ function CadastroSala() {
 
       const dados = await response.json();
 
-      // 409 = o banco não aceita duas salas com o mesmo nome
+      // 409 é quando ja tem sala com esse nome
       if (response.status === 409) {
         setErro(`Já existe uma sala chamada "${form.name}".`);
         return;
       }
 
       if (!response.ok) {
-        // a rota de espaços usa "erro" em algumas respostas e "error" em outras
+        // a rota de espaços as vezes manda "erro" e as vezes "error", entao pego os dois
         setErro(dados.erro || dados.error || 'Não foi possível cadastrar a sala');
         return;
       }
@@ -132,7 +132,7 @@ function CadastroSala() {
     }
   }
 
-  // mostra as salas em ordem alfabética
+  // deixa as salas em ordem alfabetica
   const salasOrdenadas = [...salas].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
