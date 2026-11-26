@@ -4,6 +4,12 @@ import Login from './pages/login';
 import Dashboard from './pages/home';
 import Espacos from './pages/espacos';
 import Reservas from './pages/reservas';
+import GestaoReservas from './pages/gestaoReservas';
+import CadastroSala from './pages/cadastroSala';
+import CadastroEquipamento from './pages/cadastroEquipamento';
+
+// perfis que podem abrir as telas de gestão (funcionário e administrador)
+const EQUIPE = ['RECEPTION', 'ADMIN'];
 
 // abre o token e devolve o payload id, role, exp, ou null se estiver mal formado
 function lerToken(token) {
@@ -66,6 +72,11 @@ function App() {
           <Route path="/espacos" element={<Espacos />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/reservas/nova/:spaceId" element={<Reservas />} />
+
+          {/* telas do funcionário (também liberadas para o ADM) */}
+          <Route path="/gestao/reservas" element={<RotaProtegida roles={EQUIPE}><GestaoReservas /></RotaProtegida>} />
+          <Route path="/gestao/salas" element={<RotaProtegida roles={EQUIPE}><CadastroSala /></RotaProtegida>} />
+          <Route path="/gestao/equipamentos" element={<RotaProtegida roles={EQUIPE}><CadastroEquipamento /></RotaProtegida>} />
 
           {/* EXEMPLO de rota só para um perfil (quando a página existir):
           <Route

@@ -285,7 +285,7 @@ router.put('/:id', async (req, res) => {
     try {
         const id = Number(req.params.id);
         if (!Number.isInteger(id) || id < 1) return res.status(400).json({ erro: 'ID inválido.' });
-        const allowed = ['space_id', 'user_id', 'start_datetime', 'end_datetime', 'attendees', 'notes', 'status', 'rejection_reason'];
+        const allowed = ['space_id', 'user_id', 'start_datetime', 'end_datetime', 'attendees', 'notes', 'status', 'rejection_reason', 'reviewed_by'];
         const body = req.body || {};
         const fields = allowed.filter(key => body[key] !== undefined);
         if (!fields.length) return res.status(400).json({ erro: 'Informe ao menos um campo para atualizar.' });
@@ -310,11 +310,12 @@ router.put('/:id', async (req, res) => {
         const colunas = {
             space_id: 'space_id', user_id: 'user_id', start_datetime: 'start_datetime',
             end_datetime: 'end_datetime', attendees: 'attendees', notes: 'notes',
-            status: 'status', rejection_reason: 'rejection_reason'
+            status: 'status', rejection_reason: 'rejection_reason',
+            reviewed_by: 'reviewed_by' // quem aprovou/recusou (o banco preenche reviewed_at sozinho)
         };
         const values = [];
         const sets = fields.map((field, index) => {
-            values.push(field === 'space_id' || field === 'user_id' || field === 'attendees' ? Number(body[field]) : body[field]);
+            values.push(field === 'space_id' || field === 'user_id' || field === 'attendees' || field === 'reviewed_by' ? Number(body[field]) : body[field]);
             return `${colunas[field]} = $${index + 1}`;
         });
         values.push(id);

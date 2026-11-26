@@ -52,7 +52,17 @@ router.use(
   require("./disponibilidadesRoutes"),
 );
 router.use("/bloqueios", somenteAdminAltera, require("./bloqueiosRoutes"));
-router.use("/spaces", somenteAdminAltera); // espaços: todos veem, só ADMIN cria/edita/apaga
+// espaços: todos veem; CADASTRAR (POST /spaces) é ADMIN ou RECEPTION (funcionário cadastra sala);
+// editar e apagar continuam só com o ADMIN
+router.use("/spaces", (req, res, next) =>
+  req.method === "POST" && req.path === "/"
+    ? exigirRole("ADMIN", "RECEPTION")(req, res, next)
+    : somenteAdminAltera(req, res, next),
+);
+// equipamentos: todos veem; só ADMIN ou RECEPTION cadastram, editam e apagam
+router.use("/reservas-equipamentos/equipamentos", (req, res, next) =>
+  req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next),
+);
 router.use("/clients", exigirRole("ADMIN")); // gestão de usuários: só ADMIN
 router.use("/historico", exigirRole("ADMIN", "RECEPTION"));
 router.use("/checkins", exigirRole("ADMIN", "RECEPTION"));

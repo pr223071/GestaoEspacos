@@ -9,6 +9,9 @@ import {
   LogOut,
   UserCircle,
   Plus,
+  ClipboardCheck,
+  DoorOpen,
+  Wrench,
 } from "lucide-react";
 import "../css/Layout.css";
 
@@ -18,6 +21,9 @@ const MENU = [
   { texto: "Início", icone: Home, para: "/dashboard" },
   { texto: "Espaços", icone: Building2, para: "/espacos" },
   { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas" },
+  { texto: "Gestão de reservas", icone: ClipboardCheck, para: "/gestao/reservas", roles: ["RECEPTION", "ADMIN"] },
+  { texto: "Salas", icone: DoorOpen, para: "/gestao/salas", roles: ["RECEPTION", "ADMIN"] },
+  { texto: "Equipamentos", icone: Wrench, para: "/gestao/equipamentos", roles: ["RECEPTION", "ADMIN"] },
   { texto: "Notificações", icone: Bell, para: "/notificacoes" },
   { texto: "Perfil", icone: User, para: "/perfil" },
   // exemplo: { texto: 'Aprovações', icone: Home, para: '/admin/aprovacoes', roles: ['ADMIN'] },
