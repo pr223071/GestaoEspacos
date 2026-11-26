@@ -1,6 +1,7 @@
 const express = require('express'); // importa o express
 const { pool } = require("../config/db"); // cria uma intancia pra usar as funções do banco
 const { responderErro } = require("../utils/banco");
+const { limparEmail } = require("../utils/documentos");
 // cria uma instância do roteador do Express
 const router = express.Router();
 
@@ -351,7 +352,8 @@ router.put("/clients/update/:id", async (req, res) => {
     if(!Number.isInteger(id) || id <= 0 ){return res.status(400).json({ erro: "informe um valor valido"})}
 
     // só os campos que vierem no body são alterados, o resto continua igual
-    const { name, email, password_hash, role, cpf, phone, company_id, is_active } = req.body;
+    const { name, password_hash, role, cpf, phone, company_id, is_active } = req.body;
+    const email = limparEmail(req.body.email); // e-mail padronizado
 
     //se não vier nenhum campo, retorna erro
     if(name === undefined && email === undefined && password_hash === undefined && role === undefined &&
@@ -372,7 +374,7 @@ router.put("/clients/update/:id", async (req, res) => {
     // verifica se o email ou cpf já pertencem a OUTRO cliente (id <> $3 ignora o próprio cliente)
     if(email !== undefined || cpf !== undefined){
         const repetido = await pool.query(
-            `SELECT email, cpf FROM users WHERE (email = $1 OR cpf = $2) AND id <> $3`,
+            `SELECT lower(email) AS email, cpf FROM users WHERE (lower(email) = $1 OR cpf = $2) AND id <> $3`,
             [email ?? null, cpf ?? null, id]
         );
 
@@ -512,7 +514,8 @@ router.delete("/clients/delete/:id", async (req, res) => {
 router.post("/clients", async function(req, res) {
     
     // o req.body vai pedir todos esses campos
-    const { name, email, password, role, cpf, phone, company_id } = req.body
+    const { name, password, role, cpf, phone, company_id } = req.body
+    const email = limparEmail(req.body.email); // e-mail padronizado
     
     //se algum vir nulo, retorna erro (company_id é opcional: o cadastro pela tela de signup não manda)
     if(!name || !email || !password || !role || !cpf || !phone){
@@ -537,6 +540,16 @@ router.post("/clients", async function(req, res) {
             if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
         }
 
+
+        // barra e-mail ou cpf já cadastrado
+        const repetido = await pool.query(
+            `SELECT lower(email) AS email FROM users WHERE lower(email) = $1 OR cpf = $2`,
+            [email, cpf]
+        );
+        if(repetido.rowCount > 0){
+            if(repetido.rows.some(u => u.email === email)){return res.status(409).json({ erro: "email já cadastrado"})}
+            return res.status(409).json({ erro: "cpf já cadastrado"});
+        }
 
         //transofrma a password em hash
         const hash = await bcrypt.hash(password, 10);

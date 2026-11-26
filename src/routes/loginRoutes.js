@@ -1,6 +1,7 @@
 const express = require('express'); // importa o express
 const { pool } = require("../config/db"); // cria uma intancia pra usar as funções do banco
 const { responderErro } = require("../utils/banco");
+const { limparEmail } = require("../utils/documentos");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");// biblioteca pra gerar o token
@@ -90,7 +91,8 @@ const jwt = require("jsonwebtoken");// biblioteca pra gerar o token
 
 router.post("/", async function (req, res) {
     
-    const {email, password} = req.body;
+    const { password } = req.body;
+    const email = limparEmail(req.body.email); // e-mail padronizado
 
     if(!password || !email){
         return res.status(400).json({ erro: "todos os campos devem ser preenchidos"})    
@@ -98,7 +100,7 @@ router.post("/", async function (req, res) {
 
     try{
 
-    const resultado = await pool.query(`SELECT id, name, email, role, password_hash, is_active FROM users WHERE email = $1`, [email]);
+    const resultado = await pool.query(`SELECT id, name, email, role, password_hash, is_active FROM users WHERE lower(email) = $1`, [email]);
     
         if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum usuario encontrado"})}
         

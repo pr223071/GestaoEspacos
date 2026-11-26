@@ -33,4 +33,9 @@ function cnpjValido(cnpj) {
     return cnpj === cnpj.slice(0, 12) + d1 + d2;
 }
 
-module.exports = { cpfValido, cnpjValido };
+// deixa o e-mail minúsculo e sem espaços
+function limparEmail(email) {
+    return typeof email === "string" ? email.trim().toLowerCase() : email;
+}
+
+module.exports = { cpfValido, cnpjValido, limparEmail };
