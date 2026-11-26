@@ -43,6 +43,22 @@ router.get("/docs.json", (req, res) => res.json(swaggerSpec));
 // ---------------------------------------------------------------
 router.use("/login", require("./loginRoutes")); // público (é onde se gera o token)
 
+// ---------------------------------------------------------------
+// CADASTRO PÚBLICO (tela de signup do front)
+// ---------------------------------------------------------------
+const clientsRoutes = require("./clientsRoutes");
+
+// POST /clients sem token = alguém se cadastrando pela tela de signup.
+// usa a MESMA rota de criação de cliente, mas força role CLIENT
+// (assim ninguém consegue se cadastrar como ADMIN/RECEPTION).
+// com token, segue o fluxo normal lá embaixo (só ADMIN).
+router.post("/clients", (req, res, next) => {
+  const cabecalho = req.headers.authorization || req.headers.tokenorization || "";
+  if (cabecalho.startsWith("Bearer ")) return next();
+  req.body = { ...req.body, role: "CLIENT" };
+  clientsRoutes(req, res, next);
+});
+
 router.use(verificarToken); // daqui para baixo: precisa estar logado
 
 router.use("/empresas", somenteAdminAltera, require("./empresasRoutes"));
@@ -73,7 +89,7 @@ router.use("/notificacoes", require("./notificacoesRoutes"));
 router.use("/reservas-equipamentos", require("./reservasEquipamentosRoutes"));
 router.use("/historico", require("./historicoRoutes"));
 router.use("/checkins", require("./checkinsRoutes"));
-router.use(require("./clientsRoutes"));
+router.use(clientsRoutes);
 router.use(require("./espacosRoutes"));
 
 module.exports = router;

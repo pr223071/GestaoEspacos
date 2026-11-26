@@ -59,7 +59,7 @@ const bcrypt = require('bcryptjs');
  *
  *     ClienteInput:
  *       type: object
- *       required: [name, email, password, role, cpf, phone, company_id]
+ *       required: [name, email, password, role, cpf, phone]
  *       properties:
  *         name:
  *           type: string
@@ -514,8 +514,8 @@ router.post("/clients", async function(req, res) {
     // o req.body vai pedir todos esses campos
     const { name, email, password, role, cpf, phone, company_id } = req.body
     
-    //se algum vir nulo, retorna erro
-    if(!name || !email || !password || !role || !cpf || !phone || !company_id){
+    //se algum vir nulo, retorna erro (company_id é opcional: o cadastro pela tela de signup não manda)
+    if(!name || !email || !password || !role || !cpf || !phone){
         return res.status(400).json({ erro : "é nescessarios todos os campos preenchidos"});
     }
 
@@ -529,9 +529,13 @@ router.post("/clients", async function(req, res) {
 
 
     try{
-        // transforma o company_id em inteiro e verifica se é valido
-        const empresa = Number(company_id);
-        if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
+        // se mandar company_id, transforma em inteiro e verifica se é valido
+        // se não mandar, o cliente fica sem empresa (null) até alguém vincular uma
+        let empresa = null;
+        if(company_id !== undefined && company_id !== null && company_id !== ""){
+            empresa = Number(company_id);
+            if(!Number.isInteger(empresa) || empresa <= 0){return res.status(400).json({ erro: "informe um company_id valido"})}
+        }
 
 
         //transofrma a password em hash

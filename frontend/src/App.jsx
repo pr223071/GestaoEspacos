@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Login from './pages/login';
+import Auth from './pages/auth';
 import Dashboard from './pages/home';
 import Espacos from './pages/espacos';
 import Reservas from './pages/reservas';
@@ -65,7 +65,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        {/* a primeira tela ao abrir o site é o cadastro */}
+        <Route path="/" element={<Navigate to="/signup" replace />} />
+        {/* login e cadastro dividem a mesma tela (pages/auth.jsx),
+            assim a troca entre eles é animada em vez de recarregar */}
+        <Route element={<Auth />}>
+          <Route path="/signup" />
+          <Route path="/login" />
+        </Route>
 
         {/* ROTAS ANINHADAS: todas as rotas aqui dentro passam pelo porteiro
             e aparecem dentro do Layout (sidebar + topo), no lugar do <Outlet /> */}
@@ -98,7 +105,7 @@ function App() {
           /> */}
         </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/signup" replace />} />
       </Routes>
     </BrowserRouter>
   );

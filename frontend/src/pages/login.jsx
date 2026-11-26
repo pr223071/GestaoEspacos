@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Eye, EyeOff } from 'lucide-react';
-import '../css/login.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { Check, Eye, EyeOff } from 'lucide-react';
 
 // endereço do backend; se um dia mudar a porta, muda só aqui
 const API_URL = 'http://localhost:3080';
 
-function Login() {
-  const [email, setEmail] = useState('');
+// formulário de login (tema preto). Ele fica dentro da tela Auth (pages/auth.jsx).
+// emailCadastrado: vem preenchido quando a pessoa acabou de criar a conta
+function Login({ emailCadastrado }) {
+  // "lembrar de mim" guarda só o e-mail neste navegador, nunca a senha
+  const emailLembrado = localStorage.getItem('emailLembrado') || '';
+
+  const [email, setEmail] = useState(emailCadastrado || emailLembrado);
   const [password, setPassword] = useState('');
+  const [lembrar, setLembrar] = useState(Boolean(emailLembrado));
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  // NOVO: controla se a senha aparece ou fica escondida (botão do olho)
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const navigate = useNavigate();
@@ -35,6 +39,9 @@ function Login() {
         return;
       }
 
+      if (lembrar) localStorage.setItem('emailLembrado', email);
+      else localStorage.removeItem('emailLembrado');
+
       localStorage.setItem('token', dados.token);
       localStorage.setItem('usuario', JSON.stringify(dados.usuario));
       navigate('/dashboard');
@@ -46,73 +53,74 @@ function Login() {
   }
 
   return (
-    <main className="login-pagina">
-      {/* LADO ESQUERDO: marca + foto. aria-hidden porque é só decoração */}
-      <aside className="login-banner" aria-hidden="true">
-        <div className="login-marca">
-          <div className="login-logo">
-            <Box size={34} strokeWidth={1.8} />
-            <span>SGEC</span>
-          </div>
-          <p className="login-subtitulo">Gestão de Espaços</p>
-          <p className="login-tags">Coworking • Laboratórios • Reuniões</p>
-        </div>
-        <div className="login-foto" />
-      </aside>
+    <form className="auth-form" onSubmit={handleSubmit}>
+      <nav className="auth-topo">
+        <Link to="/signup">Criar uma conta</Link>
+      </nav>
 
-      {/* LADO DIREITO: o formulário */}
-      <section className="login-lado-form">
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h1>Bem-vindo!</h1>
-          <p className="login-instrucao">Faça login para continuar</p>
+      <div className="auth-meio">
+        <h1 className="auth-titulo">Login</h1>
 
-          <label htmlFor="email">E-mail</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="seu@email.com"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        {emailCadastrado && (
+          <p className="auth-sucesso" role="status">Conta criada! Agora é só entrar.</p>
+        )}
 
-          <label htmlFor="password">Senha</label>
-          {/* div em volta para posicionar o olho dentro do campo */}
-          <div className="login-campo-senha">
+        <div className="auth-grade">
+          <div className="auth-campo">
+            <label htmlFor="login-email">E-mail</label>
             <input
-              id="password"
-              // troca o tipo do input: "text" mostra a senha, "password" esconde
-              type={mostrarSenha ? 'text' : 'password'}
-              placeholder="Digite sua senha"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              id="login-email"
+              type="email"
+              placeholder="seu@email.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <button
-              type="button" // "button" para NÃO enviar o formulário ao clicar
-              className="login-olho"
-              onClick={() => setMostrarSenha(!mostrarSenha)} // inverte true/false
-              aria-label={mostrarSenha ? 'Esconder senha' : 'Mostrar senha'}
-            >
-              {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={lembrar}
+                onChange={(e) => setLembrar(e.target.checked)}
+              />
+              <span className="auth-check-bola">{lembrar && <Check size={10} strokeWidth={3} />}</span>
+              Lembrar de mim
+            </label>
           </div>
 
-          {erro && <p className="login-erro" role="alert">{erro}</p>}
+          <div className="auth-campo">
+            <label htmlFor="login-senha">Senha</label>
+            <div className="auth-campo-senha">
+              <input
+                id="login-senha"
+                type={mostrarSenha ? 'text' : 'password'}
+                placeholder="Sua senha"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button" // "button" para NÃO enviar o formulário ao clicar
+                className="auth-olho"
+                onClick={() => setMostrarSenha(!mostrarSenha)}
+                aria-label={mostrarSenha ? 'Esconder senha' : 'Mostrar senha'}
+              >
+                {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {/* ainda não existe essa tela; fica de enfeite por enquanto */}
+            <button type="button" className="auth-link-pequeno">Esqueceu?</button>
+          </div>
+        </div>
 
-          <button type="submit" className="login-botao" disabled={carregando}>
-            {carregando ? 'Entrando...' : 'Entrar'}
-          </button>
+        {erro && <p className="auth-erro" role="alert">{erro}</p>}
 
-          {/* ainda não existe essa tela; fica de enfeite por enquanto */}
-          <button type="button" className="login-esqueci">
-            Esqueceu sua senha?
-          </button>
-        </form>
-      </section>
-    </main>
+        <button type="submit" className="auth-botao" disabled={carregando}>
+          {carregando ? 'Entrando...' : 'Entrar'}
+        </button>
+      </div>
+    </form>
   );
 }
 

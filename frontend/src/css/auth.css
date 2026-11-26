@@ -1,0 +1,416 @@
+/* =========================================================
+   TELA DE ENTRADA (login + cadastro) — pages/auth.jsx
+   modo login  = preto, painel da logo à ESQUERDA, form à direita
+   modo signup = branco, painel da logo à DIREITA, form à esquerda
+   ========================================================= */
+
+/* duração e curva de todas as animações da troca */
+.auth {
+  --tempo: 0.9s;
+  --curva: cubic-bezier(0.77, 0, 0.18, 1);
+  --espaco: 24px;
+}
+
+/* ---------- CORES DE CADA MODO ---------- */
+.auth[data-modo='login'] {
+  --fundo: #000;
+  --card: #141414;
+  --brilho: rgba(255, 255, 255, 0.05);
+  --texto: #fff;
+  --suave: rgba(255, 255, 255, 0.55);
+  --linha: rgba(255, 255, 255, 0.12);
+  --linha-campo: rgba(255, 255, 255, 0.35);
+  --botao-fundo: #fff;
+  --botao-texto: #000;
+}
+
+.auth[data-modo='signup'] {
+  --fundo: #fff;
+  --card: #f3f3f3;
+  --brilho: rgba(0, 0, 0, 0.03);
+  --texto: #0a0a0a;
+  --suave: rgba(0, 0, 0, 0.5);
+  --linha: rgba(0, 0, 0, 0.1);
+  --linha-campo: rgba(0, 0, 0, 0.3);
+  --botao-fundo: #000;
+  --botao-texto: #fff;
+}
+
+/* tudo que muda de cor anima junto com o painel */
+.auth,
+.auth-painel,
+.auth-card,
+.auth-form input,
+.auth-botao,
+.auth-check-bola {
+  transition:
+    background-color var(--tempo) var(--curva),
+    color var(--tempo) var(--curva),
+    border-color var(--tempo) var(--curva);
+}
+
+/* ---------- PÁGINA ---------- */
+.auth {
+  min-height: 100vh;
+  padding: var(--espaco);
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+/* o "palco": duas colunas iguais; o painel desliza por cima delas */
+.auth-palco {
+  position: relative;
+  height: calc(100vh - var(--espaco) * 2);
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco);
+}
+
+/* ---------- CARDS DOS FORMULÁRIOS ---------- */
+.auth-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--card);
+  /* o form que sai some rápido; o que entra aparece quando o painel já passou */
+  opacity: 0;
+  transform: scale(0.97);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    background-color var(--tempo) var(--curva);
+}
+
+/* brilho suave no canto, igual à referência */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 25% 30%, var(--brilho), transparent 60%);
+  pointer-events: none;
+}
+
+.auth-card--signup { grid-column: 1; grid-row: 1; }
+.auth-card--login  { grid-column: 2; grid-row: 1; }
+
+.auth[data-modo='login'] .auth-card--login,
+.auth[data-modo='signup'] .auth-card--signup {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s ease calc(var(--tempo) * 0.55),
+    transform 0.5s ease calc(var(--tempo) * 0.55),
+    background-color var(--tempo) var(--curva);
+}
+
+/* ---------- PAINEL QUE DESLIZA (marca + logo) ---------- */
+.auth-painel {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: calc(50% - var(--espaco) / 2);
+  height: 100%;
+  background: var(--fundo);
+  display: grid;
+  place-items: center;
+  transition:
+    transform var(--tempo) var(--curva),
+    background-color var(--tempo) var(--curva),
+    color var(--tempo) var(--curva);
+}
+
+/* no cadastro ele vai para a direita (a largura dele + o espaço do meio) */
+.auth[data-modo='signup'] .auth-painel {
+  transform: translateX(calc(100% + var(--espaco)));
+}
+
+.auth-marca {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.auth-marca sup {
+  font-size: 10px;
+  margin-left: 2px;
+}
+
+.auth-linhas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-linhas line {
+  stroke: var(--linha);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke; /* a linha não engorda quando o svg estica */
+  transition: stroke var(--tempo) var(--curva);
+}
+
+.auth-logo {
+  position: relative;
+  transition: transform var(--tempo) var(--curva);
+}
+
+/* a logo dá meia volta durante a troca */
+.auth[data-modo='signup'] .auth-logo {
+  transform: rotate(180deg);
+}
+
+.auth-rodape {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 11px;
+  color: var(--suave);
+}
+
+/* ---------- FORMULÁRIO ---------- */
+.auth-form {
+  position: relative;
+  height: 100%;
+  padding: 28px 32px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-topo {
+  text-align: right;
+  font-size: 13px;
+}
+
+.auth-topo a,
+.auth-troca a {
+  color: var(--texto);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.auth-topo a:hover,
+.auth-troca a:hover {
+  border-bottom-color: currentColor;
+}
+
+/* o miolo fica centralizado na altura do card */
+.auth-meio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 560px;
+}
+
+.auth-titulo {
+  font-size: clamp(44px, 5vw, 68px);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 44px;
+}
+
+.auth-sucesso {
+  font-size: 14px;
+  color: #3ecf8e;
+  margin: -24px 0 28px;
+}
+
+/* campos em duas colunas */
+.auth-grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px 24px;
+}
+
+.auth-campo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.auth-campo > label:first-child {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* inputs só com a linha de baixo, sem caixa */
+.auth-form input:not([type='checkbox']) {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid var(--linha-campo);
+  border-radius: 0;
+  background: transparent;
+  color: var(--texto);
+  font-size: 17px;
+}
+
+.auth-form input::placeholder {
+  color: var(--suave);
+  opacity: 0.6;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-bottom-color: var(--texto);
+}
+
+.auth-campo-senha {
+  position: relative;
+}
+
+.auth-campo-senha input {
+  padding-right: 28px !important;
+}
+
+.auth-olho {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  background: none;
+  border: none;
+  color: var(--suave);
+  cursor: pointer;
+}
+
+/* "Lembrar de mim": checkbox redondo */
+.auth-check {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* o checkbox de verdade fica invisível, mas continua acessível pelo teclado */
+.auth-check input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.auth-check-bola {
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--suave);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.auth-check input:focus-visible + .auth-check-bola {
+  outline: 2px solid var(--texto);
+  outline-offset: 2px;
+}
+
+.auth-link-pequeno {
+  align-self: flex-start;
+  margin-top: 12px;
+  background: none;
+  border: none;
+  color: var(--suave);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.auth-link-pequeno:hover {
+  color: var(--texto);
+}
+
+.auth-erro {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #ff5a5a;
+}
+
+.auth[data-modo='signup'] .auth-erro {
+  color: #c62828;
+}
+
+/* ---------- BOTÃO (embaixo dos campos) + link de troca ---------- */
+.auth-troca {
+  font-size: 13px;
+  color: var(--suave);
+}
+
+.auth-botao {
+  align-self: stretch;
+  margin-top: 40px;
+  padding: 18px 40px;
+  border: none;
+  border-radius: 8px;
+  background: var(--botao-fundo);
+  color: var(--botao-texto);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    background-color var(--tempo) var(--curva),
+    color var(--tempo) var(--curva);
+}
+
+.auth-botao:hover {
+  transform: translateY(-2px);
+}
+
+.auth-botao:focus-visible {
+  outline: 2px solid var(--texto);
+  outline-offset: 4px;
+}
+
+.auth-botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---------- TELAS MENORES ---------- */
+@media (max-width: 900px) {
+  .auth-palco {
+    display: block;
+    height: auto;
+    min-height: calc(100vh - var(--espaco) * 2);
+  }
+  /* sem painel: mostra só o card do modo atual, ocupando tudo */
+  .auth-painel {
+    display: none;
+  }
+  .auth-card {
+    min-height: calc(100vh - var(--espaco) * 2);
+  }
+  .auth[data-modo='login'] .auth-card--signup,
+  .auth[data-modo='signup'] .auth-card--login {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-grade {
+    grid-template-columns: 1fr;
+  }
+  .auth-form {
+    padding: 24px 20px;
+  }
+}
+
+/* quem pede menos movimento no sistema: troca sem animação */
+@media (prefers-reduced-motion: reduce) {
+  .auth {
+    --tempo: 0s;
+  }
+  .auth-card {
+    transition: none !important;
+  }
+}
