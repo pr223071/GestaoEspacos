@@ -35,7 +35,7 @@
 }
 
 /* =========================================================
-   TEMA INVERTIDO: usado nas telas de gestão (/gestao/*).
+   TEMA INVERTIDO: usado quando quem está logado é ADMIN.
    O Layout coloca a classe "tema-invertido" e todas as cores acima trocam.
    ========================================================= */
 .tema-invertido {

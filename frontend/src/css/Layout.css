@@ -93,61 +93,6 @@
   color: var(--destaque-texto);
 }
 
-/* cartão de atalho no fim da sidebar (usa as cores do destaque) */
-.layout-atalho {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--destaque);
-  color: var(--destaque-texto);
-}
-
-.layout-atalho-icone {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 10px;
-  border-radius: 9px;
-  background: var(--destaque-texto);
-  color: var(--destaque);
-}
-
-.layout-atalho strong {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.layout-atalho p {
-  font-size: 12px;
-  line-height: 1.4;
-  opacity: 0.65;
-}
-
-.layout-atalho button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
-  border-radius: 9px;
-  background: rgba(127, 127, 127, 0.28);
-  color: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.layout-atalho button:hover {
-  background: rgba(127, 127, 127, 0.42);
-}
-
 /* ===== CONTEÚDO ===== */
 .layout-conteudo {
   display: flex;
@@ -188,17 +133,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-/* etiqueta que aparece nas telas de gestão */
-.layout-modo {
-  padding: 6px 12px;
-  border: 1px solid var(--borda);
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--texto-suave);
-  animation: layout-aparecer 0.5s var(--curva);
 }
 
 .layout-nova {
@@ -284,17 +218,6 @@
   from {
     opacity: 0;
     transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes layout-aparecer {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
   }
   to {
     opacity: 1;

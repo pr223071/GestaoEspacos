@@ -1,6 +1,6 @@
 /* css das telas do funcionario (gestao de reservas, check-in, salas e equipamentos).
    deixei tudo num arquivo so pq as telas usam os mesmos forms, tabelas e avisos.
-   as cores sao as variaveis do index.css; nessas telas o Layout liga o tema invertido */
+   as cores sao as variaveis do index.css (o ADMIN ve tudo com o tema invertido) */
 
 .gestao {
   padding: 8px 8px 32px;

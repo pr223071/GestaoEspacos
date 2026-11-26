@@ -11,7 +11,6 @@ import {
   DoorOpen,
   Wrench,
   QrCode,
-  ArrowRight,
 } from "lucide-react";
 import Logo from "./Logo";
 import "../css/Layout.css";
@@ -60,10 +59,10 @@ function Layout() {
   const { pathname } = useLocation();
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
   const role = String(usuario.role || "").toUpperCase(); // ADMIN, CLIENT ou RECEPTION
-  const equipe = role === "ADMIN" || role === "RECEPTION";
 
-  // telas de gestão (as do adm/recepção) usam as cores invertidas
-  const invertido = pathname.startsWith("/gestao");
+  // quem entra como ADMIN vê o sistema inteiro com as cores invertidas
+  // (o que é branco fica preto e o que é preto fica branco)
+  const invertido = role === "ADMIN";
 
   const menuVisivel = MENU.filter((item) => !item.roles || item.roles.includes(role));
   // qual item está ativo (também vale para subpáginas, ex.: /reservas/nova/3)
@@ -121,29 +120,6 @@ function Layout() {
           })}
         </nav>
 
-        {/* cartão de atalho no fim da sidebar */}
-        <div className="layout-atalho">
-          <span className="layout-atalho-icone">
-            <Logo size={18} />
-          </span>
-          {equipe ? (
-            <>
-              <strong>Check-in rápido</strong>
-              <p>Valide o QR code de quem chegou e registre a entrada.</p>
-              <button type="button" onClick={() => navigate("/gestao/checkin")}>
-                Abrir check-in <ArrowRight size={15} />
-              </button>
-            </>
-          ) : (
-            <>
-              <strong>Reserve um espaço</strong>
-              <p>Salas de reunião, laboratórios e áreas de coworking.</p>
-              <button type="button" onClick={() => navigate("/espacos")}>
-                Ver espaços <ArrowRight size={15} />
-              </button>
-            </>
-          )}
-        </div>
       </aside>
 
       <div className="layout-conteudo">
@@ -154,8 +130,6 @@ function Layout() {
           </div>
 
           <div className="layout-topo-direita">
-            {invertido && <span className="layout-modo">Modo gestão</span>}
-
             <button type="button" className="layout-nova" onClick={() => navigate("/espacos")}>
               <Plus size={16} /> Nova reserva
             </button>
