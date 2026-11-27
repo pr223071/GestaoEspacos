@@ -748,9 +748,11 @@ router.delete("/perfil", async (req, res) => {
     } catch (err) {
       // 23503: o usuário aparece no histórico (reservas antigas, check-ins...), então só desativa
       if (err.code !== "23503") throw err;
-      await pool.query(`UPDATE users SET is_active = false WHERE id = $1`, [
-        id,
-      ]);
+      // troca o e-mail para o login com o e-mail antigo responder "perfil inexistente"
+      await pool.query(
+        `UPDATE users SET is_active = false, email = $2 WHERE id = $1`,
+        [id, `excluido.${id}.${Date.now()}@removido.invalid`],
+      );
       return res.json({
         mensagem: "conta desativada (seu histórico de reservas foi mantido)",
       });

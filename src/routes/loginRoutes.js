@@ -102,7 +102,7 @@ router.post("/", async function (req, res) {
 
     const resultado = await pool.query(`SELECT id, name, email, role, password_hash, is_active FROM users WHERE lower(email) = $1`, [email]);
     
-        if (resultado.rowCount === 0){return res.status(404).json({ erro: "nenhum usuario encontrado"})}
+        if (resultado.rowCount === 0){return res.status(404).json({ erro: "perfil inexistente"})}
         
     //verificar se o usuario esta ativo
     const usuario = resultado.rows[0];           
