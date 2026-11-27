@@ -600,6 +600,9 @@ router.get("/perfil", async (req, res) => {
 // ALTERA O PRÓPRIO PERFIL
 router.put("/perfil", async (req, res) => {
   try {
+    if (req.usuario.role === "RECEPTION") {
+      return res.status(403).json({ erro: "o perfil de funcionário não pode ser alterado por aqui; fale com o administrador" });
+    }
     const id = req.usuario.id;
     const { name, password, senha_atual } = req.body;
     const email = limparEmail(req.body.email);
@@ -704,6 +707,9 @@ router.put("/perfil", async (req, res) => {
 // EXCLUI A PRÓPRIA CONTA
 router.delete("/perfil", async (req, res) => {
   try {
+    if (req.usuario.role === "RECEPTION") {
+      return res.status(403).json({ erro: "o perfil de funcionário não pode ser excluído; fale com o administrador" });
+    }
     const id = req.usuario.id;
     const { senha } = req.body || {};
     if (!senha)

@@ -25,7 +25,7 @@ import "../css/Layout.css";
 const MENU = [
   { texto: "Início", icone: Home, para: "/dashboard" },
   { texto: "Espaços", icone: Building2, para: "/espacos" },
-  { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas" },
+  { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas", roles: ["CLIENT", "ADMIN"] },
   // ----- telas do funcionario (o roles faz so funcionario e adm verem esses itens no menu) -----
   {
     texto: "Gestão de reservas",
@@ -55,19 +55,19 @@ const MENU = [
     texto: "Bloqueios",
     icone: CalendarX,
     para: "/admin/bloqueios",
-    roles: ["ADMIN"],
+    roles: ["RECEPTION", "ADMIN"],
   },
   {
     texto: "Usuários",
     icone: Users,
     para: "/admin/usuarios",
-    roles: ["ADMIN"],
+    roles: ["RECEPTION", "ADMIN"],
   },
   {
     texto: "Relatórios",
     icone: ChartColumn,
     para: "/admin/relatorios",
-    roles: ["ADMIN"],
+    roles: ["RECEPTION", "ADMIN"],
   },
   { texto: "Notificações", icone: Bell, para: "/notificacoes" },
   { texto: "Perfil", icone: User, para: "/perfil", abreCard: true }, // abre o card em vez de trocar de página

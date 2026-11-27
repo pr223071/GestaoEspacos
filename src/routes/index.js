@@ -7,6 +7,7 @@ const {
   verificarToken,
   exigirRole,
   somenteAdminAltera,
+  recepcaoSoClientes,
 } = require("../middleware/auth");
 
 const swaggerSpec = swaggerJsdoc({
@@ -68,7 +69,12 @@ router.use(
   somenteAdminAltera,
   require("./disponibilidadesRoutes"),
 );
-router.use("/bloqueios", somenteAdminAltera, require("./bloqueiosRoutes"));
+// bloqueios: todo mundo vê, ADMIN e RECEPTION criam, editam e removem
+router.use(
+  "/bloqueios",
+  (req, res, next) => (req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next)),
+  require("./bloqueiosRoutes"),
+);
 // espaços: todo mundo ve, mas cadastrar (POST /spaces) é so ADMIN ou RECEPTION pq o funcionario tambem cadastra sala
 // editar e apagar continua so o ADMIN
 router.use("/spaces", (req, res, next) =>
@@ -80,9 +86,10 @@ router.use("/spaces", (req, res, next) =>
 router.use("/reservas-equipamentos/equipamentos", (req, res, next) =>
   req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next),
 );
-router.use("/clients", exigirRole("ADMIN")); // gestão de usuários: só ADMIN
-// relatórios de ocupação: só ADMIN
-router.use("/relatorios", exigirRole("ADMIN"), require("./relatoriosRoutes"));
+// gestão de usuários: ADMIN tudo; RECEPTION só mexe em clientes
+router.use("/clients", exigirRole("ADMIN", "RECEPTION"), recepcaoSoClientes);
+// relatórios de ocupação: ADMIN e RECEPTION
+router.use("/relatorios", exigirRole("ADMIN", "RECEPTION"), require("./relatoriosRoutes"));
 router.use("/historico", exigirRole("ADMIN", "RECEPTION"));
 router.use("/checkins", exigirRole("ADMIN", "RECEPTION"));
 

@@ -269,3 +269,12 @@ button.layout-item.aberto {
   background: var(--superficie-2);
   color: var(--texto);
 }
+
+.perfil-info {
+  padding: 12px 14px;
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  font-size: 13px;
+  line-height: 1.5;
+}

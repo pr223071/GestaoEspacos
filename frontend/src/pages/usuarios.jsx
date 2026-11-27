@@ -35,7 +35,11 @@ function Usuarios() {
 
   // o adm nao pode inativar nem tirar o proprio perfil de ADMIN (ia se trancar pra fora)
   // (o id pode vir numero ou texto, entao a comparacao usa String)
-  const meuId = String(JSON.parse(localStorage.getItem("usuario") || "{}").id);
+  const logado = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const meuId = String(logado.id);
+  // funcionário só cria e altera clientes
+  const souRecepcao = String(logado.role).toUpperCase() === "RECEPTION";
+  const podeMexer = (u) => !souRecepcao || u.role === "CLIENT";
 
   useEffect(() => {
     async function buscarUsuarios() {
@@ -257,9 +261,9 @@ function Usuarios() {
               name="role"
               value={form.role}
               onChange={mudarCampo}
-              disabled={editandoId !== null && String(editandoId) === meuId}
+              disabled={souRecepcao || (editandoId !== null && String(editandoId) === meuId)}
             >
-              {Object.entries(NOME_PERFIL).map(([valor, texto]) => (
+              {Object.entries(souRecepcao ? { CLIENT: NOME_PERFIL.CLIENT } : NOME_PERFIL).map(([valor, texto]) => (
                 <option key={valor} value={valor}>
                   {texto}
                 </option>
@@ -369,6 +373,7 @@ function Usuarios() {
                       </span>
                     </td>
                     <td>
+                      {podeMexer(u) ? (
                       <div className="gestao-acoes">
                         <button
                           type="button"
@@ -395,6 +400,9 @@ function Usuarios() {
                           {u.is_active ? "Inativar" : "Reativar"}
                         </button>
                       </div>
+                      ) : (
+                        <span className="suave">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

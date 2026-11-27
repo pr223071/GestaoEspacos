@@ -186,6 +186,9 @@ function PerfilCard({ onFechar, onAtualizado }) {
               </div>
             </dl>
 
+            {String(perfil.role).toUpperCase() === "RECEPTION" ? (
+              <p className="perfil-info">Perfil de funcionário: para alterar seus dados, fale com o administrador.</p>
+            ) : (
             <div className="perfil-acoes">
               <button type="button" className="perfil-botao" onClick={abrirEdicao}>
                 <Pencil size={15} /> Alterar dados
@@ -198,6 +201,7 @@ function PerfilCard({ onFechar, onAtualizado }) {
                 <Trash2 size={15} /> Excluir conta
               </button>
             </div>
+            )}
           </>
         )}
 

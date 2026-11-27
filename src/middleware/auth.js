@@ -80,4 +80,32 @@ function somenteAdminAltera(req, res, next) {
   return exigirRole("ADMIN")(req, res, next);
 }
 
-module.exports = { verificarToken, exigirRole, somenteAdminAltera, ROLES };
+// funcionário (RECEPTION) na gestão de usuários: vê todos, mas só cria/altera/remove CLIENT
+async function recepcaoSoClientes(req, res, next) {
+  if (req.usuario.role !== "RECEPTION" || req.method === "GET") return next();
+
+  const negar = () =>
+    res.status(403).json({ erro: "Funcionários só podem gerenciar contas de clientes." });
+
+  if (req.body && req.body.role !== undefined && String(req.body.role).toUpperCase() !== "CLIENT") {
+    return negar();
+  }
+  if (req.method === "POST") {
+    req.body = { ...req.body, role: "CLIENT" };
+    return next();
+  }
+
+  // PUT /clients/update/:id e DELETE /clients/delete/:id: o usuário alvo tem que ser CLIENT
+  const id = Number(req.path.split("/").pop());
+  if (!Number.isInteger(id) || id <= 0) return next();
+  try {
+    const { pool } = require("../config/db");
+    const alvo = await pool.query("SELECT role FROM users WHERE id = $1", [id]);
+    if (alvo.rowCount > 0 && alvo.rows[0].role !== "CLIENT") return negar();
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { verificarToken, exigirRole, somenteAdminAltera, recepcaoSoClientes, ROLES };
