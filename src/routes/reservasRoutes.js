@@ -298,6 +298,21 @@ router.put('/:id', async (req, res) => {
             await client.query('ROLLBACK');
             return res.status(404).json({ erro: 'Reserva não encontrada.' });
         }
+        // antes qualquer um logado conseguia aprovar a propria reserva chamando a api direto
+        // agora so a recepcao e o adm aprovam/recusam
+        // o cliente so mexe na reserva dele e o unico status que ele pode mandar é CANCELLED
+        const { id: idLogado, role } = req.usuario || {};
+        const equipe = role === 'ADMIN' || role === 'RECEPTION';
+        if (!equipe) {
+            const naoEhDele = Number(current.rows[0].user_id) !== Number(idLogado);
+            const trocouDono = body.user_id !== undefined && Number(body.user_id) !== Number(idLogado);
+            const statusProibido = body.status !== undefined && body.status !== 'CANCELLED';
+            const querRevisar = body.reviewed_by !== undefined || body.rejection_reason !== undefined;
+            if (naoEhDele || trocouDono || statusProibido || querRevisar) {
+                await client.query('ROLLBACK');
+                return res.status(403).json({ erro: 'Só a recepção ou o gestor podem aprovar ou recusar reservas. O cliente só pode cancelar a própria reserva.' });
+            }
+        }
         const reserva = { ...current.rows[0], ...body };
         if (!validarPeriodo(reserva.start_datetime, reserva.end_datetime)) {
             await client.query('ROLLBACK');

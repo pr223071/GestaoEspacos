@@ -258,6 +258,8 @@ function GestaoReservas() {
                                     setRecusando(reserva.id);
                                     setMotivo('');
                                     setErro('');
+                                    // limpa o aviso verde da acao anterior, senao ele ficava junto com o erro
+                                    setMensagem('');
                                   }}
                                 >
                                   <X size={14} /> Recusar
