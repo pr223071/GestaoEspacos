@@ -1,9 +1,4 @@
 // =====================================================================
-// rotas de relatorios (metricas de uso) - enzo
-//
-// a especificacao pede "metricas e relatorios: horas de uso e taxa de ocupacao"
-// e a tela de relatorios pede "taxas, horarios de pico e perfil das empresas"
-//
 // rotas (so ADMIN, ligado no index.js):
 //   get /relatorios/ocupacao?inicio=AAAA-MM-DD&fim=AAAA-MM-DD
 //       sem parametros = ultimos 30 dias ate hoje (fim e inclusivo)
@@ -15,7 +10,7 @@ const { responderErro } = require("../utils/banco");
 
 const router = express.Router();
 
-// mesmo fuso das outras rotas: o banco guarda em utc e converte na ida e na volta
+// mesmo fuso das outras rotas: o banco guarda em horario de brasilia e converte na ida e na volta
 const FUSO = "America/Sao_Paulo";
 
 // limite do periodo, pra consulta nao ficar pesada

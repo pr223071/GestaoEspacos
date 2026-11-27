@@ -12,7 +12,7 @@
 }
 
 /* ---------- CORES DE CADA MODO ---------- */
-.auth[data-modo='login'] {
+.auth[data-modo="login"] {
   --fundo: #000;
   --card: #141414;
   --brilho: rgba(255, 255, 255, 0.05);
@@ -24,7 +24,7 @@
   --botao-texto: #000;
 }
 
-.auth[data-modo='signup'] {
+.auth[data-modo="signup"] {
   --fundo: #fff;
   --card: #f3f3f3;
   --brilho: rgba(0, 0, 0, 0.03);
@@ -84,18 +84,28 @@
 
 /* brilho suave no canto, igual à referência */
 .auth-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 25% 30%, var(--brilho), transparent 60%);
+  background: radial-gradient(
+    circle at 25% 30%,
+    var(--brilho),
+    transparent 60%
+  );
   pointer-events: none;
 }
 
-.auth-card--signup { grid-column: 1; grid-row: 1; }
-.auth-card--login  { grid-column: 2; grid-row: 1; }
+.auth-card--signup {
+  grid-column: 1;
+  grid-row: 1;
+}
+.auth-card--login {
+  grid-column: 2;
+  grid-row: 1;
+}
 
-.auth[data-modo='login'] .auth-card--login,
-.auth[data-modo='signup'] .auth-card--signup {
+.auth[data-modo="login"] .auth-card--login,
+.auth[data-modo="signup"] .auth-card--signup {
   opacity: 1;
   transform: none;
   transition:
@@ -122,7 +132,7 @@
 }
 
 /* no cadastro ele vai para a direita (a largura dele + o espaço do meio) */
-.auth[data-modo='signup'] .auth-painel {
+.auth[data-modo="signup"] .auth-painel {
   transform: translateX(calc(100% + var(--espaco)));
 }
 
@@ -160,7 +170,7 @@
 }
 
 /* a logo dá meia volta durante a troca */
-.auth[data-modo='signup'] .auth-logo {
+.auth[data-modo="signup"] .auth-logo {
   transform: rotate(180deg);
 }
 
@@ -232,6 +242,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border-radius: 5px;
 }
 
 .auth-campo > label:first-child {
@@ -241,12 +252,12 @@
 }
 
 /* inputs só com a linha de baixo, sem caixa */
-.auth-form input:not([type='checkbox']) {
+.auth-form input:not([type="checkbox"]) {
   width: 100%;
-  padding: 8px 0;
+  padding: 8px 5px;
   border: none;
   border-bottom: 1px solid var(--linha-campo);
-  border-radius: 0;
+  border-radius: 5px;
   background: transparent;
   color: var(--texto);
   font-size: 17px;
@@ -333,7 +344,7 @@
   color: #ff5a5a;
 }
 
-.auth[data-modo='signup'] .auth-erro {
+.auth[data-modo="signup"] .auth-erro {
   color: #c62828;
 }
 
@@ -390,8 +401,8 @@
   .auth-card {
     min-height: calc(100vh - var(--espaco) * 2);
   }
-  .auth[data-modo='login'] .auth-card--signup,
-  .auth[data-modo='signup'] .auth-card--login {
+  .auth[data-modo="login"] .auth-card--signup,
+  .auth[data-modo="signup"] .auth-card--login {
     display: none;
   }
 }
