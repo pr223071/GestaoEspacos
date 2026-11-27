@@ -31,6 +31,7 @@ const swaggerSpec = swaggerJsdoc({
     path.resolve(__dirname, "./loginRoutes.js"),
     path.resolve(__dirname, "./historicoRoutes.js"),
     path.resolve(__dirname, "./reservasEquipamentosRoutes.js"),
+    path.resolve(__dirname, "./relatoriosRoutes.js"),
   ],
 });
 
@@ -80,6 +81,8 @@ router.use("/reservas-equipamentos/equipamentos", (req, res, next) =>
   req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next),
 );
 router.use("/clients", exigirRole("ADMIN")); // gestão de usuários: só ADMIN
+// relatórios de ocupação: só ADMIN
+router.use("/relatorios", exigirRole("ADMIN"), require("./relatoriosRoutes"));
 router.use("/historico", exigirRole("ADMIN", "RECEPTION"));
 router.use("/checkins", exigirRole("ADMIN", "RECEPTION"));
 

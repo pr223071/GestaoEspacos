@@ -12,6 +12,9 @@ import {
   DoorOpen,
   Wrench,
   QrCode,
+  Users,
+  CalendarX,
+  ChartColumn,
 } from "lucide-react";
 import Logo from "./Logo";
 import PerfilCard from "./PerfilCard";
@@ -23,10 +26,48 @@ const MENU = [
   { texto: "Início", icone: Home, para: "/dashboard" },
   { texto: "Espaços", icone: Building2, para: "/espacos" },
   { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas" },
-  { texto: "Gestão de reservas", icone: ClipboardCheck, para: "/gestao/reservas", roles: ["RECEPTION", "ADMIN"] },
-  { texto: "Check-in", icone: QrCode, para: "/gestao/checkin", roles: ["RECEPTION", "ADMIN"] },
-  { texto: "Salas", icone: DoorOpen, para: "/gestao/salas", roles: ["RECEPTION", "ADMIN"] },
-  { texto: "Equipamentos", icone: Wrench, para: "/gestao/equipamentos", roles: ["RECEPTION", "ADMIN"] },
+  {
+    texto: "Gestão de reservas",
+    icone: ClipboardCheck,
+    para: "/gestao/reservas",
+    roles: ["RECEPTION", "ADMIN"],
+  },
+  {
+    texto: "Check-in",
+    icone: QrCode,
+    para: "/gestao/checkin",
+    roles: ["RECEPTION", "ADMIN"],
+  },
+  {
+    texto: "Salas",
+    icone: DoorOpen,
+    para: "/gestao/salas",
+    roles: ["RECEPTION", "ADMIN"],
+  },
+  {
+    texto: "Equipamentos",
+    icone: Wrench,
+    para: "/gestao/equipamentos",
+    roles: ["RECEPTION", "ADMIN"],
+  },
+  {
+    texto: "Bloqueios",
+    icone: CalendarX,
+    para: "/admin/bloqueios",
+    roles: ["ADMIN"],
+  },
+  {
+    texto: "Usuários",
+    icone: Users,
+    para: "/admin/usuarios",
+    roles: ["ADMIN"],
+  },
+  {
+    texto: "Relatórios",
+    icone: ChartColumn,
+    para: "/admin/relatorios",
+    roles: ["ADMIN"],
+  },
   { texto: "Notificações", icone: Bell, para: "/notificacoes" },
   { texto: "Perfil", icone: User, para: "/perfil", abreCard: true }, // abre o card em vez de trocar de página
   // exemplo: { texto: 'Aprovações', icone: Home, para: '/admin/aprovacoes', roles: ['ADMIN'] },
@@ -59,7 +100,9 @@ function iniciais(nome) {
 function Layout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [usuario, setUsuario] = useState(() => JSON.parse(localStorage.getItem("usuario") || "{}"));
+  const [usuario, setUsuario] = useState(() =>
+    JSON.parse(localStorage.getItem("usuario") || "{}"),
+  );
   const [perfilAberto, setPerfilAberto] = useState(false);
   const role = String(usuario.role || "").toUpperCase(); // ADMIN, CLIENT ou RECEPTION
 
@@ -67,7 +110,9 @@ function Layout() {
   // (o que é branco fica preto e o que é preto fica branco)
   const invertido = role === "ADMIN";
 
-  const menuVisivel = MENU.filter((item) => !item.roles || item.roles.includes(role));
+  const menuVisivel = MENU.filter(
+    (item) => !item.roles || item.roles.includes(role),
+  );
   // qual item está ativo (também vale para subpáginas, ex.: /reservas/nova/3)
   const indiceAtivo = menuVisivel.findIndex(
     (item) => pathname === item.para || pathname.startsWith(item.para + "/"),
@@ -100,7 +145,9 @@ function Layout() {
             <span
               className="layout-indicador"
               aria-hidden="true"
-              style={{ transform: `translateY(${indiceAtivo * (ALTURA_ITEM + ESPACO_ITEM)}px)` }}
+              style={{
+                transform: `translateY(${indiceAtivo * (ALTURA_ITEM + ESPACO_ITEM)}px)`,
+              }}
             />
           )}
 
@@ -111,7 +158,9 @@ function Layout() {
                 <button
                   key={item.para}
                   type="button"
-                  className={perfilAberto ? "layout-item aberto" : "layout-item"}
+                  className={
+                    perfilAberto ? "layout-item aberto" : "layout-item"
+                  }
                   onClick={() => setPerfilAberto(true)}
                 >
                   <Icone size={18} strokeWidth={1.8} />
@@ -135,7 +184,6 @@ function Layout() {
             );
           })}
         </nav>
-
       </aside>
 
       <div className="layout-conteudo">
@@ -146,7 +194,11 @@ function Layout() {
           </div>
 
           <div className="layout-topo-direita">
-            <button type="button" className="layout-nova" onClick={() => navigate("/espacos")}>
+            <button
+              type="button"
+              className="layout-nova"
+              onClick={() => navigate("/espacos")}
+            >
               <Plus size={16} /> Nova reserva
             </button>
 
@@ -163,7 +215,13 @@ function Layout() {
               </div>
             </button>
 
-            <button type="button" className="layout-sair" onClick={sair} aria-label="Sair" title="Sair">
+            <button
+              type="button"
+              className="layout-sair"
+              onClick={sair}
+              aria-label="Sair"
+              title="Sair"
+            >
               <LogOut size={18} />
             </button>
           </div>
@@ -177,7 +235,10 @@ function Layout() {
       </div>
 
       {perfilAberto && (
-        <PerfilCard onFechar={() => setPerfilAberto(false)} onAtualizado={setUsuario} />
+        <PerfilCard
+          onFechar={() => setPerfilAberto(false)}
+          onAtualizado={setUsuario}
+        />
       )}
     </div>
   );

@@ -1,0 +1,135 @@
+/* css da tela de relatorios (so o que a gestao.css nao tem: cartoes de numeros e barras).
+   as cores vem das variaveis do index.css, entao o tema do ADM (invertido) funciona sozinho */
+
+.rel-periodo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.rel-periodo .gestao-campo {
+  min-width: 170px;
+}
+
+.rel-numeros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.rel-numero {
+  padding: 18px 20px;
+  background: var(--superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.rel-numero span {
+  display: block;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.rel-numero strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+}
+
+.rel-numero small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* barra horizontal de porcentagem (taxa de ocupacao de cada sala) */
+.rel-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.rel-barra-fundo {
+  flex: 1;
+  height: 8px;
+  background: var(--superficie-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rel-barra-valor {
+  display: block;
+  height: 100%;
+  background: var(--destaque);
+  border-radius: 999px;
+  transition: width var(--tempo) var(--curva);
+}
+
+.rel-barra b {
+  min-width: 48px;
+  text-align: right;
+  font-size: 13px;
+}
+
+/* grafico de colunas (horarios de pico e dias da semana) */
+.rel-colunas {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 180px;
+  padding-top: 12px;
+}
+
+.rel-coluna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.rel-coluna i {
+  display: block;
+  width: 100%;
+  max-width: 34px;
+  min-height: 3px;
+  background: var(--destaque);
+  border-radius: 6px 6px 2px 2px;
+  opacity: 0.35;
+  transition: height var(--tempo) var(--curva);
+}
+
+.rel-coluna.pico i {
+  opacity: 1;
+}
+
+.rel-coluna b {
+  font-size: 12px;
+  color: var(--texto);
+}
+
+.rel-duas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.rel-duas .gestao-cartao + .gestao-cartao {
+  margin-top: 0;
+}
+
+.rel-nota {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}

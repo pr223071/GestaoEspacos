@@ -177,7 +177,7 @@ const bcrypt = require('bcryptjs');
 router.get("/clients", async function(req, res){ //req (request,requisição) pega o res (response, resposta), tudo da biblioteca express
 
 try{//pool. é a instância do banco de dados, query é a função que faz a query no banco
-    const resultado = await pool.query(`SELECT * FROM Users`); // faz a query no banco de dados
+    const resultado = await pool.query(`SELECT ${COLUNAS} FROM users ORDER BY name`); // faz a query no banco de dados
     
     //verifica se tem 0 clientes
     if(resultado.rowCount === 0){

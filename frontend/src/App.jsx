@@ -8,9 +8,15 @@ import GestaoReservas from './pages/gestaoReservas';
 import CadastroSala from './pages/cadastroSala';
 import CadastroEquipamento from './pages/cadastroEquipamento';
 import Checkin from './pages/checkin';
+import Bloqueios from './pages/bloqueios';
+import Usuarios from './pages/usuarios';
+import Relatorios from './pages/relatorios';
 
 // quem pode abrir as telas de gestao (funcionario e adm)
 const EQUIPE = ['RECEPTION', 'ADMIN'];
+
+// telas exclusivas do adm (bloqueios, usuarios e relatorios)
+const SO_ADMIN = ['ADMIN'];
 
 // abre o token e devolve o payload id, role, exp, ou null se estiver mal formado
 function lerToken(token) {
@@ -93,6 +99,11 @@ function App() {
           <Route path="/gestao/salas" element={<RotaProtegida roles={EQUIPE}><CadastroSala /></RotaProtegida>} />
           <Route path="/gestao/equipamentos" element={<RotaProtegida roles={EQUIPE}><CadastroEquipamento /></RotaProtegida>} />
           <Route path="/gestao/checkin" element={<RotaProtegida roles={EQUIPE}><Checkin /></RotaProtegida>} />
+
+          {/* telas so do adm */}
+          <Route path="/admin/bloqueios" element={<RotaProtegida roles={SO_ADMIN}><Bloqueios /></RotaProtegida>} />
+          <Route path="/admin/usuarios" element={<RotaProtegida roles={SO_ADMIN}><Usuarios /></RotaProtegida>} />
+          <Route path="/admin/relatorios" element={<RotaProtegida roles={SO_ADMIN}><Relatorios /></RotaProtegida>} />
 
           {/* EXEMPLO de rota só para um perfil (quando a página existir):
           <Route
