@@ -398,6 +398,70 @@ router.put('/:id', async (req, res) => {
 });
 
 /** @swagger
+ * /reservas/{id}/cancelar:
+ *   put:
+ *     summary: O próprio usuário cancela a sua reserva
+ *     description: Só o dono da reserva pode cancelar, e só se ela estiver pendente ou aprovada e ainda não tiver começado.
+ *     tags: [Reservas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200: { description: Reserva cancelada }
+ *       403: { description: A reserva é de outro usuário }
+ *       404: { description: Reserva não encontrada }
+ *       409: { description: A reserva não pode mais ser cancelada }
+ */
+router.put('/:id/cancelar', async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isInteger(id) || id < 1) return res.status(400).json({ erro: 'ID inválido.' });
+
+        await client.query('BEGIN');
+        // avisa o banco quem esta mudando, para o historico gravar o usuario certo
+        await client.query(`SELECT set_config('sgec.current_user_id', $1, true)`, [String(req.usuario.id)]);
+
+        const atual = await client.query('SELECT user_id, status, start_datetime FROM bookings WHERE id = $1 FOR UPDATE', [id]);
+        if (!atual.rowCount) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ erro: 'Reserva não encontrada.' });
+        }
+        const reserva = atual.rows[0];
+
+        if (Number(reserva.user_id) !== Number(req.usuario.id)) {
+            await client.query('ROLLBACK');
+            return res.status(403).json({ erro: 'Você só pode cancelar as suas próprias reservas.' });
+        }
+        if (reserva.status === 'CANCELLED') {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ erro: 'Esta reserva já está cancelada.' });
+        }
+        if (reserva.status === 'REJECTED') {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ erro: 'Esta reserva foi recusada e não pode ser cancelada.' });
+        }
+        if (new Date(reserva.start_datetime) <= new Date()) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ erro: 'Não é possível cancelar uma reserva que já começou ou já passou.' });
+        }
+
+        const result = await client.query(
+            `UPDATE bookings SET status = 'CANCELLED', updated_at = now() WHERE id = $1
+             RETURNING id, space_id, user_id, start_datetime, end_datetime, attendees, status, notes, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at`,
+            [id]
+        );
+        await client.query('COMMIT');
+        res.json({ mensagem: 'Reserva cancelada.', reserva: result.rows[0] });
+    } catch (err) {
+        await client.query('ROLLBACK').catch(() => {});
+        erroBanco(res, err);
+    } finally { client.release(); }
+});
+
+/** @swagger
  * /reservas/{id}:
  *   delete:
  *     summary: Exclui uma reserva

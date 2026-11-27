@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { QrCode } from "lucide-react";
+import { QrCode, XCircle } from "lucide-react";
 import QrCodeReserva from "../components/QrCodeReserva";
 import "../css/reservas.css";
 
@@ -59,6 +59,9 @@ function Reservas() {
   // id da reserva que ta com o qr code aberto (null = fechado)
   const [qrAberto, setQrAberto] = useState(null);
   const fecharQr = useCallback(() => setQrAberto(null), []);
+  // id da reserva que está pedindo confirmação de cancelamento
+  const [confirmandoId, setConfirmandoId] = useState(null);
+  const [cancelandoId, setCancelandoId] = useState(null);
 
   const usuario = (() => {
     try {
@@ -92,6 +95,38 @@ function Reservas() {
       setErro(e.message);
     }
   }, [navigate, usuario.id]);
+
+  // o dono cancela a própria reserva
+  async function cancelarReserva(id) {
+    setErro("");
+    setSucesso("");
+    setCancelandoId(id);
+    try {
+      const response = await fetch(`${API_URL}/reservas/${id}/cancelar`, {
+        method: "PUT",
+        headers: criarCabecalhos(false),
+      });
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("usuario");
+        navigate("/login");
+        return;
+      }
+      const dados = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(dados.erro || "Não foi possível cancelar a reserva.");
+      setSucesso("Reserva cancelada.");
+      await carregarMinhasReservas();
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setCancelandoId(null);
+      setConfirmandoId(null);
+    }
+  }
+
+  // pode cancelar se estiver pendente ou aprovada e ainda não começou
+  const podeCancelar = (r) =>
+    (r.status === "PENDING" || r.status === "APPROVED") && new Date(r.start_datetime) > new Date();
 
   useEffect(() => {
     if (!spaceId) {
@@ -301,6 +336,11 @@ function Reservas() {
           {erro}
         </p>
       )}
+      {sucesso && (
+        <p className="reservas-alerta sucesso" role="status">
+          {sucesso}
+        </p>
+      )}
       {reservas.length === 0 ? (
         <p className="reservas-vazio">Você ainda não tem reservas.</p>
       ) : (
@@ -328,6 +368,36 @@ function Reservas() {
                   >
                     <QrCode size={14} /> Ver QR Code
                   </button>
+                )}
+                {podeCancelar(r) && confirmandoId !== r.id && (
+                  <button
+                    type="button"
+                    className="reserva-cancelar-botao"
+                    onClick={() => setConfirmandoId(r.id)}
+                  >
+                    <XCircle size={14} /> Cancelar
+                  </button>
+                )}
+                {confirmandoId === r.id && (
+                  <span className="reserva-confirmar">
+                    Cancelar esta reserva?
+                    <button
+                      type="button"
+                      className="reserva-cancelar-botao sim"
+                      onClick={() => cancelarReserva(r.id)}
+                      disabled={cancelandoId === r.id}
+                    >
+                      {cancelandoId === r.id ? "Cancelando…" : "Sim"}
+                    </button>
+                    <button
+                      type="button"
+                      className="reserva-cancelar-botao nao"
+                      onClick={() => setConfirmandoId(null)}
+                      disabled={cancelandoId === r.id}
+                    >
+                      Não
+                    </button>
+                  </span>
                 )}
                 <span
                   className={`reserva-status status-${String(r.status).toLowerCase()}`}

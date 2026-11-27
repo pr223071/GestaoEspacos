@@ -260,3 +260,44 @@
     transform: none;
   }
 }
+
+.reserva-cancelar-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--erro-fundo);
+  color: var(--erro);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reserva-cancelar-botao:hover {
+  filter: brightness(0.96);
+}
+
+.reserva-cancelar-botao.sim {
+  background: var(--erro);
+  color: #fff;
+}
+
+.reserva-cancelar-botao.nao {
+  background: var(--superficie-2);
+  color: var(--texto);
+}
+
+.reserva-cancelar-botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.reserva-confirmar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
