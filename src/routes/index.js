@@ -75,10 +75,9 @@ router.use(
   (req, res, next) => (req.method === "GET" ? next() : exigirRole("ADMIN", "RECEPTION")(req, res, next)),
   require("./bloqueiosRoutes"),
 );
-// espaços: todo mundo ve, mas cadastrar (POST /spaces) é so ADMIN ou RECEPTION pq o funcionario tambem cadastra sala
-// editar e apagar continua so o ADMIN
+// espaços: todo mundo vê; ADMIN e RECEPTION cadastram e editam (sala, horários e equipamentos); apagar só ADMIN
 router.use("/spaces", (req, res, next) =>
-  req.method === "POST" && req.path === "/"
+  req.method === "POST" || req.method === "PUT"
     ? exigirRole("ADMIN", "RECEPTION")(req, res, next)
     : somenteAdminAltera(req, res, next),
 );

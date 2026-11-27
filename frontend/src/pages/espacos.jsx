@@ -66,7 +66,7 @@ function Espacos() {
       return {};
     }
   }, []);
-  const podeGerenciar = String(usuario.role || "").toUpperCase() === "ADMIN";
+  const podeGerenciar = ["ADMIN", "RECEPTION"].includes(String(usuario.role || "").toUpperCase());
   const [espacos, setEspacos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");

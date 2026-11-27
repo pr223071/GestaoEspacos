@@ -564,7 +564,7 @@ router.delete("/clients/delete/:id", async (req, res) => {
  *         $ref: '#/components/responses/Conflito'
  *   delete:
  *     summary: Exclui a própria conta
- *     description: Pede a senha para confirmar. Se o usuário tiver histórico de reservas, a conta é desativada em vez de apagada.
+ *     description: Pede a senha para confirmar. Apaga o usuário e as reservas dele do banco.
  *     tags: [Perfil]
  *     requestBody:
  *       required: true
@@ -742,20 +742,25 @@ router.delete("/perfil", async (req, res) => {
         });
     }
 
+    // apaga tudo numa transação: ou some tudo, ou nada muda
+    const client = await pool.connect();
     try {
-      await pool.query(`DELETE FROM users WHERE id = $1`, [id]);
+      await client.query("BEGIN");
+      // reservas do usuário (histórico, check-ins, equipamentos e notificações delas vão junto pelo cascade)
+      await client.query(`DELETE FROM bookings WHERE user_id = $1`, [id]);
+      // registros de outras pessoas onde ele aparece como quem aprovou/criou/validou ficam sem autor
+      await client.query(`UPDATE bookings SET reviewed_by = NULL WHERE reviewed_by = $1`, [id]);
+      await client.query(`UPDATE booking_status_history SET changed_by = NULL WHERE changed_by = $1`, [id]);
+      await client.query(`UPDATE space_blocks SET created_by = NULL WHERE created_by = $1`, [id]);
+      await client.query(`UPDATE checkins SET validated_by = NULL WHERE validated_by = $1`, [id]);
+      await client.query(`DELETE FROM users WHERE id = $1`, [id]);
+      await client.query("COMMIT");
       return res.json({ mensagem: "conta excluída" });
     } catch (err) {
-      // 23503: o usuário aparece no histórico (reservas antigas, check-ins...), então só desativa
-      if (err.code !== "23503") throw err;
-      // troca o e-mail para o login com o e-mail antigo responder "perfil inexistente"
-      await pool.query(
-        `UPDATE users SET is_active = false, email = $2 WHERE id = $1`,
-        [id, `excluido.${id}.${Date.now()}@removido.invalid`],
-      );
-      return res.json({
-        mensagem: "conta desativada (seu histórico de reservas foi mantido)",
-      });
+      await client.query("ROLLBACK").catch(() => {});
+      throw err;
+    } finally {
+      client.release();
     }
   } catch (err) {
     responderErro(res, err);

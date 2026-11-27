@@ -260,7 +260,7 @@ function PerfilCard({ onFechar, onAtualizado }) {
         {modo === "excluir" && (
           <form className="perfil-form" onSubmit={excluir}>
             <p className="perfil-aviso">
-              Tem certeza? Você vai sair do sistema e não poderá mais entrar com esta conta.
+              Tem certeza? Sua conta e todo o seu histórico de reservas serão apagados de vez.
               Se tiver reservas ativas, cancele-as antes.
             </p>
             <label>
