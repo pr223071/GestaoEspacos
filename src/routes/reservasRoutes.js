@@ -166,6 +166,56 @@ router.get('/usuario/:user_id', async (req, res) => {
 });
 
 /** @swagger
+ * /reservas/{id}/qrcode:
+ *   get:
+ *     summary: Devolve o código do QR Code de uma reserva aprovada
+ *     description: Só o dono da reserva, a recepção ou o gestor podem ver. O código é criado pelo banco quando a reserva é aprovada.
+ *     tags: [Reservas]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200: { description: Código do QR Code e horários da reserva }
+ *       403: { description: A reserva é de outro usuário }
+ *       404: { description: Reserva não encontrada ou ainda não aprovada }
+ */
+// rota pro cliente pegar o qr code da reserva dele
+// fiz separado pq a rota /checkins é so da recepcao, e nao coloquei o qr_token na lista
+// /reservas/usuario pq ali qualquer um logado consegue ver a reserva dos outros
+router.get('/:id/qrcode', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isInteger(id) || id < 1) return res.status(400).json({ erro: 'ID inválido.' });
+        const result = await pool.query(
+            `SELECT b.id::int AS booking_id, b.user_id::int AS user_id, b.status, s.name AS space_name,
+                    ck.qr_token,
+                    to_char(b.start_datetime AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS start_datetime,
+                    to_char(b.end_datetime   AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS end_datetime,
+                    to_char(ck.checkin_at    AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS checkin_at,
+                    to_char(ck.checkout_at   AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS checkout_at
+               FROM bookings b
+               JOIN spaces s ON s.id = b.space_id
+               LEFT JOIN checkins ck ON ck.booking_id = b.id
+              WHERE b.id = $1`, [id]);
+        if (!result.rowCount) return res.status(404).json({ erro: 'Reserva não encontrada.' });
+        const reserva = result.rows[0];
+        // so o dono ve, ou a recepcao/adm
+        const { id: idLogado, role } = req.usuario || {};
+        const equipe = role === 'ADMIN' || role === 'RECEPTION';
+        if (!equipe && reserva.user_id !== Number(idLogado)) {
+            return res.status(403).json({ erro: 'Essa reserva é de outro usuário.' });
+        }
+        // o qr so existe depois de aprovada
+        if (reserva.status !== 'APPROVED' || !reserva.qr_token) {
+            return res.status(404).json({ erro: 'O QR Code só fica disponível depois que a reserva é aprovada.' });
+        }
+        res.json(reserva);
+    } catch (err) { erroBanco(res, err); }
+});
+
+/** @swagger
  * /reservas/espaco/{space_id}:
  *   get:
  *     summary: Lista reservas de um espaço
@@ -285,6 +335,7 @@ router.put('/:id', async (req, res) => {
     try {
         const id = Number(req.params.id);
         if (!Number.isInteger(id) || id < 1) return res.status(400).json({ erro: 'ID inválido.' });
+        // campos que da pra mudar pelo PUT (coloquei o reviewed_by pra salvar quem aprovou ou recusou)
         const allowed = ['space_id', 'user_id', 'start_datetime', 'end_datetime', 'attendees', 'notes', 'status', 'rejection_reason', 'reviewed_by'];
         const body = req.body || {};
         const fields = allowed.filter(key => body[key] !== undefined);

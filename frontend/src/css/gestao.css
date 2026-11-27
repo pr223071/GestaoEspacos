@@ -340,7 +340,14 @@
 
 .checkin-busca .gestao-busca {
   flex: 1;
+  min-width: 0;
   margin-bottom: 0;
+}
+
+/* pra o "ler com a camera" nao quebrar em 3 linhas */
+.checkin-busca .gestao-botao {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* cartao que mostra a reserva que achou pelo codigo */
@@ -406,4 +413,84 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* ===== CAMERA DO CHECK-IN (ler qr pela webcam) ===== */
+.camera-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 10, 11, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.camera-card {
+  width: min(520px, 100%);
+  padding: 20px;
+  border-radius: var(--raio);
+  background: var(--superficie);
+  box-shadow: var(--sombra-forte);
+}
+
+.camera-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.camera-topo h2 {
+  margin: 0;
+}
+
+.camera-fechar {
+  display: flex;
+  padding: 6px;
+  border: none;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+.camera-fechar:hover {
+  color: var(--texto);
+}
+
+.camera-video {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--raio-pequeno);
+  background: #000;
+  aspect-ratio: 4 / 3;
+}
+
+/* espelhado pq na webcam fica mais natural (o jsQR le a imagem original, entao nao atrapalha) */
+.camera-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.camera-mira {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 55%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.camera-dica {
+  margin-top: 12px;
+  text-align: center;
 }

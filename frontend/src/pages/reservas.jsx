@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { QrCode } from "lucide-react";
+import QrCodeReserva from "../components/QrCodeReserva";
 import "../css/reservas.css";
 
 // Funcoes auxiliares: autenticacao, datas e textos exibidos na tela.
@@ -54,6 +56,9 @@ function Reservas() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  // id da reserva que ta com o qr code aberto (null = fechado)
+  const [qrAberto, setQrAberto] = useState(null);
+  const fecharQr = useCallback(() => setQrAberto(null), []);
 
   const usuario = (() => {
     try {
@@ -313,15 +318,28 @@ function Reservas() {
                 </p>
                 {r.notes && <p>{r.notes}</p>}
               </div>
-              <span
-                className={`reserva-status status-${String(r.status).toLowerCase()}`}
-              >
-                {status[r.status] || r.status}
-              </span>
+              <div className="reserva-lado">
+                {/* so reserva aprovada tem qr code (o banco cria ele na aprovacao) */}
+                {r.status === "APPROVED" && (
+                  <button
+                    type="button"
+                    className="reserva-qr-botao"
+                    onClick={() => setQrAberto(r.id)}
+                  >
+                    <QrCode size={14} /> Ver QR Code
+                  </button>
+                )}
+                <span
+                  className={`reserva-status status-${String(r.status).toLowerCase()}`}
+                >
+                  {status[r.status] || r.status}
+                </span>
+              </div>
             </article>
           ))}
         </div>
       )}
+      {qrAberto && <QrCodeReserva reservaId={qrAberto} onFechar={fecharQr} />}
     </main>
   );
 }

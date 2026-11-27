@@ -1,12 +1,32 @@
+// =====================================================================
+// TELA DE CHECK-IN (parte do funcionario / recepçao)
+// como funciona:
+//   1. o cliente tem a reserva aprovada e abre o qr code dele no celular
+//   2. a recepçao le esse qr (pela camera, por leitor usb ou digitando o codigo)
+//   3. a tela acha a reserva e mostra o botao "registrar entrada"
+//   4. quando o cliente vai embora, clica em "registrar saida"
+// embaixo tem a lista de todas as reservas aprovadas do dia, pra recepçao acompanhar
+// =====================================================================
+
+// useCallback guarda a funçao pra ela nao ser recriada toda hora (o useEffect precisa disso)
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QrCode, Search, LogIn, LogOut } from 'lucide-react';
+// icones: qr code, lupa, entrada, saida e camera
+import { QrCode, Search, LogIn, LogOut, Camera } from 'lucide-react';
+// componente que abre a webcam e le o qr (fiz separado em components/LeitorQrCamera.jsx)
+import LeitorQrCamera from '../components/LeitorQrCamera';
 import '../css/gestao.css';
 
+// endereço do back-end
 const API_URL = 'http://localhost:3080';
 
-// a rota de check-in ja manda a "situation" de cada reserva
+// a rota de check-in ja manda a "situation" de cada reserva (o back calcula na hora)
 // aqui so traduzo e coloco a cor (as mesmas da gestao de reservas)
+//   AGUARDANDO     = aprovada, o cliente ainda nao chegou
+//   EM_USO         = ja entrou e ainda nao saiu
+//   CONCLUIDO      = entrou e saiu
+//   NAO_COMPARECEU = acabou o horario e ninguem fez check-in
+//   CANCELADO      = a reserva foi cancelada depois de aprovada
 const SITUACAO = {
   AGUARDANDO: { texto: 'Aguardando', classe: 'pendente' },
   EM_USO: { texto: 'Em uso', classe: 'aprovada' },
@@ -24,6 +44,7 @@ function formatarData(texto) {
   return `${dia}/${mes}/${ano}`;
 }
 
+// pega so a hora: "2026-11-26T14:30" vira "14:30"
 function formatarHora(texto) {
   return texto ? texto.split('T')[1] : '—';
 }
@@ -42,29 +63,34 @@ function hoje() {
 // tela da recepçao, valida o qr code do cliente e marca a entrada e a saida
 function Checkin() {
   const navigate = useNavigate();
+  // quem ta logado, o id vai junto quando registra entrada/saida (pra saber quem validou)
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
+  // ----- parte de cima (validar o qr) -----
   // codigo que digitou (o leitor de qr code usb tambem "digita" e da enter sozinho)
   const [codigo, setCodigo] = useState('');
   const [encontrado, setEncontrado] = useState(null); // o check-in que achou pelo codigo
-  const [buscando, setBuscando] = useState(false);
+  const [buscando, setBuscando] = useState(false); // mostra "buscando..." no botao
+  const [cameraAberta, setCameraAberta] = useState(false); // true = janela da camera aberta
 
-  // lista do dia
-  const [data, setData] = useState(hoje());
-  const [lista, setLista] = useState([]);
+  // ----- parte de baixo (lista do dia) -----
+  const [data, setData] = useState(hoje()); // dia escolhido, começa hoje
+  const [lista, setLista] = useState([]); // reservas aprovadas desse dia
   const [carregando, setCarregando] = useState(true);
 
-  const [processando, setProcessando] = useState(null); // qual ta salvando agora
-  const [erro, setErro] = useState('');
-  const [mensagem, setMensagem] = useState('');
+  const [processando, setProcessando] = useState(null); // qual ta salvando agora (trava o botao)
+  const [erro, setErro] = useState(''); // aviso vermelho
+  const [mensagem, setMensagem] = useState(''); // aviso verde
 
+  // token vencido: apaga o login e manda pra tela de login
   const sair = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
     navigate('/login');
   }, [navigate]);
 
-  // busca as reservas do dia, roda de novo toda vez que troca o dia
+  // busca as reservas do dia (GET /checkins/data/2026-11-27), roda de novo toda vez que troca o dia
+  // so vem reserva aprovada, pq so ela tem check-in
   useEffect(() => {
     async function buscarLista() {
       try {
@@ -106,13 +132,13 @@ function Checkin() {
   }
 
   // procura a reserva pelo codigo do qr code
-  async function buscarCodigo(e) {
-    e.preventDefault();
+  // separei do submit pq a camera tambem chama ela direto com o codigo que leu
+  const buscar = useCallback(async (codigoLido) => {
     setErro('');
     setMensagem('');
     setEncontrado(null);
 
-    const texto = codigo.trim();
+    const texto = codigoLido.trim();
     if (!texto) {
       setErro('Digite ou leia o código do QR Code.');
       return;
@@ -120,6 +146,8 @@ function Checkin() {
 
     setBuscando(true);
     try {
+      // GET /checkins/token/:codigo procura a reserva dona desse qr code
+      // o encodeURIComponent é so pra nao quebrar a url se vier algum caractere estranho
       const response = await fetch(`${API_URL}/checkins/token/${encodeURIComponent(texto)}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
@@ -131,20 +159,41 @@ function Checkin() {
 
       const dados = await response.json();
 
+      // codigo invalido ou de reserva que nao existe, mostra o que o back falou
       if (!response.ok) {
         setErro(dados.erro ? deixarLegivel(dados.erro) : 'Código não encontrado');
         return;
       }
 
+      // achou: mostra o cartao com o nome do cliente, sala e horario
       setEncontrado(dados);
     } catch {
       setErro('Não foi possível conectar ao servidor');
     } finally {
       setBuscando(false);
     }
+  }, [sair]);
+
+  // quando aperta buscar ou o leitor usb da enter
+  function buscarCodigo(e) {
+    e.preventDefault();
+    buscar(codigo);
   }
 
+  // quando a camera acha um qr: fecha ela, coloca o codigo no campo e ja busca
+  const lerDaCamera = useCallback((texto) => {
+    setCameraAberta(false);
+    setCodigo(texto);
+    buscar(texto);
+  }, [buscar]);
+
+  // fecha a janela da camera sem ler nada (botao X, esc ou clicando fora)
+  const fecharCamera = useCallback(() => setCameraAberta(false), []);
+
   // marca a entrada ou a saida, o "tipo" é 'entrada' ou 'saida' igual o nome da rota
+  // POST /checkins/token/:codigo/entrada  ou  POST /checkins/token/:codigo/saida
+  // o back confere tudo antes de salvar: se ta aprovada, se ja pode entrar (30 min antes),
+  // se o horario nao acabou e se ja nao registrou antes
   async function registrar(checkin, tipo) {
     setErro('');
     setMensagem('');
@@ -174,6 +223,7 @@ function Checkin() {
         return;
       }
 
+      // aviso verde tipo "Entrada de Ana Lima em "Sala Ipê" registrada às 08:58."
       const acao = tipo === 'entrada' ? 'Entrada' : 'Saída';
       setMensagem(`${acao} de ${dados.user_name} em "${dados.space_name}" registrada às ${formatarHora(tipo === 'entrada' ? dados.checkin_at : dados.checkout_at)}.`);
 
@@ -210,9 +260,11 @@ function Checkin() {
       );
     }
 
+    // concluido, nao compareceu ou cancelado: nao tem mais nada pra fazer
     return <span className="suave">—</span>;
   }
 
+  // numeros que aparecem do lado do titulo "reservas do dia" (ex: 2 aguardando · 1 em uso)
   const contagem = {
     aguardando: lista.filter((c) => c.situation === 'AGUARDANDO').length,
     emUso: lista.filter((c) => c.situation === 'EM_USO').length,
@@ -226,9 +278,11 @@ function Checkin() {
       {erro && <p className="gestao-mensagem erro" role="alert">{erro}</p>}
       {mensagem && <p className="gestao-mensagem sucesso" role="status">{mensagem}</p>}
 
+      {/* ===== parte de cima: validar o qr code ===== */}
       <section className="gestao-cartao">
         <h2>Validar QR Code</h2>
 
+        {/* o form é pra o enter funcionar (o leitor usb da enter sozinho no final) */}
         <form className="checkin-busca" onSubmit={buscarCodigo}>
           <div className="gestao-busca">
             <QrCode size={16} />
@@ -245,9 +299,16 @@ function Checkin() {
             <Search size={16} />
             {buscando ? 'Buscando...' : 'Buscar'}
           </button>
+          {/* abre a webcam pra ler o qr do celular do cliente */}
+          <button type="button" className="gestao-botao" onClick={() => setCameraAberta(true)}>
+            <Camera size={16} /> Ler com a câmera
+          </button>
         </form>
-        <small className="gestao-aviso">Com leitor de QR Code (USB), basta clicar no campo e ler: o código entra sozinho.</small>
+        <small className="gestao-aviso">Mostre o QR Code na câmera, use um leitor USB (clique no campo e leia) ou digite o código.</small>
+        {/* janela da camera, so aparece quando clica no botao */}
+        {cameraAberta && <LeitorQrCamera onLer={lerDaCamera} onFechar={fecharCamera} />}
 
+        {/* cartao da reserva que achou pelo codigo, com o botao de entrada ou saida */}
         {encontrado && (
           <div className="checkin-resultado">
             <div>
@@ -274,6 +335,7 @@ function Checkin() {
         )}
       </section>
 
+      {/* ===== parte de baixo: todas as reservas aprovadas do dia escolhido ===== */}
       <section className="gestao-cartao">
         <div className="checkin-topo-lista">
           <h2>

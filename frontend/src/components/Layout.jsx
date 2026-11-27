@@ -26,6 +26,7 @@ const MENU = [
   { texto: "Início", icone: Home, para: "/dashboard" },
   { texto: "Espaços", icone: Building2, para: "/espacos" },
   { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas" },
+  // ----- telas do funcionario (o roles faz so funcionario e adm verem esses itens no menu) -----
   {
     texto: "Gestão de reservas",
     icone: ClipboardCheck,

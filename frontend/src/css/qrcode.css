@@ -1,0 +1,157 @@
+/* cartao do qr code que abre em minhas reservas
+   usei as mesmas variaveis do index.css pra funcionar no tema claro e no escuro */
+
+.qr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 10, 11, 0.45);
+  backdrop-filter: blur(6px);
+  animation: qr-fundo 0.3s ease;
+}
+
+.qr-card {
+  position: relative;
+  width: min(380px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 28px 26px 24px;
+  border-radius: var(--raio);
+  background: var(--superficie);
+  box-shadow: var(--sombra-forte);
+  text-align: center;
+  animation: qr-entrar 0.4s var(--curva);
+}
+
+.qr-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.qr-horario {
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.qr-fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  padding: 6px;
+  border: none;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+
+.qr-fechar:hover {
+  color: var(--texto);
+}
+
+/* o qr fica sempre em fundo branco com preto, senao no tema escuro o leitor nao le */
+.qr-imagem {
+  display: inline-flex;
+  padding: 10px;
+  border-radius: var(--raio-pequeno);
+  background: #ffffff;
+}
+
+.qr-dica,
+.qr-situacao,
+.qr-aviso {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.qr-situacao.ok {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.qr-erro {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: var(--raio-pequeno);
+  background: var(--erro-fundo);
+  color: var(--erro);
+  font-size: 14px;
+}
+
+/* codigo escrito embaixo, clicando copia */
+.qr-codigo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin-top: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.qr-codigo span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qr-codigo:hover {
+  color: var(--texto);
+}
+
+/* botao "ver qr code" que fica do lado do status em minhas reservas */
+.reserva-lado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.reserva-qr-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 999px;
+  background: var(--destaque);
+  color: var(--destaque-texto);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reserva-qr-botao:hover {
+  background: var(--destaque-hover);
+}
+
+@keyframes qr-fundo {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes qr-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
