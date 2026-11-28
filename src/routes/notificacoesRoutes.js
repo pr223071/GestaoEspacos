@@ -18,6 +18,11 @@
 // rotas:
 //   get    /notificacoes                   -> lista todas
 //   get    /notificacoes/pendentes         -> fila do que ainda nao foi enviado
+//   get    /notificacoes/minhas            -> as de quem ta logado (tela de notificacoes do front)
+//
+// quem pode: o cliente so ve as dele (/minhas e /usuario/<id dele>), o resto é so recepcao/adm
+// (essa regra ta no middleware soAsMinhasNotificacoes do auth.js)
+// quem manda os e-mails de verdade é o src/services/enviarEmails.js
 //   get    /notificacoes/nome/:nome        -> busca pelo nome do usuario ou pelo assunto
 //   get    /notificacoes/data/:data        -> notificacoes criadas nessa data
 //   get    /notificacoes/usuario/:user_id  -> notificacoes de um usuario ("minhas notificacoes")
@@ -202,6 +207,43 @@ router.get("/pendentes", async function (req, res) {
         // a mais antiga primeiro: quem entrou primeiro na fila sai primeiro
         const resultado = await pool.query(`SELECT ${COLUNAS} ${FROM} WHERE n.sent_at IS NULL ORDER BY n.created_at, n.id`);
         res.json(resultado.rows); // lista vazia = nada pendente (nao e erro)
+    } catch (err) {
+        responderErro(res, err);
+    }
+});
+
+
+/**
+ * @swagger
+ * /notificacoes/minhas:
+ *   get:
+ *     summary: Notificações de quem está logado (tela de Notificações)
+ *     description: Usa o id do token, então cada um só vê as suas. Junta o nome do espaço da reserva quando tiver.
+ *     tags: [Notificações]
+ *     responses:
+ *       200:
+ *         description: Da mais nova para a mais antiga
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Notificacao'
+ */
+// rota da tela de notificaçoes: pego o id do token, entao ninguem consegue ver a dos outros por aqui
+// tambem fica antes de /:id pelo mesmo motivo da /pendentes
+router.get("/minhas", async function (req, res) {
+    try {
+        const resultado = await pool.query(
+            `SELECT ${COLUNAS}, s.name AS space_name, b.status AS booking_status
+               ${FROM}
+               LEFT JOIN bookings b ON b.id = n.booking_id
+               LEFT JOIN spaces s ON s.id = b.space_id
+              WHERE n.user_id = $1
+              ORDER BY n.created_at DESC, n.id DESC`,
+            [req.usuario.id],
+        );
+        res.json(resultado.rows);
     } catch (err) {
         responderErro(res, err);
     }

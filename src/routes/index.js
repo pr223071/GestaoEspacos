@@ -8,6 +8,8 @@ const {
   exigirRole,
   somenteAdminAltera,
   recepcaoSoClientes,
+  soAsMinhasNotificacoes,
+  clienteSoNaPropriaReserva,
 } = require("../middleware/auth");
 
 const swaggerSpec = swaggerJsdoc({
@@ -94,8 +96,10 @@ router.use("/checkins", exigirRole("ADMIN", "RECEPTION"));
 
 // liberadas para qualquer perfil logado
 router.use("/reservas", require("./reservasRoutes"));
-router.use("/notificacoes", require("./notificacoesRoutes"));
-router.use("/reservas-equipamentos", require("./reservasEquipamentosRoutes"));
+// paulo: cliente so ve as notificaçoes dele, o resto é da recepçao/adm (regra no auth.js)
+router.use("/notificacoes", soAsMinhasNotificacoes, require("./notificacoesRoutes"));
+// paulo: cliente so mexe nos equipamentos da reserva dele (regra no auth.js)
+router.use("/reservas-equipamentos", clienteSoNaPropriaReserva, require("./reservasEquipamentosRoutes"));
 router.use("/historico", require("./historicoRoutes"));
 router.use("/checkins", require("./checkinsRoutes"));
 router.use(clientsRoutes);

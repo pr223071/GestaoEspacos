@@ -86,7 +86,10 @@ function Relatorios() {
 
   useEffect(() => {
     const { inicio, fim } = periodoPadrao();
-    buscar(inicio, fim);
+    // paulo: chamo dentro de uma funçao async pro lint parar de reclamar de setState direto no useEffect
+    (async () => {
+      await buscar(inicio, fim);
+    })();
   }, []);
 
   function mudarPeriodo(e) {

@@ -6,7 +6,13 @@ const STATUS_VALIDOS = ['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'];
 const CAMPOS_RESERVA = `
     b.id, b.space_id, s.name AS space_name, b.user_id, u.name AS user_name,
     b.start_datetime, b.end_datetime, b.attendees, b.status, b.notes,
-    b.rejection_reason, b.reviewed_by, b.reviewed_at, b.created_at, b.updated_at
+    b.rejection_reason, b.reviewed_by, b.reviewed_at, b.created_at, b.updated_at,
+    -- paulo: lista dos equipamentos que a pessoa pediu junto com a reserva
+    -- vem tipo [{ "id": 3, "nome": "Projetor", "quantidade": 1 }], ou [] se nao pediu nada
+    -- assim a tela de minhas reservas e a gestao de reservas ja mostram sem precisar de outra chamada
+    COALESCE((SELECT json_agg(json_build_object('id', e.id, 'nome', e.name, 'quantidade', be.quantity) ORDER BY e.name)
+                FROM booking_equipment be JOIN equipment e ON e.id = be.equipment_id
+               WHERE be.booking_id = b.id), '[]'::json) AS equipamentos
 `;
 const JOINS = `
     FROM bookings b
@@ -72,6 +78,14 @@ function validarPeriodo(inicio, fim) {
  *         end_datetime: { type: string, format: date-time, example: '2026-10-19T10:00:00-03:00' }
  *         attendees: { type: integer, default: 1, example: 2 }
  *         notes: { type: string, nullable: true }
+ *         equipamentos:
+ *           type: array
+ *           description: Opcional. Equipamentos da sala pedidos junto com a reserva (gravados na mesma transação)
+ *           items:
+ *             type: object
+ *             properties:
+ *               equipment_id: { type: integer, example: 3 }
+ *               quantity: { type: integer, example: 1 }
  */
 
 /** @swagger
@@ -216,6 +230,76 @@ router.get('/:id/qrcode', async (req, res) => {
 });
 
 /** @swagger
+ * /reservas/agenda/{space_id}:
+ *   get:
+ *     summary: Agenda de um espaço para o calendário (horários de funcionamento, ocupados e bloqueios)
+ *     description: Não mostra o nome de quem reservou, só se o horário está ocupado e se a reserva é sua. Os horários vêm no fuso de Brasília.
+ *     tags: [Reservas]
+ *     parameters:
+ *       - in: path
+ *         name: space_id
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: de
+ *         required: true
+ *         schema: { type: string, format: date, example: '2026-11-01' }
+ *       - in: query
+ *         name: ate
+ *         required: true
+ *         schema: { type: string, format: date, example: '2026-11-30' }
+ *     responses:
+ *       200: { description: "{ horarios, ocupados, bloqueios }" }
+ *       400: { description: Datas inválidas }
+ */
+// paulo: rota do calendario
+// a /reservas/espaco devolve o nome de quem reservou, entao fiz essa separada que so
+// diz "ocupado" (e se é sua), pro cliente ver os horarios livres sem ver os dados dos outros
+// devolve 3 listas:
+//   horarios  -> quando a sala funciona em cada dia da semana (0 = domingo ... 6 = sabado)
+//   ocupados  -> reservas pendentes e aprovadas entre as datas "de" e "ate"
+//   bloqueios -> manutençao/evento que o adm ou a recepçao cadastrou
+router.get('/agenda/:space_id', async (req, res) => {
+    try {
+        const spaceId = Number(req.params.space_id);
+        const { de, ate } = req.query;
+        if (!Number.isInteger(spaceId) || spaceId < 1) return res.status(400).json({ erro: 'space_id inválido.' });
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(de || '') || !/^\d{4}-\d{2}-\d{2}$/.test(ate || '') || de > ate) {
+            return res.status(400).json({ erro: 'Informe as datas "de" e "ate" no formato AAAA-MM-DD.' });
+        }
+
+        // to_char ja devolve "2026-11-28T09:00" no horario de brasilia, ai o front nao precisa converter fuso
+        const horarios = await pool.query(
+            `SELECT day_of_week, to_char(start_time, 'HH24:MI') AS inicio, to_char(end_time, 'HH24:MI') AS fim
+               FROM space_availability WHERE space_id = $1 ORDER BY day_of_week, start_time`, [spaceId]);
+
+        // pega tudo que encosta no periodo (começa antes do fim e termina depois do inicio)
+        // "minha" diz se a reserva é de quem ta logado, pro calendario pintar de outra cor
+        const ocupados = await pool.query(
+            `SELECT b.id::int AS id, b.status, (b.user_id = $4) AS minha,
+                    to_char(b.start_datetime AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS inicio,
+                    to_char(b.end_datetime   AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS fim
+               FROM bookings b
+              WHERE b.space_id = $1 AND b.status IN ('PENDING', 'APPROVED')
+                AND (b.start_datetime AT TIME ZONE 'America/Sao_Paulo')::date <= $3::date
+                AND (b.end_datetime   AT TIME ZONE 'America/Sao_Paulo')::date >= $2::date
+              ORDER BY b.start_datetime`, [spaceId, de, ate, Number(req.usuario?.id) || 0]);
+
+        const bloqueios = await pool.query(
+            `SELECT id::int AS id, reason AS motivo,
+                    to_char(start_datetime AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS inicio,
+                    to_char(end_datetime   AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD"T"HH24:MI') AS fim
+               FROM space_blocks
+              WHERE space_id = $1
+                AND (start_datetime AT TIME ZONE 'America/Sao_Paulo')::date <= $3::date
+                AND (end_datetime   AT TIME ZONE 'America/Sao_Paulo')::date >= $2::date
+              ORDER BY start_datetime`, [spaceId, de, ate]);
+
+        res.json({ horarios: horarios.rows, ocupados: ocupados.rows, bloqueios: bloqueios.rows });
+    } catch (err) { erroBanco(res, err); }
+});
+
+/** @swagger
  * /reservas/espaco/{space_id}:
  *   get:
  *     summary: Lista reservas de um espaço
@@ -277,8 +361,20 @@ router.get('/:id', async (req, res) => {
  *       409: { description: Conflito de horário }
  */
 router.post('/', async (req, res) => {
+    // paulo: agora uso um "client" so pra essa requisiçao pq a reserva e os equipamentos
+    // sao gravados juntos numa transaçao (ou grava tudo, ou nao grava nada)
+    const client = await pool.connect();
     try {
-        const { space_id, user_id, start_datetime, end_datetime, attendees = 1, notes = null } = req.body;
+        const { space_id, start_datetime, end_datetime, attendees = 1, notes = null } = req.body;
+        let { user_id } = req.body;
+        // paulo: o cliente so pode reservar pra ele mesmo, entao pego o id do token
+        // (antes dava pra mandar o user_id de outra pessoa no corpo e reservar no nome dela)
+        // recepçao e adm continuam podendo reservar pra qualquer um
+        const { id: idLogado, role } = req.usuario || {};
+        if (role !== 'ADMIN' && role !== 'RECEPTION') user_id = idLogado;
+        // paulo: lista de equipamentos que vem da tela de reserva, tipo [{ equipment_id: 3, quantity: 1 }]
+        // é opcional, se nao vier fica vazia
+        const equipamentos = Array.isArray(req.body.equipamentos) ? req.body.equipamentos : [];
         if (!space_id || !user_id || !start_datetime || !end_datetime) {
             return res.status(400).json({ erro: 'space_id, user_id, start_datetime e end_datetime são obrigatórios.' });
         }
@@ -288,16 +384,52 @@ router.post('/', async (req, res) => {
         if (!Number.isInteger(Number(attendees)) || Number(attendees) < 1) {
             return res.status(400).json({ erro: 'attendees deve ser um inteiro maior que zero.' });
         }
+        // paulo: confere o formato de cada equipamento antes de ir pro banco
+        for (const item of equipamentos) {
+            const qtd = Number(item.quantity ?? 1);
+            if (!Number.isInteger(Number(item.equipment_id)) || !Number.isInteger(qtd) || qtd < 1) {
+                return res.status(400).json({ erro: 'Cada equipamento precisa de equipment_id e de uma quantidade maior que zero.' });
+            }
+        }
+
+        await client.query('BEGIN');
         // O status começa como PENDING; as regras do banco validam capacidade,
         // disponibilidade, bloqueios, intervalo e conflitos de agenda.
-        const result = await pool.query(
+        const result = await client.query(
             `INSERT INTO bookings (space_id, user_id, start_datetime, end_datetime, attendees, notes)
              VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id, space_id, user_id, start_datetime, end_datetime, attendees, status, notes, rejection_reason, reviewed_by, reviewed_at, created_at, updated_at`,
             [Number(space_id), Number(user_id), start_datetime, end_datetime, Number(attendees), notes]
         );
-        res.status(201).json(result.rows[0]);
-    } catch (err) { erroBanco(res, err); }
+        const reserva = result.rows[0];
+
+        // paulo: grava cada equipamento pedido, conferindo as mesmas regras da rota /reservas-equipamentos:
+        // o equipamento tem que ser dessa sala e a quantidade tem que caber no estoque
+        // se algum der problema, o ROLLBACK la embaixo desfaz a reserva tambem (nao fica reserva pela metade)
+        for (const item of equipamentos) {
+            const equipmentId = Number(item.equipment_id);
+            const qtd = Number(item.quantity ?? 1);
+            const eq = await client.query('SELECT space_id, name, quantity FROM equipment WHERE id = $1', [equipmentId]);
+            if (!eq.rowCount || Number(eq.rows[0].space_id) !== Number(space_id)) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ erro: 'Um dos equipamentos escolhidos não pertence a esse espaço.' });
+            }
+            if (qtd > eq.rows[0].quantity) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ erro: `Só temos ${eq.rows[0].quantity} de "${eq.rows[0].name}" nesse espaço.` });
+            }
+            await client.query(
+                'INSERT INTO booking_equipment (booking_id, equipment_id, quantity) VALUES ($1, $2, $3)',
+                [reserva.id, equipmentId, qtd]
+            );
+        }
+
+        await client.query('COMMIT');
+        res.status(201).json(reserva);
+    } catch (err) {
+        await client.query('ROLLBACK').catch(() => {});
+        erroBanco(res, err);
+    } finally { client.release(); }
 });
 
 /** @swagger

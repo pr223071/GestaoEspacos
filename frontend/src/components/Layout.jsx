@@ -15,6 +15,7 @@ import {
   Users,
   CalendarX,
   ChartColumn,
+  CalendarRange,
 } from "lucide-react";
 import Logo from "./Logo";
 import PerfilCard from "./PerfilCard";
@@ -26,6 +27,8 @@ const MENU = [
   { texto: "Início", icone: Home, para: "/dashboard" },
   { texto: "Espaços", icone: Building2, para: "/espacos" },
   { texto: "Minhas Reservas", icone: CalendarDays, para: "/reservas", roles: ["CLIENT", "ADMIN"] },
+  // paulo: calendario com os horarios livres e ocupados de cada sala (todo mundo ve)
+  { texto: "Calendário", icone: CalendarRange, para: "/calendario" },
   // ----- telas do funcionario (o roles faz so funcionario e adm verem esses itens no menu) -----
   {
     texto: "Gestão de reservas",

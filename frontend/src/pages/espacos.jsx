@@ -108,7 +108,10 @@ function Espacos() {
   }, [navigate]);
 
   useEffect(() => {
-    carregarEspacos();
+    // paulo: chamo dentro de uma funçao async pro lint parar de reclamar de setState direto no useEffect
+    (async () => {
+      await carregarEspacos();
+    })();
   }, [carregarEspacos]);
 
   // Opcoes e lista filtrada para a exibicao.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { QrCode, XCircle } from "lucide-react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { QrCode, XCircle, CalendarDays, Package } from "lucide-react";
 import QrCodeReserva from "../components/QrCodeReserva";
 import "../css/reservas.css";
 
@@ -43,13 +43,20 @@ const status = {
 function Reservas() {
   const { spaceId } = useParams();
   const navigate = useNavigate();
+  // paulo: quando a pessoa clica num horario livre no calendario, ele abre essa tela com
+  // ?data=2026-12-07&inicio=09:00&fim=10:00 no endereço, ai o formulario ja vem preenchido
+  const [params] = useSearchParams();
   // Dados carregados da API e valores preenchidos pelo usuario.
   const [espaco, setEspaco] = useState(null);
   const [disponibilidade, setDisponibilidade] = useState([]);
   const [reservas, setReservas] = useState([]);
-  const [data, setData] = useState(dataDeHoje());
-  const [inicio, setInicio] = useState("09:00");
-  const [fim, setFim] = useState("10:00");
+  const [data, setData] = useState(params.get("data") || dataDeHoje());
+  const [inicio, setInicio] = useState(params.get("inicio") || "09:00");
+  const [fim, setFim] = useState(params.get("fim") || "10:00");
+  // paulo: equipamentos que essa sala tem (vem do back) e quantos de cada a pessoa quer
+  // escolhidos fica tipo { 3: 1, 5: 2 } -> id do equipamento: quantidade (0 ou vazio = nao quer)
+  const [equipamentosSala, setEquipamentosSala] = useState([]);
+  const [escolhidos, setEscolhidos] = useState({});
   const [pessoas, setPessoas] = useState("1");
   const [observacoes, setObservacoes] = useState("");
   const [carregando, setCarregando] = useState(Boolean(spaceId));
@@ -130,7 +137,10 @@ function Reservas() {
 
   useEffect(() => {
     if (!spaceId) {
-      carregarMinhasReservas();
+      // paulo: chamo dentro de uma funçao async pro lint parar de reclamar de setState direto no useEffect
+      (async () => {
+        await carregarMinhasReservas();
+      })();
       return;
     }
     let ativo = true;
@@ -153,6 +163,14 @@ function Reservas() {
         );
         if (disponibilidadeResponse.ok && ativo)
           setDisponibilidade(await disponibilidadeResponse.json());
+        // paulo: busca os equipamentos dessa sala pra pessoa escolher junto com a reserva
+        // se der erro aqui nao trava a tela, so nao mostra a parte de equipamentos
+        const equipamentosResponse = await fetch(
+          `${API_URL}/reservas-equipamentos/equipamentos/espaco/${spaceId}`,
+          { headers: criarCabecalhos(false) },
+        );
+        if (equipamentosResponse.ok && ativo)
+          setEquipamentosSala(await equipamentosResponse.json());
       } catch (e) {
         if (ativo) setErro(e.message);
       } finally {
@@ -175,6 +193,11 @@ function Reservas() {
       return setErro("Informe uma quantidade válida de pessoas.");
     const start_datetime = `${data}T${inicio}:00-03:00`;
     const end_datetime = `${data}T${fim}:00-03:00`;
+    // paulo: transforma o { 3: 1, 5: 2 } na lista que o back espera
+    // [{ equipment_id: 3, quantity: 1 }, ...] e tira os que ficaram com 0
+    const equipamentos = Object.entries(escolhidos)
+      .filter(([, qtd]) => Number(qtd) > 0)
+      .map(([id, qtd]) => ({ equipment_id: Number(id), quantity: Number(qtd) }));
     setSalvando(true);
     try {
       const response = await fetch(`${API_URL}/reservas`, {
@@ -187,6 +210,8 @@ function Reservas() {
           end_datetime,
           attendees: Number(pessoas),
           notes: observacoes.trim() || null,
+          // paulo: vai junto na mesma chamada, o back grava a reserva e os equipamentos de uma vez
+          equipamentos,
         }),
       });
       const dados = await response.json().catch(() => ({}));
@@ -202,6 +227,7 @@ function Reservas() {
         `Solicitação de reserva #${dados.id} enviada! Status: ${status[dados.status] || dados.status || "Pendente"}.`,
       );
       setObservacoes("");
+      setEscolhidos({}); // paulo: limpa os equipamentos escolhidos pra proxima reserva
       await carregarMinhasReservas();
     } catch (e2) {
       setErro(e2.message);
@@ -248,6 +274,10 @@ function Reservas() {
               ) : (
                 <p>Não há horários cadastrados para este espaço.</p>
               )}
+              {/* paulo: atalho pro calendario ja com essa sala escolhida, pra ver o que ta ocupado */}
+              <Link className="reservas-ver-calendario" to={`/calendario?espaco=${spaceId}`}>
+                <CalendarDays size={14} /> Ver horários livres e ocupados no calendário
+              </Link>
             </div>
             {espaco.terms_of_use && (
               <p className="reservas-regras">
@@ -294,6 +324,36 @@ function Reservas() {
                   onChange={(e) => setPessoas(e.target.value)}
                 />
               </label>
+              {/* paulo: equipamentos da sala, so aparece se a sala tiver algum cadastrado
+                  cada um tem um campo de quantidade que vai de 0 ate o que tem no estoque */}
+              {equipamentosSala.length > 0 && (
+                <fieldset className="reserva-largo reserva-equipamentos">
+                  <legend>
+                    <Package size={14} /> Equipamentos (opcional)
+                  </legend>
+                  {equipamentosSala.map((eq) => (
+                    <label key={eq.id} className="reserva-equip-item">
+                      <span>
+                        <strong>{eq.name}</strong>
+                        {eq.description && <small>{eq.description}</small>}
+                      </span>
+                      <span className="reserva-equip-qtd">
+                        <input
+                          type="number"
+                          min="0"
+                          max={eq.quantity}
+                          value={escolhidos[eq.id] ?? 0}
+                          onChange={(e) =>
+                            setEscolhidos({ ...escolhidos, [eq.id]: e.target.value })
+                          }
+                          aria-label={`Quantidade de ${eq.name}`}
+                        />
+                        <small>de {eq.quantity}</small>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
+              )}
               <label className="reserva-largo">
                 Observações (opcional)
                 <textarea
@@ -357,6 +417,13 @@ function Reservas() {
                   })}
                 </p>
                 {r.notes && <p>{r.notes}</p>}
+                {/* paulo: mostra os equipamentos que a pessoa pediu junto (o back ja manda na lista) */}
+                {r.equipamentos?.length > 0 && (
+                  <p className="reserva-equip-lista">
+                    <Package size={13} />{" "}
+                    {r.equipamentos.map((e) => `${e.quantidade}x ${e.nome}`).join(", ")}
+                  </p>
+                )}
               </div>
               <div className="reserva-lado">
                 {/* so reserva aprovada tem qr code (o banco cria ele na aprovacao) */}

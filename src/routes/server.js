@@ -24,6 +24,8 @@ async function iniciar() {
     app.listen(PORT, () => {
       console.log(`Servidor rodando em http://localhost:${PORT}`);
       console.log(`Swagger em http://localhost:${PORT}/docs`);
+      // paulo: liga o envio dos e-mails das notificaçoes (olha a fila a cada 20s)
+      require("../services/enviarEmails").iniciar();
     });
   } catch (err) {
     console.error(

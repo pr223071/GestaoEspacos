@@ -494,3 +494,12 @@
   margin-top: 12px;
   text-align: center;
 }
+
+/* ===== EQUIPAMENTOS PEDIDOS NA GESTAO DE RESERVAS (paulo) ===== */
+/* linha pequena embaixo do nome da sala tipo "+ 1x Projetor" */
+.gestao-equip {
+  display: block;
+  margin-top: 3px;
+  color: var(--texto-suave);
+  font-size: 12px;
+}

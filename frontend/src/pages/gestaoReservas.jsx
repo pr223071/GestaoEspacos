@@ -262,7 +262,16 @@ function GestaoReservas() {
                     // usei Fragment pq cada reserva pode ter 2 linhas (a normal e a do motivo da recusa)
                     <Fragment key={reserva.id}>
                       <tr>
-                        <td><strong>{reserva.space_name}</strong></td>
+                        <td>
+                          <strong>{reserva.space_name}</strong>
+                          {/* se o cliente pediu equipamento junto, aparece embaixo do nome da sala
+                              assim a recepcao ja sabe o que separar antes de aprovar */}
+                          {reserva.equipamentos?.length > 0 && (
+                            <small className="gestao-equip">
+                              + {reserva.equipamentos.map((e) => `${e.quantidade}x ${e.nome}`).join(', ')}
+                            </small>
+                          )}
+                        </td>
                         <td>{reserva.user_name}</td>
                         <td>{formatarData(reserva.start_datetime)}</td>
                         <td className="suave">

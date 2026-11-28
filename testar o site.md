@@ -16,7 +16,9 @@ incia o front em http://localhost:5173/ acesse esse link para ir para o site
 
 ##### obs:
 
-o site tem um token de sessão que expira em 30 segundos, usado para teste. O codigo do tempo esta dentro do _Login.js_
+o login gera um token de sessão que dura **8 horas** (depois disso o site manda fazer login de novo). O tempo fica no `expiresIn` dentro de _src/routes/loginRoutes.js_
+
+**se deu pull e o back nao sobe** (erro "Cannot find module 'nodemailer'"): roda **"npm install"** dentro de /GestaoEspacos (o envio de e-mail usa 2 bibliotecas novas no back)
 
 
 ---
@@ -71,3 +73,49 @@ dica: marca a reserva pra hoje, pq a entrada so é liberada **30 min antes do ho
 - "QR Code expirado" -> o horario da reserva ja acabou
 - "A entrada já foi registrada" -> ja fizeram o check-in dessa reserva
 - "QR Code inválido" -> o codigo nao é do sistema
+
+---
+
+### equipamentos na reserva
+
+- entra como **cliente** -> **Espaços** -> escolhe uma sala que tenha equipamento (ex: Sala de Reunião Ipê) -> **Solicitar reserva**
+- embaixo do formulario aparece a caixinha **Equipamentos (opcional)** com a quantidade de cada um (vai de 0 ate o que tem no estoque)
+- a reserva e os equipamentos sao gravados juntos: se pedir mais do que tem, da erro e **nada** é gravado
+- os equipamentos pedidos aparecem em **Minhas Reservas** e na **Gestão de reservas** (embaixo do nome da sala, pra recepçao saber o que separar)
+- se a sala nao tiver equipamento cadastrado a caixinha nem aparece
+
+---
+
+### calendário
+
+- menu **Calendário** (todo mundo ve)
+- escolhe a sala no select e a visao: **Mês**, **Semana** ou **Dia** (as setas andam pra frente/tras, "Hoje" volta pro dia de hoje)
+- cores: **verde** livre, **vermelho** ocupado, **azul** reserva sua, **cinza** bloqueado (manutençao/evento)
+- clicando num dia abre a visao do dia; clicando num horario **livre** abre a tela de reserva ja com a data e o horario preenchidos
+- na tela de reserva tem o link **"Ver horários livres e ocupados no calendário"** que ja abre na sala certa
+- o cliente nao ve o nome de quem reservou, so que ta ocupado
+
+---
+
+### notificações e e-mail
+
+o banco cria uma notificaçao sozinho quando a reserva é criada, aprovada, recusada ou cancelada. o back olha essa fila a cada 20 segundos e manda por e-mail. no e-mail de **reserva aprovada** vai junto a **imagem do QR code** pra mostrar na recepçao
+
+- menu **Notificações**: cada um ve as suas, com "Enviada por e-mail em ..." ou "Na fila de envio"
+- funcionario e adm tem a aba **"Todas do sistema"**
+
+**modo teste (padrao, nao precisa configurar nada):**
+
+- os e-mails sao salvos como arquivo na pasta **/GestaoEspacos/emails-teste** (ex: `notificacao-31.eml`)
+- da dois cliques no arquivo que abre no outlook/email do windows e mostra o e-mail igualzinho, com o qr
+- no terminal do back aparece `[e-mail teste] "Reserva #16 APROVADA" para ... -> emails-teste/notificacao-31.eml`
+
+**pra mandar e-mail de verdade:**
+
+1. copia o arquivo **.env.email.exemplo** com o nome **.env.email** (na pasta /GestaoEspacos)
+2. preenche com o servidor de e-mail. no gmail precisa ativar a verificaçao em 2 etapas e criar uma **senha de app** (conta google -> segurança -> senhas de app), a senha normal nao funciona
+3. reinicia o back (`npm start`), no terminal tem que aparecer "Envio de e-mail ligado"
+
+obs: o **.env.email nao vai pro git** (ta no .gitignore) pq tem senha. cada um cria o seu
+obs 2: os usuarios de exemplo do banco tem e-mail inventado, entao pra testar de verdade cria uma conta com o seu e-mail
+obs 3: whatsapp/telegram ficam so na fila, nao tem integraçao (precisaria de conta paga/bot)

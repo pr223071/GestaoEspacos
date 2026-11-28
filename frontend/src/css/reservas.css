@@ -301,3 +301,82 @@
   font-size: 13px;
   color: var(--texto-suave);
 }
+
+/* ===== EQUIPAMENTOS NA RESERVA (paulo) ===== */
+/* caixinha com os equipamentos da sala dentro do formulario de reserva */
+.reserva-equipamentos {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  background: var(--superficie-2);
+}
+
+.reserva-equipamentos legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* cada linha: nome e descriçao na esquerda, quantidade na direita */
+.reserva-form .reserva-equip-item {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie);
+}
+
+.reserva-equip-item > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reserva-equip-item small {
+  color: var(--texto-suave);
+  font-weight: 400;
+}
+
+.reserva-equip-qtd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.reserva-form .reserva-equip-qtd input {
+  width: 70px;
+  padding: 8px;
+  text-align: center;
+}
+
+/* lista "1x Projetor, 2x Cadeira" no cartao de minhas reservas */
+.reserva-item .reserva-equip-lista {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* link pro calendario embaixo dos horarios da sala */
+.reservas-ver-calendario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  color: var(--destaque);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.reservas-ver-calendario:hover {
+  text-decoration: underline;
+}

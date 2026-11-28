@@ -11,6 +11,9 @@ import Checkin from './pages/checkin';
 import Bloqueios from './pages/bloqueios';
 import Usuarios from './pages/usuarios';
 import Relatorios from './pages/relatorios';
+// paulo: telas novas de notificaçoes e calendario
+import Notificacoes from './pages/notificacoes';
+import Calendario from './pages/calendario';
 
 // quem pode abrir as telas de gestao (funcionario e adm)
 const EQUIPE = ['RECEPTION', 'ADMIN'];
@@ -90,6 +93,9 @@ function App() {
           <Route path="/espacos" element={<Espacos />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/reservas/nova/:spaceId" element={<Reservas />} />
+          {/* paulo: qualquer um logado abre (cada um so ve as notificaçoes dele, o back garante) */}
+          <Route path="/notificacoes" element={<Notificacoes />} />
+          <Route path="/calendario" element={<Calendario />} />
 
           {/* telas do funcionario (o adm tambem pode ver) */}
           <Route path="/gestao/reservas" element={<RotaProtegida roles={EQUIPE}><GestaoReservas /></RotaProtegida>} />

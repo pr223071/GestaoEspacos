@@ -1,0 +1,84 @@
+/* ===== TELA DE NOTIFICAÇÕES (paulo) ===== */
+/* o titulo, as abas e o cartao vem do gestao.css, aqui é so a lista */
+
+.notif-lista {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* cada aviso: bolinha com o icone na esquerda e o texto do lado */
+.notif-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 12px;
+  border-radius: var(--raio-pequeno);
+}
+
+.notif-item + .notif-item {
+  border-top: 1px solid var(--borda);
+}
+
+.notif-item:hover {
+  background: var(--superficie-2);
+}
+
+.notif-icone {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--texto-suave);
+}
+
+/* cor da bolinha conforme o tipo: verde aprovada, vermelho recusada/cancelada, amarelo recebida */
+.notif-icone.ok { background: var(--ok-fundo); color: var(--ok); }
+.notif-icone.erro { background: var(--erro-fundo); color: var(--erro); }
+.notif-icone.alerta { background: var(--alerta-fundo); color: var(--alerta); }
+
+.notif-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.notif-topo time {
+  color: var(--texto-suave);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.notif-texto p {
+  margin: 4px 0 6px;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.notif-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--texto-suave);
+  font-size: 12px;
+}
+
+.notif-rodape span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.notif-enviada { color: var(--ok); }
+.notif-fila { color: var(--alerta); }

@@ -1,0 +1,236 @@
+/* ===== CALENDÁRIO (paulo) ===== */
+/* titulo, abas, cartao e botao vem do gestao.css; aqui é so o que é do calendario */
+
+/* cores de cada tipo de horario, usadas na legenda, nos chips e nos blocos */
+.calendario {
+  --cal-livre: var(--ok);
+  --cal-livre-fundo: var(--ok-fundo);
+  --cal-ocupado: var(--erro);
+  --cal-ocupado-fundo: var(--erro-fundo);
+  --cal-minha: #2563eb;
+  --cal-minha-fundo: rgba(37, 99, 235, 0.12);
+  --cal-bloqueio: var(--texto-suave);
+  --cal-bloqueio-fundo: var(--superficie-2);
+}
+
+/* ---------- barra de cima ---------- */
+.cal-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cal-select {
+  padding: 10px 12px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie);
+  color: var(--texto);
+  font: inherit;
+  font-size: 14px;
+}
+
+.calendario .cal-visoes {
+  margin: 0;
+}
+
+.cal-navegar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-navegar button {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie);
+  color: var(--texto);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cal-navegar button:hover {
+  background: var(--superficie-2);
+}
+
+.cal-titulo {
+  margin-left: 8px;
+  font-size: 15px;
+}
+
+/* ---------- legenda ---------- */
+.cal-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 14px;
+  color: var(--texto-suave);
+  font-size: 12px;
+}
+
+.cal-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal-legenda i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.cal-legenda .livre { background: var(--cal-livre); }
+.cal-legenda .ocupado { background: var(--cal-ocupado); }
+.cal-legenda .minha { background: var(--cal-minha); }
+.cal-legenda .bloqueio { background: var(--cal-bloqueio); }
+
+/* ---------- visao mes: grade de 7 colunas ---------- */
+.cal-mes {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cal-cabecalho {
+  padding: 4px;
+  color: var(--texto-suave);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cal-dia {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  min-height: 96px;
+  padding: 6px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--superficie);
+  color: var(--texto);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cal-dia:hover {
+  border-color: var(--destaque);
+}
+
+/* dias do mes anterior/seguinte que aparecem so pra completar a grade */
+.cal-dia.fora { opacity: 0.4; }
+.cal-dia.passado { background: var(--superficie-2); }
+.cal-dia.hoje { border: 2px solid var(--destaque); }
+
+.cal-numero {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* etiquetinha com o horario dentro do dia */
+.cal-chip {
+  overflow: hidden;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cal-mais,
+.cal-fechado {
+  color: var(--texto-suave);
+  font-size: 11px;
+}
+
+/* ---------- visao semana: 7 colunas com os blocos ---------- */
+.cal-semana {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cal-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 160px;
+  padding: 6px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pequeno);
+}
+
+.cal-coluna.hoje { border: 2px solid var(--destaque); }
+
+.cal-coluna-topo {
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--texto-suave);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cal-coluna-topo strong { color: var(--texto); }
+
+.cal-bloco {
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+button.cal-bloco { cursor: pointer; }
+button.cal-bloco:hover { filter: brightness(0.95); }
+
+/* ---------- visao dia: lista ---------- */
+.cal-dia-lista {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cal-linha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-left: 4px solid;
+  border-radius: var(--raio-pequeno);
+}
+
+.cal-linha-hora {
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.cal-linha-texto { flex: 1; }
+
+/* ---------- cor de cada tipo (vale pro chip, bloco e linha) ---------- */
+.cal-chip.livre, .cal-bloco.livre, .cal-linha.livre { background: var(--cal-livre-fundo); color: var(--cal-livre); }
+.cal-chip.ocupado, .cal-bloco.ocupado, .cal-linha.ocupado { background: var(--cal-ocupado-fundo); color: var(--cal-ocupado); }
+.cal-chip.minha, .cal-bloco.minha, .cal-linha.minha { background: var(--cal-minha-fundo); color: var(--cal-minha); }
+.cal-chip.bloqueio, .cal-bloco.bloqueio, .cal-linha.bloqueio { background: var(--cal-bloqueio-fundo); color: var(--cal-bloqueio); }
+
+/* no celular a grade fica apertada, entao a semana vira lista */
+@media (max-width: 720px) {
+  .cal-semana { grid-template-columns: 1fr; }
+  .cal-dia { min-height: 64px; }
+  .cal-chip { display: none; }
+}

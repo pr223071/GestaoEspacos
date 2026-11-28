@@ -108,4 +108,50 @@ async function recepcaoSoClientes(req, res, next) {
   }
 }
 
-module.exports = { verificarToken, exigirRole, somenteAdminAltera, recepcaoSoClientes, ROLES };
+// paulo: notificaçoes
+// antes qualquer um logado via as notificaçoes de todo mundo (com nome, e-mail e mensagem)
+// agora o cliente so ve as dele: GET /notificacoes/minhas ou /notificacoes/usuario/<o id dele>
+// o resto (listar todas, criar aviso, editar, apagar) fica so pra recepçao e adm
+function soAsMinhasNotificacoes(req, res, next) {
+  const { id, role } = req.usuario;
+  if (role === "ADMIN" || role === "RECEPTION") return next();
+  if (req.method === "GET" && req.path === "/minhas") return next();
+  const doUsuario = req.path.match(/^\/usuario\/(\d+)$/);
+  if (req.method === "GET" && doUsuario && Number(doUsuario[1]) === Number(id)) return next();
+  return res.status(403).json({ erro: "Você só pode ver as suas próprias notificações." });
+}
+
+// paulo: equipamentos da reserva
+// o cliente so pode colocar, mudar ou tirar equipamento da reserva DELE
+// pego o id da reserva do corpo (POST) ou do caminho (/reserva/15/equipamento/3) e confiro o dono no banco
+// GET e as rotas de cadastro de equipamento (/equipamentos) passam direto, elas tem a regra delas no index.js
+async function clienteSoNaPropriaReserva(req, res, next) {
+  const { id, role } = req.usuario;
+  if (role === "ADMIN" || role === "RECEPTION" || req.method === "GET") return next();
+  if (req.path.startsWith("/equipamentos")) return next();
+
+  const doCaminho = req.path.match(/^\/reserva\/(\d+)/);
+  const bookingId = Number(doCaminho ? doCaminho[1] : req.body?.booking_id);
+  if (!Number.isInteger(bookingId) || bookingId <= 0) return next(); // a propria rota responde o 400
+
+  try {
+    const { pool } = require("../config/db");
+    const dono = await pool.query("SELECT user_id FROM bookings WHERE id = $1", [bookingId]);
+    if (dono.rowCount > 0 && Number(dono.rows[0].user_id) !== Number(id)) {
+      return res.status(403).json({ erro: "Você só pode mexer nos equipamentos das suas próprias reservas." });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  verificarToken,
+  exigirRole,
+  somenteAdminAltera,
+  recepcaoSoClientes,
+  soAsMinhasNotificacoes,
+  clienteSoNaPropriaReserva,
+  ROLES,
+};

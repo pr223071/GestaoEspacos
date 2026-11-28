@@ -1,1 +1,5 @@
 node_modules/
+
+# paulo: config do e-mail (tem senha) e os e-mails salvos no modo teste
+.env.email
+emails-teste/
