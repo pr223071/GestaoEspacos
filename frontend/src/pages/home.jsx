@@ -89,7 +89,7 @@ function HomeCliente() {
     .slice(0, 5)
     .map(paraLinha);
 
-  // os 3 cartões do resumo; o primeiro fica em destaque (preto)
+  // os 3 cartões do resumo
   const cartoes = [
     { titulo: 'Reservas ativas', valor: ativas, icone: CalendarCheck, detalhe: 'confirmadas para os próximos dias' },
     { titulo: 'Reservas pendentes', valor: pendentes, icone: Clock, detalhe: 'aguardando aprovação' },
@@ -109,7 +109,7 @@ function HomeCliente() {
           return (
             <div
               key={cartao.titulo}
-              className={i === 0 ? 'home-card destaque' : 'home-card'}
+              className="home-card"
               // cada cartão entra um pouquinho depois do anterior
               style={{ animationDelay: `${i * 70}ms` }}
             >
