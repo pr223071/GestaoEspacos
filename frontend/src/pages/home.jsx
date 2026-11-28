@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarCheck, Clock, Bell, ArrowUpRight } from 'lucide-react';
 import '../css/home.css';
 import { fotoDoEspaco } from '../utils/fotosEspacos';
+import PainelEquipe from '../components/PainelEquipe';
 
 const API_URL = 'http://localhost:3080';
 
@@ -29,7 +30,7 @@ function paraLinha(r) {
 }
 
 // a sidebar e o topo agora ficam no Layout; aqui é só o conteúdo
-function Home() {
+function HomeCliente() {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
   const primeiroNome = (usuario.name || '').split(' ')[0];
@@ -181,6 +182,16 @@ function Home() {
       </section>
     </main>
   );
+}
+
+// funcionário e admin veem o painel com gráficos; cliente vê as próprias reservas
+function Home() {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const role = String(usuario.role || '').toUpperCase();
+  if (role === 'ADMIN' || role === 'RECEPTION') {
+    return <PainelEquipe primeiroNome={(usuario.name || '').split(' ')[0]} />;
+  }
+  return <HomeCliente />;
 }
 
 export default Home;

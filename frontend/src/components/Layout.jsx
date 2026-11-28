@@ -107,10 +107,6 @@ function Layout() {
   const [perfilAberto, setPerfilAberto] = useState(false);
   const role = String(usuario.role || "").toUpperCase(); // ADMIN, CLIENT ou RECEPTION
 
-  // quem entra como ADMIN vê o sistema inteiro com as cores invertidas
-  // (o que é branco fica preto e o que é preto fica branco)
-  const invertido = role === "ADMIN";
-
   const menuVisivel = MENU.filter(
     (item) => !item.roles || item.roles.includes(role),
   );
@@ -133,7 +129,7 @@ function Layout() {
   }
 
   return (
-    <div className={invertido ? "layout tema-invertido" : "layout"}>
+    <div className="layout">
       <aside className="layout-sidebar">
         <div className="layout-logo">
           <Logo size={30} />

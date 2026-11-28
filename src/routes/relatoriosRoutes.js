@@ -221,4 +221,100 @@ router.get("/ocupacao", async function (req, res) {
  *         description: Datas inválidas ou período maior que 366 dias
  */
 
+// números da tela inicial de funcionário e admin
+router.get("/painel", async function (req, res) {
+  const AGORA = `(now() AT TIME ZONE '${FUSO}')`;
+  const MES = `date_trunc('month', ${AGORA})`;
+  const SEIS_MESES = `(${MES} - interval '5 months')`;
+  const INICIO = `(b.start_datetime AT TIME ZONE '${FUSO}')`;
+  const HORAS = `EXTRACT(EPOCH FROM (b.end_datetime - b.start_datetime)) / 3600.0`;
+
+  try {
+    const [resumo, clientes, porMes, porTipo, porEspaco, proximas] = await Promise.all([
+      pool.query(
+        `SELECT COUNT(*) FILTER (WHERE ${INICIO} >= ${MES} AND ${INICIO} < ${MES} + interval '1 month')::int AS reservas_mes,
+                COUNT(*) FILTER (WHERE ${INICIO} >= ${MES} - interval '1 month' AND ${INICIO} < ${MES})::int AS reservas_mes_anterior,
+                COALESCE(SUM(${HORAS}) FILTER (WHERE b.status = 'APPROVED' AND ${INICIO} >= ${MES} AND ${INICIO} < ${MES} + interval '1 month'), 0) AS horas_mes,
+                COALESCE(SUM(${HORAS}) FILTER (WHERE b.status = 'APPROVED' AND ${INICIO} >= ${MES} - interval '1 month' AND ${INICIO} < ${MES}), 0) AS horas_mes_anterior,
+                COUNT(*) FILTER (WHERE b.status = 'PENDING' AND b.end_datetime >= now())::int AS pendentes
+           FROM bookings b`,
+      ),
+      pool.query(
+        `SELECT COUNT(*) FILTER (WHERE is_active)::int AS ativos,
+                COUNT(*) FILTER (WHERE (created_at AT TIME ZONE '${FUSO}') >= ${MES})::int AS novos_mes,
+                COUNT(*) FILTER (WHERE (created_at AT TIME ZONE '${FUSO}') >= ${MES} - interval '1 month'
+                                   AND (created_at AT TIME ZONE '${FUSO}') < ${MES})::int AS novos_mes_anterior
+           FROM users
+          WHERE role = 'CLIENT'`,
+      ),
+      pool.query(
+        `SELECT to_char(m.mes, 'YYYY-MM') AS mes,
+                COUNT(b.id)::int AS solicitadas,
+                COUNT(b.id) FILTER (WHERE b.status = 'APPROVED')::int AS aprovadas
+           FROM generate_series(${SEIS_MESES}, ${MES}, interval '1 month') AS m(mes)
+           LEFT JOIN bookings b ON ${INICIO} >= m.mes AND ${INICIO} < m.mes + interval '1 month'
+          GROUP BY m.mes
+          ORDER BY m.mes`,
+      ),
+      pool.query(
+        `SELECT s.type, COUNT(b.id)::int AS reservas
+           FROM spaces s
+           LEFT JOIN bookings b ON b.space_id = s.id AND b.status = 'APPROVED' AND ${INICIO} >= ${SEIS_MESES}
+          GROUP BY s.type
+          ORDER BY reservas DESC, s.type`,
+      ),
+      pool.query(
+        `SELECT s.id::int, s.name, COUNT(b.id)::int AS reservas
+           FROM spaces s
+           LEFT JOIN bookings b ON b.space_id = s.id AND b.status = 'APPROVED' AND ${INICIO} >= ${SEIS_MESES}
+          GROUP BY s.id, s.name
+          ORDER BY reservas DESC, s.name
+          LIMIT 5`,
+      ),
+      pool.query(
+        `SELECT b.id::int, b.start_datetime, b.end_datetime, b.status,
+                s.name AS space_name, u.name AS user_name
+           FROM bookings b
+           JOIN spaces s ON s.id = b.space_id
+           JOIN users u ON u.id = b.user_id
+          WHERE b.status IN ('PENDING', 'APPROVED') AND b.end_datetime >= now()
+          ORDER BY b.start_datetime
+          LIMIT 5`,
+      ),
+    ]);
+
+    const r = resumo.rows[0];
+    res.json({
+      resumo: {
+        reservas_mes: r.reservas_mes,
+        reservas_mes_anterior: r.reservas_mes_anterior,
+        horas_mes: num(r.horas_mes),
+        horas_mes_anterior: num(r.horas_mes_anterior),
+        pendentes: r.pendentes,
+        clientes_ativos: clientes.rows[0].ativos,
+        clientes_novos_mes: clientes.rows[0].novos_mes,
+        clientes_novos_mes_anterior: clientes.rows[0].novos_mes_anterior,
+      },
+      por_mes: porMes.rows,
+      por_tipo: porTipo.rows,
+      por_espaco: porEspaco.rows,
+      proximas: proximas.rows,
+    });
+  } catch (err) {
+    responderErro(res, err);
+  }
+});
+
+/**
+ * @swagger
+ * /relatorios/painel:
+ *   get:
+ *     summary: Números da tela inicial (cartões, reservas por mês, por tipo e espaços mais usados)
+ *     description: ADMIN e RECEPTION. Gráficos usam os últimos 6 meses.
+ *     tags: [Relatórios]
+ *     responses:
+ *       200:
+ *         description: Resumo do painel
+ */
+
 module.exports = router;

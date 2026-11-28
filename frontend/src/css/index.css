@@ -26,6 +26,11 @@
   --erro: #b91c1c;    --erro-fundo: #fee2e2;
   --info: #1d4ed8;    --info-fundo: #dbeafe;
 
+  /* cores dos gráficos */
+  --serie-1: #257de0;  --serie-2: #f47230;  --serie-3: #00b894;  --serie-4: #f2a600;
+  --grafico-contexto: #b4b4bc;
+  --grafico-grade: #ececee;
+
   --raio: 16px;         /* arredondado dos cartões */
   --raio-pequeno: 10px; /* arredondado de botões e campos */
 
@@ -57,6 +62,10 @@
   --alerta: #fbbf24;  --alerta-fundo: rgba(251, 191, 36, 0.12);
   --erro: #f87171;    --erro-fundo: rgba(248, 113, 113, 0.12);
   --info: #60a5fa;    --info-fundo: rgba(96, 165, 250, 0.12);
+
+  --serie-1: #338ced;  --serie-2: #e76624;  --serie-3: #00a888;  --serie-4: #d28e05;
+  --grafico-contexto: #55555d;
+  --grafico-grade: #26262b;
 
   color-scheme: dark; /* deixa scrollbar, select e calendário nativos escuros também */
 }
