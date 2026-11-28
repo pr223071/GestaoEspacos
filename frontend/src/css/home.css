@@ -71,23 +71,6 @@
   color: var(--texto-suave);
 }
 
-/* o primeiro cartão é o "destaque": preto no tema claro, branco no invertido */
-.home-card.destaque {
-  background: var(--destaque);
-  color: var(--destaque-texto);
-}
-
-.home-card.destaque .home-card-icone {
-  background: var(--destaque-texto);
-  color: var(--destaque);
-  border-color: transparent;
-}
-
-.home-card.destaque small {
-  color: inherit;
-  opacity: 0.6;
-}
-
 /* ===== PRÓXIMAS RESERVAS ===== */
 .home-reservas {
   padding: 20px;
